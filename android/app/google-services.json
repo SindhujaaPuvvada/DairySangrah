@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "856392093031",
+    "project_id": "farm-expense-management-cp",
+    "storage_bucket": "farm-expense-management-cp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:856392093031:android:edbd56a8d78133bf33b3c2",
+        "android_client_info": {
+          "package_name": "com.example.farm_expense_mangement_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALWWg6zUU0KsjClXs9SvX_5q30tOLMTSw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

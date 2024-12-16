@@ -1,0 +1,29 @@
+buildscript {
+    repositories {
+        google()          // Add the Google repository for Firebase dependencies
+        mavenCentral()    // Add Maven Central repository
+    }
+    dependencies {
+        // Add the Google services classpath
+        classpath 'com.google.gms:google-services:4.4.2'
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
