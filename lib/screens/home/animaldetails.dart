@@ -10,6 +10,7 @@ import '../../services/database/cattledatabase.dart';
 import 'package:farm_expense_mangement_app/models/history.dart';
 import 'package:farm_expense_mangement_app/services/database/cattlehistorydatabase.dart';
 import '../../main.dart';
+import '../notification/alertnotifications.dart';
 import 'localisations_en.dart';
 import 'localisations_hindi.dart';
 import 'localisations_punjabi.dart';
@@ -889,6 +890,14 @@ class _AddEventPopupState extends State<AddEventPopup> {
     'Insemination'
   ];
   DateTime? selectedDate;
+  late AlertNotifications alerts;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    alerts = new AlertNotifications();
+  }
 
   // final AnimalDetails detail=AnimalDetails(rfid);
 
@@ -983,6 +992,8 @@ class _AddEventPopupState extends State<AddEventPopup> {
                 // Add the new history entry to the database
                 DatabaseServiceForCattleHistory(uid: widget.uid)
                     .historyToServerSingleCattle(widget.cattle, newHistory);
+
+                alerts.createNotifications(widget.cattle, newHistory);
 
                 // Close the popup dialog
                 // fetch
