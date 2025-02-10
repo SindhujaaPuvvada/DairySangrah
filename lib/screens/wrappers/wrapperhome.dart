@@ -104,6 +104,11 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
       _updateIndex(1);
     });
   }
+  void Language(BuildContext context) {
+    setState(() {
+      _updateIndex(2);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,9 +154,10 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
                 ),
               ),
               FloatingActionButton(
-                onPressed: () {
+                onPressed: (){
                   LanguagePopup.showLanguageOptions(context);
                 },
+
                 backgroundColor: Colors.white,
                 elevation: 0,
                 child: Icon(
@@ -161,8 +167,16 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
                 ),
               ),
               FloatingActionButton(
-                onPressed: () {
-                  _updateIndex(3);
+                onPressed: () async {
+                  _selectedIndex=3;
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AlertNotificationsPage()),
+                  );
+                  // Reset index after returning from the notifications page
+                  setState(() {
+                    _selectedIndex = 0; // Set this to the default page index (Home)
+                  });
                 },
                 backgroundColor: Colors.white,
                 elevation: 0,

@@ -3,6 +3,7 @@ class LocalizationEn {
     'Cow':'Cow',
     // 'cow':'Cow',
     'Buffalo':'Buffalo',
+    'calve':'Calve',
     'Type':'Type',
     'Register a New Farm':'Register a New Farm',
     'Enter your phone number':'Enter your phone number',

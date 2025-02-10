@@ -111,7 +111,7 @@ class _AnimalList2State extends State<AnimalList2> {
           color: Colors.black,
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context) ;
           },
         ),
         actions: [

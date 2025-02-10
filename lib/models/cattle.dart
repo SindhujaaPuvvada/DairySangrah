@@ -11,6 +11,7 @@ class Cattle {
   final String state;
   final String source;
   final String type;
+  // final String Ispregnant;
   // final DateTime dateOfBirth;
 
   Cattle(
@@ -22,6 +23,7 @@ class Cattle {
       this.state = 'Dry',
       this.source = 'Born on Farm',
         required this.type,
+        // required this.Ispregnant
       /*required this.dateOfBirth*/
       });
 
@@ -36,7 +38,8 @@ class Cattle {
         weight: data?['weight'],
         state: data?['state'],
         source: data?['source'],
-        type: data?['type']
+        type: data?['type'],
+        // Ispregnant: data?['Ispregnant']
         // dateOfBirth: data?['dateOfBirth']
         );
   }

@@ -43,7 +43,9 @@ class _AnimalDetailsState extends State<AnimalDetails> {
     super.initState();
     cattleDb = DatabaseServicesForCattle(uid);
     cattleHistory = DatabaseServiceForCattleHistory(uid: uid);
-    _fetchCattleHistory();
+    setState(() {
+      _fetchCattleHistory();
+    });
 
     _streamController = _fetchCattleDetail();
   }
@@ -987,6 +989,10 @@ class _AddEventPopupState extends State<AddEventPopup> {
                 // Close the popup dialog
                 // fetch
                 Navigator.of(context).pop();
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => AnimalDetails(rfid:widget.cattle.rfid)));
               } else {
                 // Show an error message if any field is empty
                 ScaffoldMessenger.of(context).showSnackBar(

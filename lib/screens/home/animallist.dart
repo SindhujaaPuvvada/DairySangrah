@@ -16,7 +16,7 @@ class AnimalList1 extends StatefulWidget {
 class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late DatabaseServicesForCattle cattleDb;
-  int pregnantCount = 0;
+  int CalvesCount = 0;
   int dryCount = 0;
   int milkedCount = 0;
   int heiferCount = 0;
@@ -38,7 +38,7 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
     final allCattle = snapshot.docs.map((doc) => Cattle.fromFireStore(doc, null)).toList();
 
     setState(() {
-      pregnantCount = allCattle.where((cattle) => cattle.type == type && cattle.state == 'Pregnant').length;
+      CalvesCount = allCattle.where((cattle) => cattle.type == type && cattle.state == 'Calve').length;
       dryCount = allCattle.where((cattle) => cattle.type == type && cattle.state == 'Dry').length;
       milkedCount = allCattle.where((cattle) => cattle.type == type && cattle.state == 'Milked').length;
       heiferCount = allCattle.where((cattle) => cattle.type == type && cattle.state == 'Heifer').length;
@@ -106,7 +106,7 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
       children: [
-        _buildSectionCard('Pregnant', pregnantCount, type),
+        _buildSectionCard('Calve', CalvesCount, type),
         _buildSectionCard('Dry', dryCount, type),
         _buildSectionCard('Milked', milkedCount, type),
         _buildSectionCard('Heifer', heiferCount, type),

@@ -49,7 +49,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
   final List<String> stateOptions = [
     'Milked',
     'Heifer',
-    'Pregnant',
+    'Calve',
     'Dry',
   ];
 
@@ -72,7 +72,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
 
   late final DatabaseServicesForCattle cattleDb;
 
-  void addNewCattleButton(BuildContext context) {
+  void addNewCattleButton(BuildContext context) async {
     final cattle = Cattle(
         rfid: _rfidTextController.text,
         age: _agetextController.text.isNotEmpty
@@ -86,10 +86,27 @@ class _AddNewCattleState extends State<AddNewCattle> {
         state: _selectedState != null ? _selectedState! : '',
         type: _selectedType!=null ? _selectedType! :' ',
     );
-      // print(_selectedType);
-    cattleDb.infoToServerSingleCattle(cattle);
+    bool exists = await cattleDb.checkIfRFIDExists(cattle.rfid);
+
+    if (exists) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('RFID already exists')),
+      );
+      return;
+    }
+
+    // print(_selectedType);
+    await cattleDb.infoToServerSingleCattle(cattle);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          content: Text(currentLocalization['new_cattle_added_successfully']??"")),
+    );
 
     Navigator.pop(context);
+    Navigator.pop(context);
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => const AnimalList1()));
 
   }
 
@@ -336,10 +353,6 @@ class _AddNewCattleState extends State<AddNewCattle> {
                         // For example, save it to a database or send it to an API
                         addNewCattleButton(context);
 
-                        ScaffoldMessenger.of(context).showSnackBar(
-                           SnackBar(
-                              content: Text(currentLocalization['new_cattle_added_successfully']??"")),
-                        );
                       }
                     },
                     style: ButtonStyle(
