@@ -32,7 +32,7 @@ class LocalizationEn {
     'milked':'Milked',
     'heifer':'Heifer',
     'insemination':'Insemination',
-    'abortion':'Abortion ',
+    'abortion':'Abortion',
     'dry':'Dry ',
     'calved':'Calved',
     'submit':'Submit',
