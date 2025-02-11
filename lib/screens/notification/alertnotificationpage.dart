@@ -41,7 +41,6 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     ntfDb = DatabaseServicesForNotification(uid);
       setState(() {
