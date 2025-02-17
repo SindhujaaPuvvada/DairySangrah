@@ -41,11 +41,32 @@ class DatabaseServicesForNotification {
   Future<void> deleteNotification(String ntId) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
-    return await db
+    QuerySnapshot querySnapshot = await db
         .collection('User')
         .doc(uid)
         .collection('Notification')
-        .doc('ntId')
-        .delete();
+        .where('ntId', isEqualTo: ntId)
+        .get();
+
+    for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+      await doc.reference.delete();
+    }
   }
+
+  Future<void> closeNotification(String ntId) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+
+    QuerySnapshot querySnapshot = await db
+        .collection('User')
+        .doc(uid)
+        .collection('Notification')
+        .where('ntId', isEqualTo: ntId)
+        .get();
+
+
+    for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+      await doc.reference.update({'ntClosed': true});
+    }
+  }
+
 }

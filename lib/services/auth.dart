@@ -1,6 +1,6 @@
 import 'package:farm_expense_mangement_app/models/user.dart' as my_app_user;
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:farm_expense_mangement_app/Services/database/userdatabase.dart';
+import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/otp.dart';

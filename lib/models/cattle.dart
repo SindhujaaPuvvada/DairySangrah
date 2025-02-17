@@ -8,7 +8,7 @@ class Cattle {
   final int age;
   final String breed;
   final int weight;
-  final String state;
+  String state;
   final String source;
   final String type;
   // final String Ispregnant;
