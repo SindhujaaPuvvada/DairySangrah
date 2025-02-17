@@ -35,8 +35,9 @@ class _AnimalDetailsState extends State<AnimalDetails> {
   late DatabaseServicesForCattle cattleDb;
   late DatabaseServiceForCattleHistory cattleHistory;
   late Cattle _cattle;
-
+  // final CattleHistoryService _historyService = CattleHistoryService();
   late List<CattleHistory> events = [];
+  // List<Map<String, dynamic>> events = [];
 
   @override
   void initState() {
@@ -48,9 +49,15 @@ class _AnimalDetailsState extends State<AnimalDetails> {
       _fetchCattleHistory();
     });
 
+      loadEvents();
+
+
     _streamController = _fetchCattleDetail();
   }
-
+  void loadEvents() async {
+    // events1 = await _historyService.fetchEvents(uid, cattle.id);
+    setState(() {});
+  }
   Stream<DocumentSnapshot<Map<String, dynamic>>> _fetchCattleDetail() {
     return cattleDb.infoFromServer(widget.rfid).asStream();
   }
@@ -69,7 +76,10 @@ class _AnimalDetailsState extends State<AnimalDetails> {
     events.sort((a, b) => b.date.compareTo(a.date));
   }
 
+
   void editCattleDetail() {
+    // Navigator.pop(context);
+    // Navigator.pop(context);
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -103,6 +113,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
       currentLocalization = LocalizationPun.translations;
     }
     Widget buildWidget(CattleHistory event) {
+      // String eventName = (event['name'] as String).toLowerCase();
       if (event.name == currentLocalization['abortion']) {
         return Image.asset(
           'asset/Cross_img.png',
@@ -228,69 +239,96 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                     child: ListView(
                       children: events
                           .map((event) => Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(10, 7, 10, 7),
-                                child: Container(
-                                  decoration: BoxDecoration(
+                        padding: const EdgeInsets.fromLTRB(10, 7, 10, 7),
+                        child: GestureDetector(
+                          onLongPress: () {
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Wrap(
+                                  children: [
+                                    ListTile(
+                                      leading: const Icon(Icons.edit, color: Colors.blue),
+                                      title: Text(currentLocalization["edit"] ?? "Edit"),
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                        // editEvent(event); // Function to handle edit
+                                      },
+                                    ),
+                                    ListTile(
+                                      leading: const Icon(Icons.delete, color: Colors.red),
+                                      title: Text(currentLocalization["delete"] ?? "Delete"),
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                        // deleteEvent(event);
+                                        // Function to handle delete
+                                        // _historyService.deleteEvent(uid, _cattle.rfid, events1[index]['eventId']);
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.grey, // Set the border color here
+                                width: 1.5, // Set the border width here
+                              ),
+                              color: const Color.fromRGBO(240, 255, 255, 1),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Expanded(
+                                  flex: 4,
+                                  child: Container(
+                                    padding: const EdgeInsets.fromLTRB(20, 10, 10, 10),
+                                    width: 130,
+                                    height: 60,
+                                    alignment: Alignment.centerLeft,
+                                    decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: Colors
-                                            .grey, // Set the border color here
-                                        width: 1.5, // Set the border width here
-                                      ),
-                                      color: const Color.fromRGBO(
-                                          240, 255, 255, 1)),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      Expanded(
-                                        flex: 4,
-                                        child: Container(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                20, 10, 10, 10),
-                                            width: 130,
-                                            height: 60,
-                                            alignment: Alignment.centerLeft,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: buildWidget(event)),
-                                      ),
-                                      Expanded(
-                                        flex: 12,
-                                        child: Text(
-                                          " ${capitalizeFirstLetterOfEachWord(currentLocalization[event.name.toLowerCase()]??"")}",
-                                          textAlign: TextAlign.left,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 6,
-                                        child: SizedBox(
-                                          // width: 80,
-                                          child: Text(
-                                            "${event.date.year}-${(event.date.month >9)? event.date.month : '0${event.date.month}'}-${(event.date.day >9)? event.date.day : '0${event.date.day}'}", // Display the raw date string
-                                            softWrap: false,
-                                            textAlign: TextAlign.left,
-                                            style: const TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                    ),
+                                    child: buildWidget(event),
                                   ),
                                 ),
-                              ))
+                                Expanded(
+                                  flex: 12,
+                                  child: Text(
+                                    " ${capitalizeFirstLetterOfEachWord(currentLocalization[event.name.toLowerCase()] ?? "")}",
+                                    textAlign: TextAlign.left,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 6,
+                                  child: SizedBox(
+                                    child: Text(
+                                      "${event.date.year}-${(event.date.month > 9) ? event.date.month : '0${event.date.month}'}-${(event.date.day > 9) ? event.date.day : '0${event.date.day}'}", // Display the raw date string
+                                      softWrap: false,
+                                      textAlign: TextAlign.left,
+                                      style: const TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ))
                           .toList(),
                     ),
+
                     // ),
                   ),
                   Padding(
@@ -589,10 +627,8 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
   final List<String> stageOptions = [
     'Milked',
     'Heifer',
-    'Insemination',
-    'Abortion',
     'Dry',
-    'Calved'
+    'Calf'
   ];
 
   // Future<void> _selectDate(BuildContext context) async {
@@ -631,24 +667,25 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
   void updateCattleButton(BuildContext context) {
     final cattle = Cattle(
         rfid: widget.cattle.rfid,
-        age: 4,
+        age: widget.cattle.age,
         breed: _breedTextController.text,
         sex: _selectedGender.toString(),
         weight: int.parse(_weightTextController.text),
         state: _selectedStage.toString(),
         source: _selectedSource.toString(),
-        type:'cow'
+        type:widget.cattle.type,
     );
 
     cattleDb.infoToServerSingleCattle(cattle);
 
     Navigator.pop(context);
+   Navigator.pop(context);
+    Navigator.pop(context);
     Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => AnimalDetails(
-                  rfid: widget.cattle.rfid,
-                )));
+            builder: (context) =>
+                AnimalList1()));
   }
 
   @override
@@ -885,23 +922,35 @@ class AddEventPopup extends StatefulWidget {
 
 class _AddEventPopupState extends State<AddEventPopup> {
   String? selectedOption;
-  List<String> eventOptions = [
-    'Abortion',
-    'Vaccination',
-    'Heifer',
-    'Insemination'
-  ];
+  List<String> eventOptions = [];
   DateTime? selectedDate;
   late AlertNotifications alerts;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    alerts = new AlertNotifications();
+    alerts = AlertNotifications();
+    setEventOptions(); // Set event options based on cattle state
   }
 
-  // final AnimalDetails detail=AnimalDetails(rfid);
+  void setEventOptions() {
+    switch (widget.cattle.state) {
+      case 'Dry':
+        eventOptions = ['Abortion', 'AI', 'Pregnant', 'Calved'];
+        break;
+      case 'Milked':
+        eventOptions = ['AI', 'Pregnant', 'Abortion', 'Dry'];
+        break;
+      case 'Heifer':
+        eventOptions = ['AI', 'Pregnant', 'Abortion', 'Calved'];
+        break;
+      case 'Calf':
+        eventOptions = ['AI'];
+        break;
+      default:
+        eventOptions = [];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -984,28 +1033,23 @@ class _AddEventPopupState extends State<AddEventPopup> {
           ElevatedButton(
             onPressed: () {
               if (selectedOption != null && selectedDate != null) {
-                // Create a new history entry
-                // final dateWithoutTime = DateTime(selectedDate.year, date.month, date.day);
                 final newHistory = CattleHistory(
                   name: selectedOption!,
                   date: selectedDate!,
                 );
 
-                // Add the new history entry to the database
                 DatabaseServiceForCattleHistory(uid: widget.uid)
                     .historyToServerSingleCattle(widget.cattle, newHistory);
 
                 alerts.createNotifications(widget.cattle, newHistory);
 
-                // Close the popup dialog
-                // fetch
                 Navigator.of(context).pop();
                 Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => AnimalDetails(rfid:widget.cattle.rfid)));
+                        builder: (context) =>
+                            AnimalDetails(rfid: widget.cattle.rfid)));
               } else {
-                // Show an error message if any field is empty
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Please select an event and date.'),
@@ -1029,3 +1073,4 @@ class _AddEventPopupState extends State<AddEventPopup> {
     );
   }
 }
+

@@ -49,7 +49,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
   final List<String> stateOptions = [
     'Milked',
     'Heifer',
-    'Calve',
+    'Calf',
     'Dry',
   ];
 

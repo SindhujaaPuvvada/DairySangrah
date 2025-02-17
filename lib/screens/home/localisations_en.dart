@@ -12,6 +12,8 @@ class LocalizationEn {
     'Enter Your Phone Number':'Enter Your Phone Number',
     'cattles': 'Cattles',
     'feed': 'Feed',
+    'calf':'Calf',
+    'ai':'Ai',
     'transaction': 'Transaction',
     'avg_milk': 'Avg Milk',
     'dry_cows': 'Dry Cows',
