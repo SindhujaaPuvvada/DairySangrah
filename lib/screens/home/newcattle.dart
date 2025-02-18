@@ -1,5 +1,6 @@
 import 'package:farm_expense_mangement_app/models/cattle.dart';
 import 'package:farm_expense_mangement_app/screens/home/animallist.dart';
+import 'package:farm_expense_mangement_app/screens/notification/alertnotifications.dart';
 // import 'package:farm_expense_mangement_app/screens/home/animallist1.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -97,6 +98,12 @@ class _AddNewCattleState extends State<AddNewCattle> {
 
     // print(_selectedType);
     await cattleDb.infoToServerSingleCattle(cattle);
+    if(cattle.state == "Calf") {
+      if(cattle.sex == 'Female' && cattle.age < 2) {
+        AlertNotifications alert = AlertNotifications();
+        alert.create_DWV_BRV_Notification(cattle);
+      }
+    }
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

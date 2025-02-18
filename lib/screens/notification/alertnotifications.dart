@@ -2,150 +2,140 @@ import 'package:farm_expense_mangement_app/models/cattle.dart';
 import 'package:farm_expense_mangement_app/models/notification.dart';
 import 'package:farm_expense_mangement_app/models/history.dart';
 import 'package:farm_expense_mangement_app/screens/notification/alertypes.dart';
+import 'package:farm_expense_mangement_app/services/database/cattledatabase.dart';
 import 'package:farm_expense_mangement_app/services/database/notificationdatabase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AlertNotifications {
   late String uid;
   late DatabaseServicesForNotification ntfDb;
-  List<Map<String, String>> notifications = [];
-  Map<String, bool> finishedAlerts = {};
-
+  late DatabaseServicesForCattle cattleDb;
 
   AlertNotifications() {
     uid = FirebaseAuth.instance.currentUser!.uid;
     ntfDb = DatabaseServicesForNotification(uid);
+    cattleDb = DatabaseServicesForCattle(uid);
   }
 
   Future<void> _updateSingleNotification(CattleNotification ntf) async {
     await ntfDb.infoToServerSingleNotification(ntf);
- }
-
-   void createNotifications(Cattle cattle, CattleHistory newHistory) {
-
-     switch (newHistory.name) {
-       case "Insemination":
-         _createPTA(cattle, newHistory);
-         break;
-       case "Pregnant":
-         _createNUA(cattle, newHistory);
-         _createDRA(cattle, newHistory);
-         _createCVA(cattle, newHistory);
-         break;
-       case "Abortion":
-         _createMKA(cattle, newHistory);
-         _createHTA(cattle, newHistory);
-         _createAIA(cattle, newHistory);
-         break;
-       case "Calved":
-         _createMKA(cattle, newHistory); //
-         _createHTA(cattle, newHistory);
-         break;
-     }
   }
 
-  void _createPTA(Cattle cattle, CattleHistory newHistory) {
-    Map<String, String> alerts = AlertsConstants.alertDesc;
+  Future<void> _updateSingleCattle(Cattle cattle) async {
+    await cattleDb.infoToServerSingleCattle(cattle);
+  }
+
+  void createNotifications(Cattle cattle, CattleHistory newHistory) {
+    Map<String, String> altTitle = AlertsConstants.alertTitle;
+    Map<String, String> altDesc = AlertsConstants.alertDesc;
+    DateTime nDate;
+    int dDays;
+
+    switch (newHistory.name) {
+      case "Insemination":
+      //creating PTA
+        nDate = newHistory.date.add(
+            const Duration(days: 15)); // Scheduled after 15 days
+        _createNTF(cattle, altTitle['PTA']!, altDesc['PTA']!, nDate);
+
+        // TODO: verify this part
+        if (cattle.state == 'Calve') {
+          cattle.state = 'Heifer';
+          _updateSingleCattle(cattle);
+        }
+
+        break;
+      case "Pregnant":
+      //Creating NUA
+        _createNTF(cattle, altTitle['NUA']!, altDesc['NUA']!, newHistory.date);
+
+        if (cattle.state == 'Milked') {
+          // MKA scheduled for 368-60 days for cow and 428-120 days for buffalo
+          nDate = newHistory.date.add(const Duration(days: 308));
+          _createNTF(cattle, altTitle['MKA']!, altDesc['MKA']!, nDate);
+        }
+
+        // CVA scheduled 368 for cow and 428 for buffalo
+        dDays = (cattle.type == "Cow") ? 368 : 428;
+        nDate = newHistory.date.add(Duration(days: dDays));
+        _createNTF(cattle, altTitle['CVA']!, altDesc['CVA']!, nDate);
+
+        // Creating MTV - scheduled after 120 days of pregnant event
+        nDate = newHistory.date.add(const Duration(days: 120));
+        _createNTF(cattle, altTitle['MTV']!, altDesc['MTV']!, nDate);
+
+        // TODO: update cattle is pregnant here
+
+        break;
+      case "Dry":
+        cattle.state = "Dry";
+        _updateSingleCattle(cattle);
+
+        break;
+      case "Abortion":
+        nDate = newHistory.date.add(const Duration(days: 30));
+
+        if (cattle.state == 'Heifer') {
+          _createNTF(cattle, altTitle['AIA']!, altDesc['AIA']!, nDate);
+        } else {
+          _createNTF(cattle, altTitle['HTA']!, altDesc['HTA']!, nDate);
+        }
+
+        if (cattle.state == 'Milked') {
+          cattle.state = 'Dry';
+          _updateSingleCattle(cattle);
+        }
+
+        // TODO: update cattle is not pregnant here
+
+        break;
+
+      case "Calved":
+      // Creating MKA
+        nDate = newHistory.date.add(const Duration(days: 3));
+        _createNTF(cattle, altTitle['MKA']!, altDesc['MKA']!, nDate);
+
+        // Creating HTA
+        nDate = newHistory.date.add(const Duration(days: 60));
+        _createNTF(cattle, altTitle['HTA']!, altDesc['HTA']!, nDate);
+
+        cattle.state = 'Milked';
+        _updateSingleCattle(cattle);
+
+        break;
+    }
+  }
+
+
+  void _createNTF(Cattle cattle, String nTitle, String nDesc, DateTime nDate) {
     CattleNotification ntf = CattleNotification(
         ntId: DateTime
             .now()
             .microsecondsSinceEpoch
             .toString(),
-        ntTitle: "Pregnancy Test Alert",
-        ntDetails: "${cattle.type} ${cattle.rfid} ${alerts['PTA']}",
-        ntShowDate: newHistory.date.add(
-            const Duration(days: 15)) // scheduled after 15 days
+        ntTitle: nTitle,
+        ntDetails: "${cattle.type} ${cattle.rfid} $nDesc",
+        ntShowDate: nDate // scheduled after 15 days
     );
     _updateSingleNotification(ntf);
   }
 
 
-  void _createNUA(Cattle cattle, CattleHistory newHistory) {
-    Map<String, String> alerts = AlertsConstants.alertDesc;
-    CattleNotification ntf = CattleNotification(
-        ntId: DateTime
-            .now()
-            .microsecondsSinceEpoch
-            .toString(),
-        ntTitle: "Nutritional Feed Alert",
-        ntDetails: "${cattle.type} ${cattle.rfid} ${alerts['NUA']}",
-        ntShowDate: newHistory.date
-    );
-    _updateSingleNotification(ntf);
-  }
+  void create_DWV_BRV_Notification(Cattle cattle) {
+    Map<String, String> altTitle = AlertsConstants.alertTitle;
+    Map<String, String> altDesc = AlertsConstants.alertDesc;
+    DateTime nDate;
+    DateTime now = DateTime(2024,5,1);
 
-  void _createDRA(Cattle cattle, CattleHistory newHistory) {
-    Map<String, String> alerts = AlertsConstants.alertDesc;
-    const int dryDuration = 220; // scheduled after (280-60) days for cow, (310-90) days for buffalo
-    CattleNotification ntf = CattleNotification(
-        ntId: DateTime
-            .now()
-            .microsecondsSinceEpoch
-            .toString(),
-        ntTitle: "Dry Alert",
-        ntDetails: "${cattle.type} ${cattle.rfid} ${alerts['DRA']}",
-        ntShowDate: newHistory.date.add(const Duration(days: dryDuration))
-    );
-    _updateSingleNotification(ntf);
-  }
+    // Creating DWV TODO: change to DOB and check if sch date is greater than current date
+    nDate = /*cattle.dateOfBirth*/now.add(const Duration(days: 90));
+    _createNTF(cattle, altTitle['DWV']!, altDesc['DWV']!, nDate);
 
-  void _createCVA(Cattle cattle, CattleHistory newHistory) {
-    Map<String, String> alerts = AlertsConstants.alertDesc;
-    int calvingDuration = (cattle.type == "Cow")
-        ? 280
-        : 310; //cow -280 days and buffalo - 310 days
-    CattleNotification ntf = CattleNotification(
-        ntId: DateTime
-            .now()
-            .microsecondsSinceEpoch
-            .toString(),
-        ntTitle: "Calving Alert",
-        ntDetails: "${cattle.type} ${cattle.rfid} ${alerts['CVA']}",
-        ntShowDate: newHistory.date.add(Duration(days: calvingDuration))
-    );
-    _updateSingleNotification(ntf);
-  }
+    // Creating BRV TODO: Change to DOB and check if sch date is greater than current date
+    nDate = /*cattle.dateOfBirth*/now.add(const Duration(days: 240));
+    _createNTF(cattle, altTitle['BRV']!, altDesc['BRV']!, nDate);
 
-  void _createMKA(Cattle cattle, CattleHistory newHistory) {
-    Map<String, String> alerts = AlertsConstants.alertDesc;
-    CattleNotification ntf = CattleNotification(
-        ntId: DateTime
-            .now()
-            .microsecondsSinceEpoch
-            .toString(),
-        ntTitle: "Milking Alert",
-        ntDetails: "${cattle.type} ${cattle.rfid} ${alerts['MKA']}",
-        ntShowDate: newHistory.date.add(const Duration(days: 3))
-    );
-    _updateSingleNotification(ntf);
-  }
 
-  void _createHTA(Cattle cattle, CattleHistory newHistory) {
-    Map<String, String> alerts = AlertsConstants.alertDesc;
-    CattleNotification ntf = CattleNotification(
-        ntId: DateTime
-            .now()
-            .microsecondsSinceEpoch
-            .toString(),
-        ntTitle: "Heat Alert",
-        ntDetails: "${cattle.type} ${cattle.rfid} ${alerts['HTA']}",
-        ntShowDate: newHistory.date.add(const Duration(days: 60))
-    );
-    _updateSingleNotification(ntf);
-  }
-
-  void _createAIA(Cattle cattle, CattleHistory newHistory) {
-    Map<String, String> alerts = AlertsConstants.alertDesc;
-    CattleNotification ntf = CattleNotification(
-        ntId: DateTime
-            .now()
-            .microsecondsSinceEpoch
-            .toString(),
-        ntTitle: "AI Alert",
-        ntDetails: "${cattle.type} ${cattle.rfid} ${alerts['AIA']}",
-        ntShowDate: newHistory.date.add(const Duration(days: 21))
-    );
-    _updateSingleNotification(ntf);
   }
 
 }

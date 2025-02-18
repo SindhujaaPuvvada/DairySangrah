@@ -667,16 +667,22 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
   void updateCattleButton(BuildContext context) {
     final cattle = Cattle(
         rfid: widget.cattle.rfid,
-        age: widget.cattle.age,
+        age: int.parse(_ageTextController.text),
         breed: _breedTextController.text,
         sex: _selectedGender.toString(),
         weight: int.parse(_weightTextController.text),
         state: _selectedStage.toString(),
         source: _selectedSource.toString(),
-        type:widget.cattle.type,
+        type: widget.cattle.type
     );
 
     cattleDb.infoToServerSingleCattle(cattle);
+    if(cattle.state == "Calf" && cattle.state != widget.cattle.state) {
+      if(cattle.sex == 'Female' && cattle.age < 1) {
+        AlertNotifications alert = AlertNotifications();
+        alert.create_DWV_BRV_Notification(cattle);
+      }
+    }
 
     Navigator.pop(context);
    Navigator.pop(context);
