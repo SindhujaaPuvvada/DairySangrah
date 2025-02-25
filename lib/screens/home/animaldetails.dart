@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:farm_expense_mangement_app/screens/home/animallist.dart';
-// import 'package:farm_expense_mangement_app/screens/home/animallist1.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -64,10 +63,10 @@ class _AnimalDetailsState extends State<AnimalDetails> {
 
   Future<void> _fetchCattleHistory() async {
     final snapshot = await cattleHistory.historyFromServer(widget.rfid);
-    for (var doc in snapshot.docs) {
-      print('Document ID: ${doc.id}');
-      print('Document Data: ${doc.data()}');
-    }
+    // for (var doc in snapshot.docs) {
+    //   print('Document ID: ${doc.id}');
+    //   print('Document Data: ${doc.data()}');
+    // }
     setState(() {
       events = snapshot.docs
           .map((doc) => CattleHistory.fromFireStore(doc, null))
@@ -188,7 +187,8 @@ class _AnimalDetailsState extends State<AnimalDetails> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
+                   (_cattle.sex == 'Female') ?
+                   Expanded(
                     // flex: 2,
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(15, 5, 5, 5),
@@ -231,7 +231,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                         ],
                       ),
                     ),
-                  ),
+                  ) : Expanded(child:  Container()),
                   Expanded(
                     flex: 6,
                     // child:SingleChildScrollView(
@@ -390,7 +390,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                    SizedBox(
                                     width: 100,
                                     child: Text(
-                                      currentLocalization["age"]??"",
+                                      currentLocalization["dob"]??"",
                                       style: TextStyle(
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white,
@@ -399,9 +399,9 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                     ),
                                   ),
                                   SizedBox(
-                                    width: 100,
+                                    width: 110,
                                     child: Text(
-                                      "${_cattle.age}",
+                                      _cattle.dateOfBirth.toString().split(" ")[0],
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white,
@@ -608,14 +608,14 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
   // final TextEditingController _rfidTextController = TextEditingController();
   final TextEditingController _weightTextController = TextEditingController();
   final TextEditingController _breedTextController = TextEditingController();
-  final TextEditingController _ageTextController = TextEditingController();
+  final TextEditingController _birthDateController = TextEditingController();
 
   // final TextEditingController _tagNumberController3 = TextEditingController();
 
   String? _selectedGender; // Variable to store selected gender
-  final TextEditingController _birthDateController = TextEditingController();
   String? _selectedSource;
   String? _selectedStage;
+  DateTime? _birthDate;
 
   // Variable to store selected gender
 
@@ -630,20 +630,6 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
     'Dry',
     'Calf'
   ];
-
-  // Future<void> _selectDate(BuildContext context) async {
-  //   final DateTime? picked = await showDatePicker(
-  //     context: context,
-  //     initialDate: DateTime.now(),
-  //     firstDate: DateTime(1900),
-  //     lastDate: DateTime.now(),
-  //   );
-  //   if (picked != null && picked.day.toString() != _birthDateController.text) {
-  //     setState(() {
-  //       _birthDateController.text = picked.toString().split(' ')[0];
-  //     });
-  //   }
-  // }
 
   final user = FirebaseAuth.instance.currentUser;
   final uid = FirebaseAuth.instance.currentUser!.uid;
@@ -661,27 +647,30 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
     _selectedSource = widget.cattle.source;
     _selectedStage = widget.cattle.state;
     _selectedGender = widget.cattle.sex;
-    _ageTextController.text = widget.cattle.age.toString();
+    _birthDateController.text =
+    '${widget.cattle.dateOfBirth.year}-${widget.cattle.dateOfBirth
+        .month}-${widget.cattle.dateOfBirth
+        .day}';
   }
 
   void updateCattleButton(BuildContext context) {
     final cattle = Cattle(
         rfid: widget.cattle.rfid,
-        age: int.parse(_ageTextController.text),
+        //age: int.parse(_ageTextController.text),
         breed: _breedTextController.text,
         sex: _selectedGender.toString(),
         weight: int.parse(_weightTextController.text),
         state: _selectedStage.toString(),
         source: _selectedSource.toString(),
-        type: widget.cattle.type
+        type: widget.cattle.type,
+        isPregnant: widget.cattle.isPregnant,
+        dateOfBirth: _birthDate != null ? _birthDate! : widget.cattle.dateOfBirth
     );
 
     cattleDb.infoToServerSingleCattle(cattle);
-    if(cattle.state == "Calf" && cattle.state != widget.cattle.state) {
-      if(cattle.sex == 'Female' && cattle.age < 1) {
-        AlertNotifications alert = AlertNotifications();
-        alert.create_DWV_BRV_Notification(cattle);
-      }
+    if(cattle.state == "Calf" && cattle.sex == "Female" && cattle.state != widget.cattle.state) {
+      AlertNotifications alert = AlertNotifications();
+      alert.createCalfNotifications(cattle);
     }
 
     Navigator.pop(context);
@@ -756,15 +745,36 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
               // SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 26),
-                child: TextFormField(
-                  keyboardType: TextInputType.number,
-                  // initialValue: '0',
-                  controller: _ageTextController,
-                  decoration: const InputDecoration(
-                    labelText: 'Enter The Age',
-                    border: OutlineInputBorder(),
-                    filled: true,
-                    fillColor: Color.fromRGBO(240, 255, 255, 0.7),
+                child: InkWell(
+                  onTap: () async {
+                    final DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime.now(),
+                    );
+                    if (pickedDate != null) {
+                      setState(() {
+                        _birthDate = pickedDate;
+                        _birthDateController.text =
+                        '${_birthDate!.year}-${_birthDate!.month}-${_birthDate!
+                            .day}';
+                      });
+                    }
+                  },
+                  child: IgnorePointer(
+                    child: TextFormField(
+                      keyboardType: TextInputType.number,
+                      // initialValue: '0',
+                      controller: _birthDateController,
+                      decoration: InputDecoration(
+                        labelText: 'Enter the Date of Birth',
+                        border: OutlineInputBorder(),
+                        suffixIcon: Icon(Icons.calendar_today),
+                        filled: true,
+                        fillColor: Color.fromRGBO(240, 255, 255, 0.7),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -942,16 +952,16 @@ class _AddEventPopupState extends State<AddEventPopup> {
   void setEventOptions() {
     switch (widget.cattle.state) {
       case 'Dry':
-        eventOptions = ['Abortion', 'AI', 'Pregnant', 'Calved'];
+        eventOptions = ['Abortion', 'Insemination', 'Pregnant', 'Calved','Vaccination'];
         break;
       case 'Milked':
-        eventOptions = ['AI', 'Pregnant', 'Abortion', 'Dry'];
+        eventOptions = ['Insemination', 'Pregnant', 'Abortion', 'Dry','Vaccination'];
         break;
       case 'Heifer':
-        eventOptions = ['AI', 'Pregnant', 'Abortion', 'Calved'];
+        eventOptions = ['Insemination', 'Pregnant', 'Abortion', 'Calved','Vaccination'];
         break;
       case 'Calf':
-        eventOptions = ['AI'];
+        eventOptions = ['Insemination','Vaccination'];
         break;
       default:
         eventOptions = [];

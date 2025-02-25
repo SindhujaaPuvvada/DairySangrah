@@ -3,7 +3,12 @@ import 'package:farm_expense_mangement_app/models/notification.dart';
 import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../main.dart';
 import '../../services/database/notificationdatabase.dart';
+import '../home/localisations_en.dart';
+import '../home/localisations_hindi.dart';
+import '../home/localisations_punjabi.dart';
 
 
 class AlertNotificationsPage extends StatefulWidget {
@@ -14,6 +19,9 @@ class AlertNotificationsPage extends StatefulWidget {
 }
 
 class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
+
+  late Map<String, String> currentLocalization= {};
+  late String languageCode = 'en';
 
   List<Map<String, String>> notifications = [];
   late DatabaseServicesForNotification ntfDb;
@@ -66,6 +74,7 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
     ntfDb = DatabaseServicesForNotification(uid);
       setState(() {
         _getNotifications();
+        //ntfDb.deleteNotification("Cow 4444");
         /*notifications = [
           {
             "title": "Cattle Feed Low",
@@ -86,6 +95,17 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    languageCode = Provider.of<AppData>(context).persistentVariable;
+
+    if (languageCode == 'en') {
+      currentLocalization = LocalizationEn.translations;
+    } else if (languageCode == 'hi') {
+      currentLocalization = LocalizationHi.translations;
+    } else if (languageCode == 'pa') {
+      currentLocalization = LocalizationPun.translations;
+    }
+
     // Helper to trim content to a fixed number of words
     String _trimContent(String content, int wordCount) {
       final words = content.split(" ");
@@ -103,8 +123,8 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
                         context, MaterialPageRoute(
                         builder: (context) => const WrapperHomePage())
                     )),
-            title: const Text(
-              'Alert Notifications',
+            title: Text(
+              currentLocalization['notifications']??"",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             backgroundColor: const Color(0xFF0DA6BA),
@@ -236,7 +256,12 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
                     trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[_showCheckboxes ?
-                        Checkbox(value: _isSelected, onChanged: (val) {
+                        Checkbox(value: _isSelected,
+                            checkColor: Colors.white,
+                            activeColor: const Color(0xFF0DA6BA),
+                            shape: const CircleBorder(),
+                            // Tealish blue
+                            onChanged: (val) {
                           setState(() {
                             _isSelected = val!;
                             notifications[index]['isSelected'] =

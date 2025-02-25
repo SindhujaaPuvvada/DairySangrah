@@ -122,8 +122,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 ),
                 onPressed: () async {
     String otp=_controllers.map((controller) => controller.text).join();
-    print(otp);
-    print(SignUpPage.verify);
+    //print(otp);
+    //print(SignUpPage.verify);
     try {
     PhoneAuthCredential credential =PhoneAuthProvider.credential(verificationId: SignUpPage.verify, smsCode: otp);
     await FirebaseAuth.instance.signInWithCredential(credential);

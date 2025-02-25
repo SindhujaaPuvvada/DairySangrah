@@ -531,8 +531,8 @@ class TotalTransactionPage extends StatelessWidget {
             const SizedBox(height: 30),
             Text(
               netProfit>=0?
-              '${currentLocalization['net_profit']}: ₹$netProfit':
-    '${currentLocalization['net_loss']}',
+              '${currentLocalization['net_profit']}:  ₹$netProfit':
+    '${currentLocalization['net_loss']}:  ₹$netProfit',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,

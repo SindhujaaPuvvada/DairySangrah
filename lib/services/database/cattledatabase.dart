@@ -10,8 +10,8 @@ class DatabaseServicesForCattle {
     final doc = await FirebaseFirestore.instance
         .collection('User')
         .doc(uid)
-    .collection('Cattle')
-    .doc(rfid)
+        .collection('Cattle')
+        .doc(rfid)
         .get();
 
     return doc.exists;
