@@ -28,6 +28,7 @@ class AlertNotifications {
   void createNotifications(Cattle cattle, CattleHistory newHistory) {
     Map<String, String> altTitle = AlertsConstants.alertTitle;
     Map<String, String> altDesc = AlertsConstants.alertDesc;
+    Map<String, List<String>> altEvents = AlertsConstants.alertsForEvents;
     DateTime nDate;
     int dDays;
 
@@ -90,6 +91,12 @@ class AlertNotifications {
         // mark cattle as not pregnant here
         cattle.isPregnant = false;
         _updateSingleCattle(cattle);
+
+        //closing the pregnant related notifications
+        String rfidPhrase = '${cattle.type} ${cattle.rfid}';
+        for(String alt in altEvents['Pregnant']!) {
+          ntfDb.closeNotificationByPhrase("$rfidPhrase ${altDesc[alt]}");
+        }
 
         break;
 

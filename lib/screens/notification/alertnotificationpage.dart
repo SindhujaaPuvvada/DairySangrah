@@ -74,21 +74,6 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
     ntfDb = DatabaseServicesForNotification(uid);
       setState(() {
         _getNotifications();
-        //ntfDb.deleteNotification("Cow 4444");
-        /*notifications = [
-          {
-            "title": "Cattle Feed Low",
-            "details": "Your cattle feed stock is running low. Please restock soon."
-          },
-          {
-            "title": "Milk Production Updated",
-            "details": "Morning milk production has been updated in your records."
-          },
-          {
-            "title": "Expense Recorded",
-            "details": "A new expense for medicine purchase has been recorded."
-          },
-        ];*/
       });
   }
 
