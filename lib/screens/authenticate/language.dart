@@ -20,19 +20,6 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Text(
-            '<',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w400,
-              color: Colors.black,
-            ),
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
         title: Text(
           'Sign Up',
           style: TextStyle(

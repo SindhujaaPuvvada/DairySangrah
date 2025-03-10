@@ -1,18 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:farm_expense_mangement_app/screens/home/animallist.dart';
+import 'package:farm_expense_mangement_app/screens/home/cattle/animallist.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/cattle.dart';
-import '../../services/database/cattledatabase.dart';
+import '../../../models/cattle.dart';
+import '../../../services/database/cattledatabase.dart';
 import 'package:farm_expense_mangement_app/models/history.dart';
 import 'package:farm_expense_mangement_app/services/database/cattlehistorydatabase.dart';
-import '../../main.dart';
-import '../notification/alertnotifications.dart';
-import 'localisations_en.dart';
-import 'localisations_hindi.dart';
-import 'localisations_punjabi.dart';
+import '../../../main.dart';
+import '../../notification/alertnotifications.dart';
+import '../localisations_en.dart';
+import '../localisations_hindi.dart';
+import '../localisations_punjabi.dart';
 
 class AnimalDetails extends StatefulWidget {
   final String rfid;

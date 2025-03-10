@@ -6,9 +6,9 @@ import '../../main.dart';
 import '../home/localisations_en.dart';
 import '../home/localisations_hindi.dart';
 import '../home/localisations_punjabi.dart';
-import '../home/DryFodder.dart';
-import '../home/GreenFodder.dart';
-import '../home/concentrate.dart';
+import 'dryFodder.dart';
+import 'greenFodder.dart';
+import 'concentrate.dart';
 
 class FeedPage extends StatefulWidget {
   const FeedPage({super.key});
@@ -42,8 +42,8 @@ class _FeedState extends State<FeedPage> {
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.black),
-        title: const Text(
-          'Inventory',
+        title: Text(
+          currentLocalization['inventory']??"",
           style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black),
           textAlign: TextAlign.center,
         ),

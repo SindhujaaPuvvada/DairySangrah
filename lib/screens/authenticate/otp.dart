@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:farm_expense_mangement_app/models/user.dart';
+import 'package:farm_expense_mangement_app/screens/authenticate/registerNewFarm.dart';
+import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:farm_expense_mangement_app/services/auth.dart';
-// import 'package:farm_expense_mangement_app/screens/home/homepage.dart';
 import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/phoneno.dart';
 import '../home/localisations_en.dart';
@@ -46,7 +49,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     super.dispose();
   }
 
-  @override
+
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -121,23 +125,39 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   padding: EdgeInsets.symmetric(vertical: 14.0), // Slightly smaller height
                 ),
                 onPressed: () async {
-    String otp=_controllers.map((controller) => controller.text).join();
-    print(otp);
-    print(SignUpPage.verify);
-    try {
-    PhoneAuthCredential credential =PhoneAuthProvider.credential(verificationId: SignUpPage.verify, smsCode: otp);
-    await FirebaseAuth.instance.signInWithCredential(credential);
+                  String otp = _controllers.map((controller) => controller.text).join();
+                  //print(otp);
+                  //print(SignUpPage.verify);
+                  try {
+                    PhoneAuthCredential credential = PhoneAuthProvider
+                        .credential(
+                        verificationId: SignUpPage.verify, smsCode: otp);
+                    await FirebaseAuth.instance.signInWithCredential(
+                        credential);
 
-    Navigator.pop(context);
-    Navigator.pop(context);
-    Navigator.push(
-    context, MaterialPageRoute(
-    builder: (context) => const WrapperHomePage()));
-    }
-    catch(e){
-            print("Invalid OTP!!");
-    }
 
+                    String uid = FirebaseAuth.instance.currentUser!.uid;
+                    DatabaseServicesForUser userDb = DatabaseServicesForUser(uid);
+
+                    final snapshot =  await userDb.infoFromServer(uid);
+
+                    if (SignUpPage.newFarmReg && !snapshot.exists) {
+                      print("in register block");
+
+                      Navigator.pushReplacement(
+                          context, MaterialPageRoute(
+                          builder: (context) => RegisterFarm()));
+                    }
+                    else {
+                      //print("in wrapper block");
+                      Navigator.pushReplacement(
+                          context, MaterialPageRoute(
+                          builder: (context) => const WrapperHomePage()));
+                    }
+                  }
+                  catch (e) {
+                    print("Invalid OTP!!" + e.toString());
+                  }
                 },
                 child: Text(
                   'Continue',

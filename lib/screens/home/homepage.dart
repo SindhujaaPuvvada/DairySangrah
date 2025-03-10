@@ -1,9 +1,9 @@
 import 'package:farm_expense_mangement_app/screens/feed/feedpage.dart';
-import 'package:farm_expense_mangement_app/screens/home/animallist.dart';
+import 'package:farm_expense_mangement_app/screens/home/cattle/animallist.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
-import 'milkavgpage.dart';
+import 'milk/milkavgpage.dart';
 import '../transaction/transactionpage.dart';
 import 'localisations_en.dart';
 import 'localisations_hindi.dart';

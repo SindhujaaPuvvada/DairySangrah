@@ -2,15 +2,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/cattle.dart';
-import '../../models/milk.dart';
-import '../../services/database/cattledatabase.dart';
-import '../../services/database/milkdatabase.dart';
-import 'milk/milkbydate.dart';
-import '../../main.dart';
-import 'localisations_en.dart';
-import 'localisations_hindi.dart';
-import 'localisations_punjabi.dart';
+import '../../../models/cattle.dart';
+import '../../../models/milk.dart';
+import '../../../services/database/cattledatabase.dart';
+import '../../../services/database/milkdatabase.dart';
+import 'milkbydate.dart';
+import '../../../main.dart';
+import '../localisations_en.dart';
+import '../localisations_hindi.dart';
+import '../localisations_punjabi.dart';
 
 class AvgMilkPage extends StatefulWidget {
   const AvgMilkPage({super.key});

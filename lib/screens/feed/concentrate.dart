@@ -13,13 +13,12 @@ class _ConcentratePageState extends State<ConcentratePage> {
   final TextEditingController _unitController = TextEditingController();
   final TextEditingController _rateController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
-  final TextEditingController _brandController = TextEditingController();
   final TextEditingController _customHomemadeController = TextEditingController();
   final TextEditingController _customPurchasedController = TextEditingController();
 
   String _selectedType = 'Homemade'; // Default value
   String _selectedHomemadeType = 'Mustard'; // Default value for homemade types
-  String _selectedPurchasedType = 'Brand Name'; // Default value for purchased types
+  //String _selectedPurchasedType = 'Brand Name'; // Default value for purchased types
 
   // List of dropdown items
   final List<String> _homemadeTypes = [
@@ -39,10 +38,10 @@ class _ConcentratePageState extends State<ConcentratePage> {
     'Others'
   ];
 
-  final List<String> _purchasedTypes = [
+  /*final List<String> _purchasedTypes = [
     'Brand Name',
     'Type'
-  ];
+  ];*/
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +69,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
             children: [
               const SizedBox(height: 20),
               _buildDropdown(
+                label: 'Source',
                 value: _selectedType,
                 items: ['Homemade', 'Purchased'],
                 onChanged: (value) {
@@ -77,7 +77,6 @@ class _ConcentratePageState extends State<ConcentratePage> {
                     _selectedType = value!;
                     // Reset specific type values based on the selected type
                     if (_selectedType == 'Homemade') {
-                      _selectedPurchasedType = 'Brand Name'; // Reset purchased type if homemade is selected
                       _customPurchasedController.clear(); // Clear custom input if switching to Homemade
                     } else if (_selectedType == 'Purchased') {
                       _selectedHomemadeType = 'Mustard'; // Reset homemade type if purchased is selected
@@ -89,6 +88,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
               const SizedBox(height: 20),
               if (_selectedType == 'Homemade') ...[
                 _buildDropdown(
+                  label: 'Homemade Type',
                   value: _selectedHomemadeType,
                   items: _homemadeTypes,
                   onChanged: (value) {
@@ -105,7 +105,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
                   _buildTextField(_customHomemadeController, 'Enter Custom Homemade Type'),
                 ],
               ] else if (_selectedType == 'Purchased') ...[
-                _buildDropdown(
+               /* _buildDropdown(
                   value: _selectedPurchasedType,
                   items: _purchasedTypes,
                   onChanged: (value) {
@@ -117,10 +117,9 @@ class _ConcentratePageState extends State<ConcentratePage> {
                     });
                   },
                 ),
-                if (_selectedPurchasedType == 'Type') ...[
-                  const SizedBox(height: 20),
+                if (_selectedPurchasedType == 'Type') ...[*/
                   _buildTextField(_customPurchasedController, 'Enter Custom Purchased Type'),
-                ],
+                //],
               ],
               const SizedBox(height: 20),
               // Row containing Quantity and Unit
@@ -141,8 +140,6 @@ class _ConcentratePageState extends State<ConcentratePage> {
               _buildTextField(_rateController, 'Rate per Unit (if Purchased)'),
               const SizedBox(height: 20),
               _buildTextField(_priceController, 'Price (if Purchased)'),
-              const SizedBox(height: 20),
-              _buildTextField(_brandController, 'Brand Name (if Purchased)'),
               const SizedBox(height: 40),
               Center(
                 child: ElevatedButton(
@@ -170,7 +167,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
   }
 
   // Helper method to create dropdown
-  Widget _buildDropdown({
+ /* Widget _buildDropdown({
     required String value,
     required List<String> items,
     required ValueChanged<String?> onChanged,
@@ -186,7 +183,35 @@ class _ConcentratePageState extends State<ConcentratePage> {
       }).toList(),
       isExpanded: true,
     );
+  }*/
+
+  Widget _buildDropdown({
+    required String label,
+    required String value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      value: value,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.black54, fontSize: 14.0),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+            vertical: 10.0, horizontal: 12.0),
+      ),
+      items: items.map((String item) {
+        return DropdownMenuItem<String>(
+          value: item,
+          child: Text(item),
+        );
+      }).toList(),
+      onChanged: onChanged,
+    );
   }
+
 
   // Helper method to create input fields with smaller size
   Widget _buildTextField(TextEditingController controller, String label) {
@@ -225,7 +250,6 @@ class _ConcentratePageState extends State<ConcentratePage> {
     final unit = _unitController.text;
     final rate = _rateController.text;
     final price = _priceController.text;
-    final brand = _brandController.text;
     final customHomemade = _customHomemadeController.text;
     final customPurchased = _customPurchasedController.text;
 
@@ -236,11 +260,8 @@ class _ConcentratePageState extends State<ConcentratePage> {
         print('Custom Homemade Type: $customHomemade');
       }
     } else if (_selectedType == 'Purchased') {
-      print('Purchased Type: $_selectedPurchasedType');
-      if (_selectedPurchasedType == 'Type') {
         print('Custom Purchased Type: $customPurchased');
-      }
     }
-    print('Quantity: $quantity $unit, Rate: $rate, Price: $price, Brand: $brand');
+    print('Quantity: $quantity $unit, Rate: $rate, Price: $price');
   }
 }

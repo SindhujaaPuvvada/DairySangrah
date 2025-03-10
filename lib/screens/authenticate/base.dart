@@ -22,7 +22,7 @@ class _DairyMitraRegistrationPageState
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
-    print(languageCode);
+    //print(languageCode);
 
     if (languageCode == 'en') {
       currentLocalization = LocalizationEn.translations;
@@ -31,7 +31,7 @@ class _DairyMitraRegistrationPageState
     } else if (languageCode == 'pa') {
       currentLocalization = LocalizationPun.translations;
     }
-    print(currentLocalization["Register a new farm"]);
+    //print(currentLocalization["Register a new farm"]);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -201,6 +201,8 @@ class _DairyMitraRegistrationPageState
                     ),
                     onPressed: () {
                       // Handle confirm action
+                      bool isNewFarm=(selectedOption == 'Join an Existing Farm')?false:true;
+                      SignUpPage.newFarmReg=isNewFarm;
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => SignUpPage()),

@@ -1,4 +1,4 @@
-import 'package:farm_expense_mangement_app/screens/home/milkavgpage.dart';
+import 'package:farm_expense_mangement_app/screens/home/milk/milkavgpage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

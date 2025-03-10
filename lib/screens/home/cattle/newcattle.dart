@@ -1,16 +1,16 @@
 import 'package:farm_expense_mangement_app/models/cattle.dart';
-import 'package:farm_expense_mangement_app/screens/home/animallist.dart';
+import 'package:farm_expense_mangement_app/screens/home/cattle/animallist.dart';
 import 'package:farm_expense_mangement_app/screens/notification/alertnotifications.dart';
 // import 'package:farm_expense_mangement_app/screens/home/animallist1.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../services/database/cattledatabase.dart';
-import '../../main.dart';
-import 'localisations_en.dart';
-import 'localisations_hindi.dart';
-import 'localisations_punjabi.dart';
+import '../../../services/database/cattledatabase.dart';
+import '../../../main.dart';
+import '../localisations_en.dart';
+import '../localisations_hindi.dart';
+import '../localisations_punjabi.dart';
 
 class AddNewCattle extends StatefulWidget {
   const AddNewCattle({super.key});
