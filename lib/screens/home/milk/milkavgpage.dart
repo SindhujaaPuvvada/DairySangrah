@@ -2,15 +2,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/cattle.dart';
-import '../../models/milk.dart';
-import '../../services/database/cattledatabase.dart';
-import '../../services/database/milkdatabase.dart';
-import 'milk/milkbydate.dart';
-import '../../main.dart';
-import 'localisations_en.dart';
-import 'localisations_hindi.dart';
-import 'localisations_punjabi.dart';
+import '../../../models/cattle.dart';
+import '../../../models/milk.dart';
+import '../../../services/database/cattledatabase.dart';
+import '../../../services/database/milkdatabase.dart';
+import 'milkbydate.dart';
+import '../../../main.dart';
+import '../localisations_en.dart';
+import '../localisations_hindi.dart';
+import '../localisations_punjabi.dart';
 
 class AvgMilkPage extends StatefulWidget {
   const AvgMilkPage({super.key});
@@ -204,6 +204,7 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
 
   final user = FirebaseAuth.instance.currentUser;
   final uid = FirebaseAuth.instance.currentUser!.uid;
+  final formKey = GlobalKey<FormState>();
 
   late DatabaseForMilk db;
   late DatabaseForMilkByDate dbByDate;
@@ -282,130 +283,161 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
         scrollDirection: Axis.vertical,
         child: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              DropdownButtonFormField<String>(
-                value: selectedRfid,
-                decoration:  InputDecoration(
-                  labelText: currentLocalization['select_rfid']??"",
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: Color.fromRGBO(240, 255, 255, 0.7),
-                ),
-                items: allRfid.map((String rfid) {
-                  return DropdownMenuItem<String>(
-                    value: rfid,
-                    child: Text(rfid),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedRfid = value;
-                  });
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return currentLocalization['please_select_rfid']??"";
-                  }
-                  return null;
-                },
-                dropdownColor: const Color.fromRGBO(240, 255, 255, 1),
-              ),
-              const SizedBox(height: 20.0),
-              _buildInputBox(
-                child: TextFormField(
-                  onChanged: (value) {
-                    milkInMorning = double.tryParse(value);
-                  },
-                  decoration: InputDecoration(
-                    labelText: currentLocalization['morning_milk']??"",
-                    border: InputBorder.none,
+          child: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DropdownButtonFormField<String>(
+                  value: selectedRfid,
+                  decoration:  InputDecoration(
+                    labelText: currentLocalization['select_rfid']??"",
+                    labelStyle: const TextStyle(color: Colors.black),
+                    errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+                    border: OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+                    filled: true,
+                    fillColor: Color.fromRGBO(240, 255, 255, 0.7),
                   ),
-                ),
-              ),
-              const SizedBox(height: 20.0),
-              _buildInputBox(
-                child: TextFormField(
-                  onChanged: (value) {
-                    milkInEvening = double.tryParse(value);
-                  },
-                  decoration:InputDecoration(
-                    labelText: currentLocalization['evening_milk']??"",
-                    border: InputBorder.none,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20.0),
-              _buildInputBox(
-                child: InkWell(
-                  onTap: () async {
-                    final DateTime? pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime.now(),
+                  items: allRfid.map((String rfid) {
+                    return DropdownMenuItem<String>(
+                      value: rfid,
+                      child: Text(rfid),
                     );
-                    if (pickedDate != null) {
-                      setState(() {
-                        milkingDate = pickedDate;
-                      });
-                    }
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedRfid = value;
+                    });
                   },
-                  child: IgnorePointer(
-                    child: TextFormField(
-                      readOnly: true,
-                      controller: TextEditingController(
-                        text: milkingDate != null
-                            ? '${milkingDate!.year}-${milkingDate!.month}-${milkingDate!.day}'
-                            : '',
-                      ),
-                      decoration:  InputDecoration(
-                        labelText: currentLocalization['milking_date']??"",
-                        suffixIcon: Icon(Icons.calendar_today),
-                        border: InputBorder.none,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return currentLocalization['please_select_rfid']??"";
+                    }
+                    return null;
+                  },
+                  dropdownColor: const Color.fromRGBO(240, 255, 255, 1),
+                ),
+                const SizedBox(height: 20.0),
+                _buildInputBox(
+                  child: TextFormField(
+                    onChanged: (value) {
+                      milkInMorning = double.tryParse(value);
+                    },
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return currentLocalization['please_enter_value']??"";
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                      labelText: currentLocalization['morning_milk']??"",
+                      labelStyle: const TextStyle(color: Colors.black),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20.0),
+                _buildInputBox(
+                  child: TextFormField(
+                    onChanged: (value) {
+                      milkInEvening =  double.tryParse(value);
+                    },
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return currentLocalization['please_enter_value']??"";
+                      }
+                      return null;
+                    },
+                    decoration:InputDecoration(
+                      labelText: currentLocalization['evening_milk']??"",
+                      labelStyle: const TextStyle(color: Colors.black),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20.0),
+                _buildInputBox(
+                  child: InkWell(
+                    onTap: () async {
+                      final DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime.now(),
+                      );
+                      if (pickedDate != null) {
+                        setState(() {
+                          milkingDate = pickedDate;
+                        });
+                      }
+                    },
+                    child: IgnorePointer(
+                      child: TextFormField(
+                        readOnly: true,
+                        controller: TextEditingController(
+                          text: milkingDate != null
+                              ? '${milkingDate!.year}-${milkingDate!.month}-${milkingDate!.day}'
+                              : '',
+                        ),
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return currentLocalization['please_choose_date']??"";
+                          } else {
+                            return null;
+                          }
+                        },
+                        decoration:  InputDecoration(
+                          labelText: currentLocalization['milking_date']??"",
+                          labelStyle: const TextStyle(color: Colors.black),
+                          suffixIcon: Icon(Icons.calendar_today),
+                          border: InputBorder.none
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20.0),
-              Center(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
-                  ),
-                  onPressed: () {
-                    if (selectedRfid != null && milkingDate != null) {
-                      final Milk newMilkData = Milk(
-                        rfid: selectedRfid!,
-                        morning: milkInMorning!,
-                        evening: milkInEvening!,
-                        dateOfMilk: milkingDate,
-                      );
+                const SizedBox(height: 20.0),
+                Center(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
+                    ),
+                    onPressed: () {
+                      if (formKey.currentState!.validate()) {
+                        final Milk newMilkData = Milk(
+                          rfid: selectedRfid!,
+                          morning: milkInMorning!,
+                          evening: milkInEvening!,
+                          dateOfMilk: milkingDate,
+                        );
 
-                      _addMilk(newMilkData).then((_) {
-                        if (widget.onMilkRecordAdded != null) {
-                          widget.onMilkRecordAdded!();
-                        }
-                        Navigator.pop(context);
-                      });
-                    } else {
-                      Navigator.pop(context);
-                    }
-                  },
-                  child:  Padding(
-                    padding: EdgeInsets.all(4.0),
-                    child: Text(
-                        currentLocalization['add']??"",
-                        style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold)),
+                        _addMilk(newMilkData).then((_) {
+                          if (widget.onMilkRecordAdded != null) {
+                            widget.onMilkRecordAdded!();
+                          }
+                          Navigator.pop(context);
+                        });
+                      } else {
+                        //Navigator.pop(context);
+                      }
+                    },
+                    child:  Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: Text(
+                          currentLocalization['add']??"",
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold)),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

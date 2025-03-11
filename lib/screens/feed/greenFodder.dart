@@ -10,14 +10,21 @@ class GreenFodderPage extends StatefulWidget {
 class _GreenFodderPageState extends State<GreenFodderPage> {
   final TextEditingController _customTypeController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
-  final TextEditingController _unitController = TextEditingController();
   final TextEditingController _rateController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
-  final TextEditingController _brandController = TextEditingController();
+  final TextEditingController _areaController = TextEditingController();
+  final TextEditingController _seedTypeController = TextEditingController();
+  final TextEditingController _seedCostController = TextEditingController();
+  final TextEditingController _fertilizerCostController = TextEditingController();
+  final TextEditingController _inoculantsCostController = TextEditingController();
+  final TextEditingController _laborCostController = TextEditingController();
+  final TextEditingController _dieselCostController = TextEditingController();
+
 
   String _selectedType = 'Maize';
   String _selectedSource = 'Purchased';
   bool _isCustomType = false;
+  String _selectedUnit = 'Kg';
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +55,17 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
               _buildDropdown(
                 label: 'Type',
                 value: _selectedType,
-                items: ['Maize', 'Barley', 'Mustard', 'Rye Grass', 'Bajra', 'Sorghum', 'Barseem', 'Oats', 'Others'],
+                items: [
+                  'Maize',
+                  'Barley',
+                  'Mustard',
+                  'Rye Grass',
+                  'Bajra',
+                  'Sorghum',
+                  'Barseem',
+                  'Oats',
+                  'Others'
+                ],
                 onChanged: (newValue) {
                   setState(() {
                     _selectedType = newValue!;
@@ -59,26 +76,13 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
 
               const SizedBox(height: 20),
 
-              if (_isCustomType)
+              (_isCustomType)?
+                  Column(
+                    children: [
                 _buildTextField(_customTypeController, 'Enter custom type'),
-
-              const SizedBox(height: 20),
-
-              Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: _buildTextField(_quantityController, 'Quantity'),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    flex: 1,
-                    child: _buildTextField(_unitController, 'Unit (e.g., kg)'),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
+                ])
+                : Column(),
 
               _buildDropdown(
                 label: 'Source',
@@ -92,11 +96,70 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
               ),
 
               const SizedBox(height: 20),
-              _buildTextField(_rateController, 'Rate per Unit (if Purchased)'),
+
+              Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: _buildTextField(_quantityController, 'Quantity/Yield'),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    flex: 1,
+                    child: _buildDropdown(
+                        label: 'Unit',
+                        value: _selectedUnit,
+                        items: ['Kg', 'Quintal'],
+                        onChanged: (newValue) {
+                          setState(() {
+                            _selectedUnit = newValue!;
+                          });
+                        }
+                    ),
+                  ),
+                ],
+              ),
+
               const SizedBox(height: 20),
-              _buildTextField(_priceController, 'Price (if Purchased)'),
-              const SizedBox(height: 20),
-              _buildTextField(_brandController, 'Brand Name (if Purchased)'),
+
+              (_selectedSource == 'Purchased')
+                  ?
+                  Container(
+                    child:
+              Column(
+                  children: [
+                    _buildTextField(_rateController, 'Rate per Unit'),
+                    const SizedBox(height: 20),
+                    _buildTextField(_priceController, 'Total Price'),
+                  ])
+                  )
+                  :
+              Container(
+                child: Column(
+                  children: [
+                    _buildTextField(_areaController, 'Land Area(in acres)'),
+                    const SizedBox(height: 20),
+                    _buildTextField(_seedTypeController, 'Seed Type'),
+                    const SizedBox(height: 20),
+                    _buildTextField(_seedCostController, 'Seed Cost'),
+                    const SizedBox(height: 20),
+                    _buildTextField(
+                        _fertilizerCostController, 'Fertilizers Cost'),
+                    const SizedBox(height: 20),
+                    _buildTextField(
+                        _inoculantsCostController, 'Inoculants Cost'),
+                    const SizedBox(height: 20),
+                    _buildTextField(_laborCostController, 'Labor Cost'),
+                    const SizedBox(height: 20),
+                    _buildTextField(_dieselCostController, 'Diesel Cost'),
+                    const SizedBox(height: 20),
+                    _buildTextField(_priceController, 'Total Production Cost'),
+                    const SizedBox(height: 20),
+                    _buildTextField(_rateController, 'Rate per Unit'),
+                ]
+                  ),
+              ),
+
               const SizedBox(height: 40),
 
               Center(
@@ -106,7 +169,8 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromRGBO(4, 142, 161, 1.0),
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
                     ),
@@ -117,6 +181,7 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
                   ),
                 ),
               ),
+              const SizedBox(height: 20,)
             ],
           ),
         ),
@@ -161,7 +226,8 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
         ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
+        contentPadding: const EdgeInsets.symmetric(
+            vertical: 10.0, horizontal: 12.0),
       ),
       items: items.map((String item) {
         return DropdownMenuItem<String>(
@@ -175,13 +241,22 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
 
   void _submitData() {
     final type = _isCustomType ? _customTypeController.text : _selectedType;
-    final quantity = _quantityController.text;
-    final unit = _unitController.text;
+    double quantity = double.parse(_quantityController.text);
+    final unit =  _selectedUnit;
     final source = _selectedSource;
-    final rate = _rateController.text;
-    final price = _priceController.text;
-    final brand = _brandController.text;
+    double rate = double.parse(_rateController.text);
+    double price = double.parse(_priceController.text);
 
-    print('Type: $type, Quantity: $quantity $unit, Source: $source, Rate: $rate, Price: $price, Brand: $brand');
+    if(_selectedUnit != 'Kg'){
+      quantity = quantity * 100;
+    }
+
+    if(_selectedSource == 'Purchased'){
+
+    }
+
+
+
+    print('Type: $type, Quantity: $quantity $unit, Source: $source, Rate: $rate, Price: $price');
   }
 }

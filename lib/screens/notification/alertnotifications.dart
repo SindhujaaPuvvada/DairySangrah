@@ -28,6 +28,7 @@ class AlertNotifications {
   void createNotifications(Cattle cattle, CattleHistory newHistory) {
     Map<String, String> altTitle = AlertsConstants.alertTitle;
     Map<String, String> altDesc = AlertsConstants.alertDesc;
+    Map<String, List<String>> altEvents = AlertsConstants.alertsForEvents;
     DateTime nDate;
     int dDays;
 
@@ -39,7 +40,7 @@ class AlertNotifications {
         _createNTF(cattle, altTitle['PTA']!, altDesc['PTA']!, nDate);
 
         // TODO: verify this part
-        if (cattle.state == 'Calve') {
+        if (cattle.state == 'Calf') {
           cattle.state = 'Heifer';
           _updateSingleCattle(cattle);
         }
@@ -50,9 +51,9 @@ class AlertNotifications {
         _createNTF(cattle, altTitle['NUA']!, altDesc['NUA']!, newHistory.date);
 
         if (cattle.state == 'Milked') {
-          // MKA scheduled for 368-60 days for cow and 428-120 days for buffalo
+          // DRA scheduled for 368-60 days for cow and 428-120 days for buffalo
           nDate = newHistory.date.add(const Duration(days: 308));
-          _createNTF(cattle, altTitle['MKA']!, altDesc['MKA']!, nDate);
+          _createNTF(cattle, altTitle['DRA']!, altDesc['DRA']!, nDate);
         }
 
         // CVA scheduled 368 for cow and 428 for buffalo
@@ -64,7 +65,9 @@ class AlertNotifications {
         nDate = newHistory.date.add(const Duration(days: 120));
         _createNTF(cattle, altTitle['MTV']!, altDesc['MTV']!, nDate);
 
-        // TODO: update cattle is pregnant here
+        // mark cattle as pregnant
+        cattle.isPregnant = true;
+        _updateSingleCattle(cattle);
 
         break;
       case "Dry":
@@ -83,10 +86,17 @@ class AlertNotifications {
 
         if (cattle.state == 'Milked') {
           cattle.state = 'Dry';
-          _updateSingleCattle(cattle);
         }
 
-        // TODO: update cattle is not pregnant here
+        // mark cattle as not pregnant here
+        cattle.isPregnant = false;
+        _updateSingleCattle(cattle);
+
+        //closing the pregnant related notifications
+        String rfidPhrase = '${cattle.type} ${cattle.rfid}';
+        for(String alt in altEvents['Pregnant']!) {
+          ntfDb.closeNotificationByPhrase("$rfidPhrase ${altDesc[alt]}");
+        }
 
         break;
 
@@ -100,7 +110,9 @@ class AlertNotifications {
         _createNTF(cattle, altTitle['HTA']!, altDesc['HTA']!, nDate);
 
         cattle.state = 'Milked';
+        cattle.isPregnant = false;
         _updateSingleCattle(cattle);
+
 
         break;
     }
@@ -121,21 +133,41 @@ class AlertNotifications {
   }
 
 
-  void create_DWV_BRV_Notification(Cattle cattle) {
+  void createCalfNotifications(Cattle cattle) {
     Map<String, String> altTitle = AlertsConstants.alertTitle;
     Map<String, String> altDesc = AlertsConstants.alertDesc;
     DateTime nDate;
-    DateTime now = DateTime(2024,5,1);
+    int age = DateTime
+        .now()
+        .difference(cattle.dateOfBirth)
+        .inDays;
 
-    // Creating DWV TODO: change to DOB and check if sch date is greater than current date
-    nDate = /*cattle.dateOfBirth*/now.add(const Duration(days: 90));
-    _createNTF(cattle, altTitle['DWV']!, altDesc['DWV']!, nDate);
+    // Creating DWV if age is less than 180 days
+    if (age <= 180) {
+      nDate = cattle.dateOfBirth.add(const Duration(days: 90));
+      _createNTF(cattle, altTitle['DWV']!, altDesc['DWV']!, nDate);
+    }
 
-    // Creating BRV TODO: Change to DOB and check if sch date is greater than current date
-    nDate = /*cattle.dateOfBirth*/now.add(const Duration(days: 240));
-    _createNTF(cattle, altTitle['BRV']!, altDesc['BRV']!, nDate);
+    // Creating BRV if age is less than 365 days
+    if(age <= 365) {
+      nDate = cattle.dateOfBirth.add(const Duration(days: 240));
+      _createNTF(cattle, altTitle['BRV']!, altDesc['BRV']!, nDate);
+    }
 
+    //creating AI notification when it is ready to be a Heifer
+    switch(cattle.type) {
+      case 'Cow':
+      // 13 months
+        nDate = cattle.dateOfBirth.add(const Duration(days: 390));
+        _createNTF(cattle, altTitle['AIA']!, altDesc['AIA']!, nDate);
+        break;
+      case 'Buffalo':
+      //28 months
+        nDate = cattle.dateOfBirth.add(const Duration(days: 840));
+        _createNTF(cattle, altTitle['AIA']!, altDesc['AIA']!, nDate);
 
+        break;
+    }
   }
 
 }

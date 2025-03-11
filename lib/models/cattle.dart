@@ -5,27 +5,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Cattle {
   final String rfid;
   final String sex;
-  final int age;
+  //final int age;
   final String breed;
   final int weight;
   String state;
   final String source;
   final String type;
-  // final String Ispregnant;
-  // final DateTime dateOfBirth;
+  bool isPregnant;
+  final DateTime dateOfBirth;
 
-  Cattle(
-      {required this.rfid,
-      required this.sex,
-      this.age = 0,
-      required this.breed,
-      this.weight = 0,
-      this.state = 'Dry',
-      this.source = 'Born on Farm',
-        required this.type,
-        // required this.Ispregnant
-      /*required this.dateOfBirth*/
-      });
+  Cattle({required this.rfid,
+    required this.sex,
+    required this.breed,
+    this.weight = 0,
+    this.state = 'Dry',
+    this.source = 'Born on Farm',
+    required this.type,
+    this.isPregnant = false,
+    required this.dateOfBirth
+  });
 
   factory Cattle.fromFireStore(DocumentSnapshot<Map<String, dynamic>> snapshot,
       SnapshotOptions? options) {
@@ -33,14 +31,14 @@ class Cattle {
     return Cattle(
         rfid: data?['rfid'],
         sex: data?['sex'],
-        age: data?['age'],
+        //age: data?['age'],
         breed: data?['breed'],
         weight: data?['weight'],
         state: data?['state'],
         source: data?['source'],
         type: data?['type'],
-        // Ispregnant: data?['Ispregnant']
-        // dateOfBirth: data?['dateOfBirth']
+        isPregnant: data?['isPregnant'],
+        dateOfBirth: (data?['dateOfBirth'] != null) ? data!['dateOfBirth'].toDate() : null,
         );
   }
 
@@ -48,13 +46,14 @@ class Cattle {
     return {
       'rfid': rfid,
       'sex': sex,
-      'age': age,
+      //'age': age,
       'breed': breed,
       'weight': weight,
       'state': state,
       'source': source,
-      'type':type
-      // 'dateOfBirth':dateOfBirth
+      'type':type,
+      'isPregnant': isPregnant,
+      'dateOfBirth':dateOfBirth
     };
   }
 }

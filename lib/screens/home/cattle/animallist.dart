@@ -1,10 +1,10 @@
-import 'package:farm_expense_mangement_app/screens/home/animallist1.dart';
+import 'package:farm_expense_mangement_app/screens/home/cattle/animallist1.dart';
 // import 'package:farm_expense_mangement_app/screens/home/animallist2.dart';
 import 'package:flutter/material.dart';
 import 'package:farm_expense_mangement_app/services/database/cattledatabase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:farm_expense_mangement_app/models/cattle.dart';
-import 'package:farm_expense_mangement_app/screens/home/newcattle.dart';
+import 'package:farm_expense_mangement_app/screens/home/cattle/newcattle.dart';
 
 class AnimalList1 extends StatefulWidget {
   const AnimalList1({Key? key}) : super(key: key);

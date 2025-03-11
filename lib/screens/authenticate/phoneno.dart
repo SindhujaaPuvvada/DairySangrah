@@ -12,6 +12,8 @@ class SignUpPage extends StatelessWidget {
   final AuthService _auth = AuthService();
   final TextEditingController _phoneController = TextEditingController();
   static String verify="";
+  static String phoneNumber="";
+  static bool newFarmReg=true;
   late Map<String, String> currentLocalization= {};
 
   late String languageCode = 'en';
@@ -114,14 +116,14 @@ class SignUpPage extends StatelessWidget {
                   ),
                   onPressed: ()  async{
                     // Add +91 to the phone number before passing it to the function
-                    String phoneNumber = "+91" + _phoneController.text.trim();
+                    phoneNumber = "+91" + _phoneController.text.trim();
                     Navigator.push(
                         context, MaterialPageRoute(
                         builder: (context) =>  OtpVerificationPage()));
                     // Handle sign-up logic here
                     await FirebaseAuth.instance.verifyPhoneNumber(phoneNumber:phoneNumber,timeout: const Duration(seconds: 60),verificationCompleted: (PhoneAuthCredential credential) { }, verificationFailed: (FirebaseAuthException e) {}, codeSent: (String verificationId, int? resendtoken){
                       SignUpPage.verify=verificationId;
-                      print(verificationId);
+                      //print(verificationId);
                     }, codeAutoRetrievalTimeout: (String verificationId){
 
                     });

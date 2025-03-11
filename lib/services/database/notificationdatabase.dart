@@ -38,18 +38,19 @@ class DatabaseServicesForNotification {
         .get();
   }
 
-  Future<void> deleteNotification(String ntId) async {
+  Future<void> closeNotificationByPhrase(String phrase) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
     QuerySnapshot querySnapshot = await db
         .collection('User')
         .doc(uid)
         .collection('Notification')
-        .where('ntId', isEqualTo: ntId)
+        .where('ntDetails', isGreaterThanOrEqualTo:  phrase)
+        .where('ntDetails', isLessThanOrEqualTo: '$phrase\uf8ff')
         .get();
 
     for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-      await doc.reference.delete();
+      await doc.reference.update({'ntClosed': true});
     }
   }
 

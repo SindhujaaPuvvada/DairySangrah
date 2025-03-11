@@ -15,18 +15,15 @@ class DryFodderPage extends StatefulWidget {
 
 class _DryFodderPageState extends State<DryFodderPage> {
   final TextEditingController _quantityController = TextEditingController();
-  final TextEditingController _unitController = TextEditingController();
   final TextEditingController _rateController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
-  final TextEditingController _brandController = TextEditingController();
   final TextEditingController _otherTypeController = TextEditingController();
-  final TextEditingController _weeklyConsumptionController = TextEditingController();
 
-  String? _selectedType;
-  String? _selectedSource;
+  String _selectedType='Wheat Straw';
+  String _selectedSource='Purchased';
+  String _selectedUnit = 'Kg';
   final List<String> _fodderTypes = ['Wheat Straw', 'Paddy', 'Straw', 'Others'];
   final List<String> _sourceTypes = ['Purchased', 'Own Farm'];
-  final int _defaultWeeklyConsumption = 10; // Default value for weekly consumption
 
   late final DatabaseServicesForFeed _dbService;
 
@@ -36,36 +33,29 @@ class _DryFodderPageState extends State<DryFodderPage> {
 
     super.initState();
     _dbService = DatabaseServicesForFeed(uid!);
-    _weeklyConsumptionController.text = _defaultWeeklyConsumption.toString(); // Set default consumption value
   }
 
   Future<void> _submitData() async {
     final type = _selectedType == 'Others' ? _otherTypeController.text : _selectedType;
     final quantity = int.tryParse(_quantityController.text) ?? 0;
-    final unit = _unitController.text;
+    final unit = _selectedUnit;
     final rate = _rateController.text;
     final price = _priceController.text;
-    final brand = _brandController.text;
     final source = _selectedSource;
-    final weeklyConsumption = int.tryParse(_weeklyConsumptionController.text) ?? _defaultWeeklyConsumption;
 
     final newFeed = Feed(
       itemName: type ?? '',
       quantity: quantity,
       Type:'Dry Fodder',
-      requiredQuantity: weeklyConsumption,
     );
 
     await _dbService.infoToServerFeed(newFeed);
 
-    // Schedule weekly deduction from total quantity
-    _scheduleWeeklyDeduction(newFeed);
-
-    print('Data saved: Type: $type, Quantity: $quantity $unit, Rate: $rate, Price: $price, Brand: $brand, Source: $source, Weekly Consumption: $weeklyConsumption');
+    print('Data saved: Type: $type, Quantity: $quantity $unit, Rate: $rate, Price: $price, Source: $source');
   }
 
   // Weekly deduction logic
-  Future<void> _scheduleWeeklyDeduction(Feed feed) async {
+  /*Future<void> _scheduleWeeklyDeduction(Feed feed) async {
     final docSnapshot = await _dbService.infoFromServer(feed.itemName);
     if (docSnapshot.exists) {
       final currentFeed = Feed.fromFireStore(docSnapshot);
@@ -80,7 +70,7 @@ class _DryFodderPageState extends State<DryFodderPage> {
 
       print('Weekly consumption deducted. New quantity: $updatedQuantity');
     }
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -105,13 +95,25 @@ class _DryFodderPageState extends State<DryFodderPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              _buildTypeDropdown(),
+              _buildDropdown(
+                  label: 'Type', value: _selectedType, items: _fodderTypes,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedType = value!;
+                    });
+                  }),
               if (_selectedType == 'Others') ...[
                 const SizedBox(height: 20),
                 _buildTextField(_otherTypeController, 'Custom Type'),
               ],
               const SizedBox(height: 20),
-              _buildSourceDropdown(),
+              _buildDropdown(
+                label: 'Source', value: _selectedSource, items: _sourceTypes,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedSource = value!;
+                  });
+                },),
               const SizedBox(height: 20),
               Row(
                 children: [
@@ -122,7 +124,16 @@ class _DryFodderPageState extends State<DryFodderPage> {
                   const SizedBox(width: 10),
                   Expanded(
                     flex: 1,
-                    child: _buildTextField(_unitController, 'Unit (e.g., kg)'),
+                    child: _buildDropdown(
+                        label: 'Unit',
+                        value: _selectedUnit,
+                        items: ['Kg', 'Quintal'],
+                        onChanged: (newValue) {
+                          setState(() {
+                            _selectedUnit = newValue!;
+                          });
+                        }
+                    ),
                   ),
                 ],
               ),
@@ -130,10 +141,6 @@ class _DryFodderPageState extends State<DryFodderPage> {
               _buildTextField(_rateController, 'Rate per Unit(if Purchased)'),
               const SizedBox(height: 20),
               _buildTextField(_priceController, 'Price(if Purchased)'),
-              const SizedBox(height: 20),
-              _buildTextField(_brandController, 'Brand Name(if Purchased)'),
-              const SizedBox(height: 20),
-              _buildTextField(_weeklyConsumptionController, 'Weekly Consumption', readOnly: false),
               const SizedBox(height: 40),
               Center(
                 child: ElevatedButton(
@@ -143,7 +150,8 @@ class _DryFodderPageState extends State<DryFodderPage> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromRGBO(4, 142, 161, 1.0),
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
                     ),
@@ -181,61 +189,38 @@ class _DryFodderPageState extends State<DryFodderPage> {
           borderRadius: BorderRadius.circular(12.0),
           borderSide: const BorderSide(color: Colors.black),
         ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
+        contentPadding: const EdgeInsets.symmetric(
+            vertical: 10.0, horizontal: 12.0),
       ),
       style: const TextStyle(fontSize: 14.0),
     );
   }
 
-  // Dropdown for fodder type
-  Widget _buildTypeDropdown() {
+  Widget _buildDropdown({
+    required String label,
+    required String value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
     return DropdownButtonFormField<String>(
-      value: _selectedType,
+      value: value,
       decoration: InputDecoration(
-        labelText: 'Type',
+        labelText: label,
         labelStyle: const TextStyle(color: Colors.black54, fontSize: 14.0),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
         ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
+        contentPadding: const EdgeInsets.symmetric(
+            vertical: 10.0, horizontal: 12.0),
       ),
-      items: _fodderTypes.map((type) {
-        return DropdownMenuItem(
-          value: type,
-          child: Text(type),
+      items: items.map((String item) {
+        return DropdownMenuItem<String>(
+          value: item,
+          child: Text(item),
         );
       }).toList(),
-      onChanged: (value) {
-        setState(() {
-          _selectedType = value;
-        });
-      },
+      onChanged: onChanged,
     );
   }
 
-  // Dropdown for source type
-  Widget _buildSourceDropdown() {
-    return DropdownButtonFormField<String>(
-      value: _selectedSource,
-      decoration: InputDecoration(
-        labelText: 'Source',
-        labelStyle: const TextStyle(color: Colors.black54, fontSize: 14.0),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
-      ),
-      items: _sourceTypes.map((source) {
-        return DropdownMenuItem(
-          value: source,
-          child: Text(source),
-        );
-      }).toList(),
-      onChanged: (value) {
-        setState(() {
-          _selectedSource = value;
-        });
-      },
-    );
-  }
 }

@@ -1,6 +1,6 @@
 import 'package:farm_expense_mangement_app/models/cattle.dart';
-import 'package:farm_expense_mangement_app/screens/home/animaldetails.dart';
-import 'package:farm_expense_mangement_app/screens/home/newcattle.dart';
+import 'package:farm_expense_mangement_app/screens/home/cattle/animaldetails.dart';
+import 'package:farm_expense_mangement_app/screens/home/cattle/newcattle.dart';
 import 'package:farm_expense_mangement_app/services/database/cattledatabase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -409,8 +409,8 @@ class AnimalSearchDelegate extends SearchDelegate<Cattle> {
         close(
           context,
           query.isEmpty
-              ? Cattle(rfid: '', breed: '', sex: ' ',type: '')
-              : Cattle(rfid: '', breed: '', sex: ' ',type: ''),
+              ? Cattle(rfid: '', breed: '', sex: ' ',type: '',dateOfBirth: DateTime(1))
+              : Cattle(rfid: '', breed: '', sex: ' ',type: '',dateOfBirth: DateTime(1)),
         );
       },
     );

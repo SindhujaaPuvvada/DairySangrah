@@ -417,6 +417,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
               ),
               const SizedBox(height: 25),
               TextFormField(
+                readOnly: true,
                 controller: _controllerPhone,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
