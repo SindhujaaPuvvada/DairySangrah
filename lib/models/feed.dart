@@ -1,27 +1,32 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Feed {
-  String itemName;
-  int quantity;
-  // String Category;
-  String Type;
-  int? requiredQuantity;
+  String category;
+  String feedType;
+  double quantity;
+  String source;
+  double totPrice;
+  double ratePerKg;
+  DateTime feedDate;
 
   Feed({
-    required this.itemName,
+    required this.category,
+    required this.feedType,
     required this.quantity,
-    required this.Type,
-    // required this.Category,
-    this.requiredQuantity,
+    required this.source,
+    required this.totPrice,
+    required this.ratePerKg,
+    required this.feedDate,
   });
 
   Map<String, dynamic> toFireStore() {
     return {
-      'itemName': itemName,
+      'feedType': feedType,
       'quantity': quantity,
-      'Type': Type,
-      // 'Category': Category,
-      'requiredQuantity': requiredQuantity,
+      'source': source,
+      'totPrice': totPrice,
+      'ratePerKg': ratePerKg,
+      'feedDate': feedDate,
     };
   }
 
@@ -29,11 +34,13 @@ class Feed {
   factory Feed.fromFireStore(DocumentSnapshot<Map<String, dynamic>> snapshot) {
     final json = snapshot.data();
     return Feed(
-      itemName: json?['itemName'] ?? '',
-      Type: json?['Type'] ?? '',
-      // Category: json?['Category']??'',
+      category: "",
+      feedType: json?['feedType'] ?? '',
       quantity: json?['quantity'] ?? 0,
-      requiredQuantity: json?['requiredQuantity'],
+      source: json?['source'] ?? '',
+      totPrice: json?['totPrice'] ?? 0,
+      ratePerKg: json?['ratePerKg'] ?? 0,
+      feedDate: json!['feedDate'].toDate(),
     );
   }
 }

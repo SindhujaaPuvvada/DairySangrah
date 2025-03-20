@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:farm_expense_mangement_app/shared/constants.dart';
 import '../../models/feed.dart';
 
 class DatabaseServicesForFeed {
@@ -13,44 +14,45 @@ class DatabaseServicesForFeed {
         .collection('User')
         .doc(uid)
         .collection('Feed')
-        .doc(feed.Type)
-    .collection(feed.itemName)
-         .doc(feed.itemName)
-
+        .doc((fdCategoryId.indexOf(feed.category)+1).toString())
+        .collection(feed.category)
+        .doc()
         .set(feed.toFireStore(), SetOptions(merge: true));
-    print('Feed item added or updated: ${feed.itemName}');
+
   }
 
-  // Function to get a single feed item from Firestore
-  Future<DocumentSnapshot<Map<String, dynamic>>> infoFromServer(
-      String itemName) async {
+  // Function to get a particular feed category from Firestore
+  Future<QuerySnapshot<Map<String, dynamic>>> infoFromServerForCategory(
+      String category) async {
     return await db
         .collection('User')
         .doc(uid)
         .collection('Feed')
-        .doc(itemName)
+        .doc((fdCategoryId.indexOf(category)+1).toString())
+        .collection(category)
+        .orderBy('feedDate', descending: true)
         .get();
   }
 
   // Function to get all feed items for the user
-  Future<QuerySnapshot<Map<String, dynamic>>> infoFromServerAllFeed() async {
+ /* Future<QuerySnapshot<Map<String, dynamic>>> infoFromServerAllFeed() async {
     return await db
         .collection('User')
         .doc(uid)
         .collection('Feed')
-        .orderBy('itemName')
+        .orderBy('feedType')
         .get();
   }
 
-  // Function to delete a feed item from Firestore
-  Future<void> deleteFeed(String itemName) async {
+  // Function to delete a feed type from Firestore
+  Future<void> deleteFeed(String feedType) async {
     await db
         .collection('User')
         .doc(uid)
         .collection('Feed')
-        .doc(itemName)
+        .doc('feedType')
         .delete();
-    print('Feed item deleted: $itemName');
+    print('Feed item deleted: $feedType');
   }
 
   // Function to reduce weekly quantity of a specific feed item
@@ -87,5 +89,5 @@ class DatabaseServicesForFeed {
       final itemName = doc.get('itemName');
       await reduceWeeklyQuantity(itemName);
     }
-  }
+  }*/
 }
