@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:farm_expense_mangement_app/services/database/feeddatabase.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
@@ -26,9 +27,14 @@ class _FeedState extends State<FeedPage> {
 
   late String selectedSection = 'Green Fodder'; // Default section
 
+  bool _showCheckboxes = false;
+  bool _isSelected = false;
+
   @override
   Widget build(BuildContext context) {
-    languageCode = Provider.of<AppData>(context).persistentVariable;
+    languageCode = Provider
+        .of<AppData>(context)
+        .persistentVariable;
 
     if (languageCode == 'en') {
       currentLocalization = LocalizationEn.translations;
@@ -43,7 +49,7 @@ class _FeedState extends State<FeedPage> {
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.black),
         title: Text(
-          currentLocalization['inventory']??"",
+          currentLocalization['inventory'] ?? "",
           style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black),
           textAlign: TextAlign.center,
         ),
@@ -87,7 +93,8 @@ class _FeedState extends State<FeedPage> {
             );
           }
         },
-        backgroundColor: const Color.fromRGBO(4, 142, 161, 1.0), // Same as AppBar color
+        backgroundColor: const Color.fromRGBO(4, 142, 161, 1.0),
+        // Same as AppBar color
         child: const Icon(
           Icons.add,
           color: Colors.black, // Icon color
@@ -99,11 +106,11 @@ class _FeedState extends State<FeedPage> {
 
   // Method to display the content based on the selected section
   Widget displaySelectedSectionContent() {
-    final sectionType = selectedSection.replaceAll(' ', '').toLowerCase(); // Normalize section name
-    final collectionPath = 'feed/$sectionType/items';
+    final sectionType = selectedSection.replaceAll(' ', '');
+    DatabaseServicesForFeed fdDB = DatabaseServicesForFeed(uid);
 
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection(collectionPath).snapshots(),
+    return FutureBuilder<QuerySnapshot>(
+      future: fdDB.infoFromServerForCategory(sectionType),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -113,13 +120,47 @@ class _FeedState extends State<FeedPage> {
         }
         final items = snapshot.data!.docs;
 
+
         return ListView.builder(
           itemCount: items.length,
           itemBuilder: (context, index) {
             final item = items[index].data() as Map<String, dynamic>;
-            return ListTile(
-              title: Text(item['itemName'] ?? 'Unknown Item'),
-              subtitle: Text('Quantity: ${item['quantity'] ?? 0}'),
+            print("It is here ${item['Document ID']}");
+            final DateTime fdDate = item['feedDate'].toDate();
+            final String sFdDate = '${fdDate.day}-${fdDate.month}-${fdDate
+                .year}';
+            return Container(
+                padding: EdgeInsets.all(10.0),
+                child: ListTile(
+                    title: Text(item['feedType'] ?? 'Unknown Item',
+                        style: TextStyle(color: const Color(0xFF0DA6BA),
+                            fontWeight: FontWeight.bold)),
+                    subtitle: Text("Quantity: ${item['quantity'] ??
+                        0} Kg | Rate: ₹${item['ratePerKg']} / Kg | Date: $sFdDate | Source: ${item['source']}"),
+                    tileColor: Color.fromRGBO(177, 243, 238, 0.4),
+                    onLongPress: () {
+                      setState(() {
+                        _showCheckboxes = true;
+                      });
+                    },
+                    trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[_showCheckboxes ?
+                        Checkbox(value: _isSelected,
+                            checkColor: Colors.white,
+                            activeColor: const Color(0xFF0DA6BA),
+                            shape: const CircleBorder(),
+                            // Tealish blue
+                            onChanged: (val) {
+                              setState(() {
+                                _isSelected = val!;
+                                //notifications[index]['isSelected'] = _isSelected.toString();
+                              });
+                            })
+                            : Container(),
+                        ]
+                    )
+                )
             );
           },
         );
