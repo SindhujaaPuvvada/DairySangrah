@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../models/feed.dart';
+import 'feedUtils.dart';
+import 'feedpage.dart';
 
 class GreenFodderPage extends StatefulWidget {
   const GreenFodderPage({super.key});
@@ -9,22 +14,36 @@ class GreenFodderPage extends StatefulWidget {
 
 class _GreenFodderPageState extends State<GreenFodderPage> {
   final TextEditingController _customTypeController = TextEditingController();
-  final TextEditingController _quantityController = TextEditingController();
-  final TextEditingController _rateController = TextEditingController();
-  final TextEditingController _priceController = TextEditingController();
-  final TextEditingController _areaController = TextEditingController();
-  final TextEditingController _seedTypeController = TextEditingController();
-  final TextEditingController _seedCostController = TextEditingController();
-  final TextEditingController _fertilizerCostController = TextEditingController();
-  final TextEditingController _inoculantsCostController = TextEditingController();
-  final TextEditingController _laborCostController = TextEditingController();
-  final TextEditingController _dieselCostController = TextEditingController();
+  final TextEditingController _quantityController = TextEditingController.fromValue(TextEditingValue(text: '0.0'));
+  final TextEditingController _rateController = TextEditingController.fromValue(TextEditingValue(text: '0.0'));
+  final TextEditingController _priceController = TextEditingController.fromValue(TextEditingValue(text: '0.0'));
+  final TextEditingController _areaController = TextEditingController.fromValue(TextEditingValue(text: '1.0'));
+  final TextEditingController _seedCostController = TextEditingController.fromValue(TextEditingValue(text: '0.0'));
+  final TextEditingController _fertilizerCostController = TextEditingController.fromValue(TextEditingValue(text: '0.0'));
+  final TextEditingController _inoculantsCostController = TextEditingController.fromValue(TextEditingValue(text: '0.0'));
+  final TextEditingController _laborCostController = TextEditingController.fromValue(TextEditingValue(text: '0.0'));
+  final TextEditingController _dieselCostController = TextEditingController.fromValue(TextEditingValue(text: '0.0'));
 
 
   String _selectedType = 'Maize';
   String _selectedSource = 'Purchased';
   bool _isCustomType = false;
   String _selectedUnit = 'Kg';
+
+  @override
+  void dispose() {
+    _rateController.dispose();
+    _priceController.dispose();
+    _quantityController.dispose();
+    _customTypeController.dispose();
+    _dieselCostController.dispose();
+    _laborCostController.dispose();
+    _inoculantsCostController.dispose();
+    _fertilizerCostController.dispose();
+    _areaController.dispose();
+    _seedCostController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +71,7 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
             children: [
               const SizedBox(height: 20),
 
-              _buildDropdown(
+              feedUtils.buildDropdown(
                 label: 'Type',
                 value: _selectedType,
                 items: [
@@ -79,12 +98,12 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
               (_isCustomType)?
                   Column(
                     children: [
-                _buildTextField(_customTypeController, 'Enter custom type'),
+                feedUtils.buildTextField(_customTypeController, 'Enter custom type'),
                 const SizedBox(height: 20),
                 ])
                 : Column(),
 
-              _buildDropdown(
+              feedUtils.buildDropdown(
                 label: 'Source',
                 value: _selectedSource,
                 items: ['Purchased', 'Own Farm'],
@@ -101,12 +120,12 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
                 children: [
                   Expanded(
                     flex: 2,
-                    child: _buildTextField(_quantityController, 'Quantity/Yield'),
+                    child: feedUtils.buildTextField(_quantityController, 'Quantity/Yield'),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     flex: 1,
-                    child: _buildDropdown(
+                    child: feedUtils.buildDropdown(
                         label: 'Unit',
                         value: _selectedUnit,
                         items: ['Kg', 'Quintal'],
@@ -128,34 +147,32 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
                     child:
               Column(
                   children: [
-                    _buildTextField(_rateController, 'Rate per Unit'),
+                    feedUtils.buildTextField(_rateController, 'Rate per Unit'),
                     const SizedBox(height: 20),
-                    _buildTextField(_priceController, 'Total Price'),
+                    feedUtils.buildTextField(_priceController, 'Total Price'),
                   ])
                   )
                   :
               Container(
                 child: Column(
                   children: [
-                    _buildTextField(_areaController, 'Land Area(in acres)'),
+                    feedUtils.buildTextField(_areaController, 'Land Area(in acres)'),
                     const SizedBox(height: 20),
-                    _buildTextField(_seedTypeController, 'Seed Type'),
+                    feedUtils.buildTextField(_seedCostController, 'Seed Cost'),
                     const SizedBox(height: 20),
-                    _buildTextField(_seedCostController, 'Seed Cost'),
-                    const SizedBox(height: 20),
-                    _buildTextField(
+                    feedUtils.buildTextField(
                         _fertilizerCostController, 'Fertilizers Cost'),
                     const SizedBox(height: 20),
-                    _buildTextField(
+                    feedUtils.buildTextField(
                         _inoculantsCostController, 'Inoculants Cost'),
                     const SizedBox(height: 20),
-                    _buildTextField(_laborCostController, 'Labor Cost'),
+                    feedUtils.buildTextField(_laborCostController, 'Labor Cost'),
                     const SizedBox(height: 20),
-                    _buildTextField(_dieselCostController, 'Diesel Cost'),
+                    feedUtils.buildTextField(_dieselCostController, 'Diesel Cost'),
                     const SizedBox(height: 20),
-                    _buildTextField(_priceController, 'Total Production Cost'),
+                    feedUtils.buildTextField(_priceController, 'Total Production Cost'),
                     const SizedBox(height: 20),
-                    _buildTextField(_rateController, 'Rate per Unit'),
+                    feedUtils.buildTextField(_rateController, 'Rate per Unit'),
                 ]
                   ),
               ),
@@ -163,22 +180,14 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
               const SizedBox(height: 40),
 
               Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    _submitData();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromRGBO(4, 142, 161, 1.0),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
-                  child: const Text(
-                    'Save',
-                    style: TextStyle(color: Colors.white),
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    feedUtils.buildElevatedButton('Calculate',
+                        onPressed:() => _calculatePrice()),
+                    feedUtils.buildElevatedButton('Save',
+                        onPressed:() => _submitData()),
+                  ],
                 ),
               ),
               const SizedBox(height: 20,)
@@ -189,74 +198,72 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.black54),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(color: Colors.black),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(color: Colors.black),
-        ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
-      ),
-      style: const TextStyle(fontSize: 14.0),
-    );
-  }
-
-  Widget _buildDropdown({
-    required String label,
-    required String value,
-    required List<String> items,
-    required ValueChanged<String?> onChanged,
-  }) {
-    return DropdownButtonFormField<String>(
-      value: value,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.black54, fontSize: 14.0),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-            vertical: 10.0, horizontal: 12.0),
-      ),
-      items: items.map((String item) {
-        return DropdownMenuItem<String>(
-          value: item,
-          child: Text(item),
-        );
-      }).toList(),
-      onChanged: onChanged,
-    );
-  }
-
   void _submitData() {
     final type = _isCustomType ? _customTypeController.text : _selectedType;
     double quantity = double.parse(_quantityController.text);
-    final unit =  _selectedUnit;
     final source = _selectedSource;
     double rate = double.parse(_rateController.text);
     double price = double.parse(_priceController.text);
 
+    if(type.isEmpty){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Custom Type cannot be empty!')),
+      );
+      return;
+    }
+
     if(_selectedUnit != 'Kg'){
       quantity = quantity * 100;
+      rate = rate /100;
     }
+    Feed feed = new Feed(
+      category: "GreenFodder",
+      feedType: type,
+      quantity: quantity,
+      source: source,
+      totPrice: price,
+      ratePerKg: rate,
+      feedDate: DateTime.now(),
+    );
 
-    if(_selectedSource == 'Purchased'){
+    feedUtils.saveFeedDetails(feed);
 
-    }
+     Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const FeedPage()));
 
-
-
-    print('Type: $type, Quantity: $quantity $unit, Source: $source, Rate: $rate, Price: $price');
   }
+
+  void _calculatePrice() {
+    double quantity = (_quantityController.text.isNotEmpty) ? double.parse(_quantityController.text):0.0;
+    double rate = (_rateController.text.isNotEmpty) ? double.parse(_rateController.text):0.0;
+    double price = (_priceController.text.isNotEmpty) ? double.parse(_priceController.text):0.0;
+
+    setState(() {
+      if (_selectedSource == 'Purchased') {
+        var lt = feedUtils.calRateOrPrice(price, rate, quantity);
+        price = lt[0];
+        rate = lt[1];
+      }
+      else {
+        price = double.parse(_seedCostController.text) +
+            double.parse(_fertilizerCostController.text) +
+            double.parse(_inoculantsCostController.text) +
+            double.parse(_laborCostController.text) +
+            double.parse(_dieselCostController.text);
+
+        var area = _areaController.text.isNotEmpty ? double.parse(
+            _areaController.text) : double.parse('1');
+
+        if(quantity != 0.0) {
+          rate = (price / quantity) / area;
+        }
+      }
+      _priceController.text = (price.toPrecision(2)).toString();
+      _rateController.text = (rate.toPrecision(2)).toString();
+    });
+
+  }
+
+
 }

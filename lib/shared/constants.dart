@@ -23,3 +23,5 @@ const textInputDecorationReg = InputDecoration(
     borderSide: BorderSide(color: Colors.black, width: 2.0),
   ),
 );
+
+const fdCategoryId = ['GreenFodder','DryFodder','Concentrate'];
