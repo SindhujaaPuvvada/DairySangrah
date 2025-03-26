@@ -28,7 +28,7 @@ class DatabaseForSale {
         .set(sale.toFireStore());
   }
 
-  Future<void> deleteFromServer(Sale sale) async {
+  Future<void> deleteSaleFromServer(Sale sale) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
     return await db
@@ -56,7 +56,7 @@ class DatabaseForExpense {
         .get();
   }
 
-  Future<void> infoToServerExpanse(Expense expense) async {
+  Future<void> infoToServerExpense(Expense expense) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
     return await db
@@ -67,7 +67,7 @@ class DatabaseForExpense {
         .set(expense.toFireStore());
   }
 
-  Future<void> deleteFromServer(Expense expense) async {
+  Future<void> deleteExpenseFromServer(Expense expense) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
     return await db

@@ -7,6 +7,7 @@ import '../../main.dart';
 import '../home/localisations_en.dart';
 import '../home/localisations_hindi.dart';
 import '../home/localisations_punjabi.dart';
+import '../wrappers/wrapperhome.dart';
 import 'dryFodder.dart';
 import 'greenFodder.dart';
 import 'concentrate.dart';
@@ -24,11 +25,19 @@ class _FeedState extends State<FeedPage> {
 
   final user = FirebaseAuth.instance.currentUser;
   final uid = FirebaseAuth.instance.currentUser!.uid;
+  late DatabaseServicesForFeed fdDB;
 
   late String selectedSection = 'Green Fodder'; // Default section
 
   bool _showCheckboxes = false;
-  bool _isSelected = false;
+
+  List<String> selectedEntries = [];
+
+  @override
+  void initState() {
+    fdDB = DatabaseServicesForFeed(uid);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,13 +56,30 @@ class _FeedState extends State<FeedPage> {
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
       appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.black),
-        title: Text(
-          currentLocalization['inventory'] ?? "",
-          style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black),
-          textAlign: TextAlign.center,
-        ),
-        backgroundColor: const Color.fromRGBO(4, 142, 161, 1.0), // AppBar color
+          leading: BackButton(
+              onPressed: () =>
+                  Navigator.push(
+                      context, MaterialPageRoute(
+                      builder: (context) => const WrapperHomePage())
+                  )),
+          iconTheme: const IconThemeData(color: Colors.black),
+          title: Text(
+            currentLocalization['inventory'] ?? "",
+            style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black),
+            textAlign: TextAlign.center,
+          ),
+          backgroundColor: const Color.fromRGBO(4, 142, 161, 1.0),
+          actions: _showCheckboxes ? <Widget>[
+            IconButton(
+                onPressed: () {
+                  _deleteInvEntries();
+                },
+                icon: const Icon(
+                  Icons.delete,
+                  color: Colors.white,
+                )
+            ),
+          ] : <Widget>[] // AppBar color
       ),
       body: Column(
         children: [
@@ -107,7 +133,6 @@ class _FeedState extends State<FeedPage> {
   // Method to display the content based on the selected section
   Widget displaySelectedSectionContent() {
     final sectionType = selectedSection.replaceAll(' ', '');
-    DatabaseServicesForFeed fdDB = DatabaseServicesForFeed(uid);
 
     return FutureBuilder<QuerySnapshot>(
       future: fdDB.infoFromServerForCategory(sectionType),
@@ -120,15 +145,17 @@ class _FeedState extends State<FeedPage> {
         }
         final items = snapshot.data!.docs;
 
-
         return ListView.builder(
           itemCount: items.length,
           itemBuilder: (context, index) {
             final item = items[index].data() as Map<String, dynamic>;
-            print("It is here ${item['Document ID']}");
+
+            String docId = items[index].id;
+
             final DateTime fdDate = item['feedDate'].toDate();
             final String sFdDate = '${fdDate.day}-${fdDate.month}-${fdDate
                 .year}';
+
             return Container(
                 padding: EdgeInsets.all(10.0),
                 child: ListTile(
@@ -146,15 +173,19 @@ class _FeedState extends State<FeedPage> {
                     trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[_showCheckboxes ?
-                        Checkbox(value: _isSelected,
+                        Checkbox(value: selectedEntries.contains(docId),
                             checkColor: Colors.white,
                             activeColor: const Color(0xFF0DA6BA),
                             shape: const CircleBorder(),
                             // Tealish blue
                             onChanged: (val) {
                               setState(() {
-                                _isSelected = val!;
-                                //notifications[index]['isSelected'] = _isSelected.toString();
+                                if(val!){
+                                  selectedEntries.add(docId);
+                                }
+                                else{
+                                  selectedEntries.remove(docId);
+                                }
                               });
                             })
                             : Container(),
@@ -202,5 +233,18 @@ class _FeedState extends State<FeedPage> {
         ),
       ),
     );
+  }
+
+  void _deleteInvEntries() {
+    String category = selectedSection.replaceAll(' ', '');
+
+    selectedEntries.forEach((docId){
+        fdDB.deleteFeedFromServer(category, docId);
+    });
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const FeedPage()));
+
   }
 }

@@ -144,6 +144,8 @@ class _ConcentratePageState extends State<ConcentratePage> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     Checkbox(
+                                        checkColor: Colors.white,
+                                        activeColor: const Color(0xFF0DA6BA),
                                         value: _selectedIngredients.contains(
                                             item),
                                         onChanged: (isSelected) {

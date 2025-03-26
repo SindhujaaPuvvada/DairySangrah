@@ -65,17 +65,17 @@ class _EditTransactionState extends State<EditTransaction> {
             name: _categoryTransaction.text,
             value: double.parse(_valueController.text),
             expenseOnMonth: widget.expense?.expenseOnMonth);
-        return await _dbExpense.infoToServerExpanse(expense);
+        return await _dbExpense.infoToServerExpense(expense);
       }
     }
   }
   Future<void> deleteSaleDatabase() async {
-    await _dbSale.deleteFromServer(widget.sale!);
+    await _dbSale.deleteSaleFromServer(widget.sale!);
 
   }
 
   Future<void> deleteExpenseDatabase() async {
-    await _dbExpense.deleteFromServer(widget.expense!);
+    await _dbExpense.deleteExpenseFromServer(widget.expense!);
 
   }
 
