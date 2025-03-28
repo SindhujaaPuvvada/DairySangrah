@@ -16,21 +16,6 @@ import 'dart:io';
 import 'package:excel/excel.dart';
 import 'dart:typed_data';
 
-
-// Future<File?> downloadExcelFile() async {
-//   try {
-//     final storageRef = FirebaseStorage.instance.ref().child('fat_snf_data.xlsx');
-//     final directory = await getTemporaryDirectory();
-//     final file = File('${directory.path}/fat_snf_data.xlsx');
-//
-//     await storageRef.writeToFile(file);
-//     return file;
-//   } catch (e) {
-//     print("Error downloading file: $e");
-//     return null;
-//   }
-// }
-
 class AddIncome extends StatefulWidget {
   final Function onSubmit;
   const AddIncome({super.key, required this.onSubmit});
@@ -83,9 +68,15 @@ class _AddIncomeState extends State<AddIncome> {
     dbSale = DatabaseForSale(uid: uid);
   }
 
-  void _addIncome(Sale data) {
-    dbSale.infoToServerSale(data);
-    widget.onSubmit();
+  Future<void> _addIncome(Sale data) async {
+    await dbSale.infoFromServerSaleOnDate(
+        data.name, data.saleOnMonth).then((doc) async {
+      if (doc.exists) {
+        data.value = data.value + doc['value'];
+      }
+      await dbSale.infoToServerSale(data);
+      widget.onSubmit();
+    });
   }
 
   @override
@@ -99,27 +90,11 @@ class _AddIncomeState extends State<AddIncome> {
     super.dispose();
   }
 
-  // Future<double> _fetchMilkPriceFromFirebase(double fat, double snf) async {
-  //   try {
-  //     QuerySnapshot snapshot = await FirebaseFirestore.instance
-  //         .collection('MilkData')
-  //         .where('fat', isEqualTo: fat)
-  //         .where('snf', isEqualTo: snf)
-  //         .get();
-  //
-  //     if (snapshot.docs.isNotEmpty) {
-  //       var data = snapshot.docs.first.data() as Map<String, dynamic>;
-  //       return data['price']?.toDouble() ?? 0.0;
-  //     }
-  //   } catch (e) {
-  //     print("Error fetching milk price: $e");
-  //   }
-  //   return 0.0; // Default if not found
-  // }
   Future<double> getMilkPrice(double fat, double snf) async {
     try {
       // 🔹 Fetch Excel file as bytes from Firebase Storage
-      final storageRef = FirebaseStorage.instance.ref().child('milk_data.xlsx');
+      final storageRef = FirebaseStorage.instance.ref().child(
+          '${_selectedBuyer}_Rates.xlsx');
       Uint8List? fileBytes = await storageRef.getData();
 
       if (fileBytes == null) {
@@ -130,25 +105,60 @@ class _AddIncomeState extends State<AddIncome> {
       // 🔹 Decode Excel file from bytes
       var excel = Excel.decodeBytes(fileBytes);
 
-      for (var table in excel.tables.keys) {
-        for (var row in excel.tables[table]!.rows) {
-          // Assuming columns: Fat | SNF | Price
-          double rowFat = double.tryParse(row[0]?.value.toString() ?? '') ?? 0.0;
-          double rowSnf = double.tryParse(row[1]?.value.toString() ?? '') ?? 0.0;
-          double rowPrice = double.tryParse(row[2]?.value.toString() ?? '') ?? 0.0;
+      int colIndex = 0;
 
-          if (rowFat == fat && rowSnf == snf) {
-            return rowPrice; // 🔹 Return price if Fat & SNF match
+      var firstSheet = excel.tables.keys.first;
+      var firstRow = excel.tables[firstSheet]!.rows.first;
+
+      for (int i = 0; i < firstRow.length; i++) {
+        double colSnf = double.tryParse(
+            firstRow[i]?.value.toString() ?? '') ?? 0.0;
+        if (snf == colSnf) {
+          colIndex = i;
+          break;
+        }
+      }
+
+      for (var row in excel.tables[firstSheet]!.rows) {
+        double rowFat = double.tryParse(row[0]?.value.toString() ?? '') ?? 0.0;
+        if (fat == rowFat) {
+          if (colIndex != 0) {
+            double rowPrice = double.tryParse(
+                row[colIndex]?.value.toString() ?? '') ?? 0.0;
+
+            if(rowPrice != 0.0) {
+              return rowPrice;
+            }
+            else
+              {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('No matching price found for Fat: $fat, SNF: $snf!'),
+                  ),
+                );
+                return 0.0;
+              }
           }
         }
       }
-      print("No matching price found for Fat: $fat, SNF: $snf");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No matching price found for Fat: $fat, SNF: $snf!'),
+        ),
+      );
       return 0.0;
     } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error fetching price!'),
+        ),
+      );
       print("Error fetching price: $e");
       return 0.0;
     }
   }
+
+
   void _calculateMilkIncome() async {
     double fat = double.tryParse(_fatController.text) ?? 0.0;
     double snf = double.tryParse(_snfController.text) ?? 0.0;
@@ -197,31 +207,37 @@ class _AddIncomeState extends State<AddIncome> {
         _showErrorDialog("Please select a milk buyer.");
         return;
       }
-      if (_fatController.text.isEmpty || _snfController.text.isEmpty || _quantityController.text.isEmpty) {
-        _showErrorDialog("Please enter Fat, SNF, and Quantity values.");
-        return;
+      if(_selectedBuyer != 'D to C') {
+        if (_fatController.text.isEmpty || _snfController.text.isEmpty ||
+            _quantityController.text.isEmpty) {
+          _showErrorDialog("Please enter Fat, SNF, and Quantity values.");
+          return;
+        }
+
+        double fat = double.tryParse(_fatController.text) ?? 0.0;
+        double snf = double.tryParse(_snfController.text) ?? 0.0;
+        double quantity = double.tryParse(_quantityController.text) ?? 0.0;
+
+        if (fat <= 0 || snf <= 0 || quantity <= 0) {
+          _showErrorDialog(
+              "Fat, SNF, and Quantity must be valid numbers greater than zero.");
+          return;
+        }
+
+        // Fetch price from Firebase
+        double pricePerLiter = await getMilkPrice(fat, snf);
+        double totalPrice = pricePerLiter * quantity;
+
+        if (totalPrice == 0.0) {
+          _showErrorDialog(
+              "Milk price data not found for the given Fat and SNF.");
+          return;
+        }
+
+        setState(() {
+          _amountTextController.text = totalPrice.toStringAsFixed(2);
+        });
       }
-      double fat = double.tryParse(_fatController.text) ?? 0.0;
-      double snf = double.tryParse(_snfController.text) ?? 0.0;
-      double quantity = double.tryParse(_quantityController.text) ?? 0.0;
-
-      if (fat <= 0 || snf <= 0 || quantity <= 0) {
-        _showErrorDialog("Fat, SNF, and Quantity must be valid numbers greater than zero.");
-        return;
-      }
-
-      // Fetch price from Firebase
-      double pricePerLiter = await getMilkPrice(fat, snf);
-      double totalPrice = pricePerLiter * quantity;
-
-      if (totalPrice == 0.0) {
-        _showErrorDialog("Milk price data not found for the given Fat and SNF.");
-        return;
-      }
-
-      setState(() {
-        _amountTextController.text = totalPrice.toStringAsFixed(2);
-      });
     }
 
     if (_amountTextController.text.isEmpty) {
@@ -235,7 +251,7 @@ class _AddIncomeState extends State<AddIncome> {
       saleOnMonth: DateTime.tryParse(_dateController.text),
     );
 
-    _addIncome(data);
+    await _addIncome(data);
     Navigator.pop(context);
     Navigator.pushReplacement(
       context,
@@ -247,7 +263,9 @@ class _AddIncomeState extends State<AddIncome> {
 
   @override
   Widget build(BuildContext context) {
-    languageCode = Provider.of<AppData>(context).persistentVariable;
+    languageCode = Provider
+        .of<AppData>(context)
+        .persistentVariable;
 
     if (languageCode == 'en') {
       currentLocalization = LocalizationEn.translations;
@@ -262,7 +280,8 @@ class _AddIncomeState extends State<AddIncome> {
       appBar: AppBar(
         title: Text(
           '${currentLocalization['new_income']}',
-          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+              color: Colors.black, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
@@ -346,16 +365,21 @@ class _AddIncomeState extends State<AddIncome> {
                       },
                     ),
                   ),
-                  _buildTextField(_fatController, 'Fat Percentage', _calculateMilkIncome),
-                  _buildTextField(_snfController, 'SNF Percentage', _calculateMilkIncome),
-                  _buildTextField(_quantityController, 'Quantity (Liters)', _calculateMilkIncome),
+                  if(_selectedBuyer != 'D to C')...[
+                    _buildTextField(
+                        _fatController, 'Fat Percentage', _calculateMilkIncome),
+                    _buildTextField(
+                        _snfController, 'SNF Percentage', _calculateMilkIncome),
+                    _buildTextField(_quantityController, 'Quantity (Liters)',
+                        _calculateMilkIncome),
+                  ],
                 ],
                 if (_selectedCategory == 'Other')
                   Padding(
                       padding: const EdgeInsets.fromLTRB(1, 0, 1, 30),
                       child: TextFormField(
                           controller: _categoryTextController,
-                          decoration:  InputDecoration(
+                          decoration: InputDecoration(
                             labelText: '${currentLocalization['enter_category']}',
                             border: OutlineInputBorder(),
                             filled: true,
@@ -380,7 +404,6 @@ class _AddIncomeState extends State<AddIncome> {
                 ),
 
 
-
                 // SizedBox(height: 10),
                 Container(
                   alignment: Alignment.center,
@@ -388,7 +411,6 @@ class _AddIncomeState extends State<AddIncome> {
 
                     onPressed: () {
                       _validateAndSubmit();
-
                     },
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
@@ -399,10 +421,11 @@ class _AddIncomeState extends State<AddIncome> {
                       backgroundColor:
                       const Color.fromRGBO(13, 166, 186, 1.0),
                       foregroundColor: Colors.white,
-                      elevation: 10, // adjust elevation value as desired
+                      elevation: 10,
+                      // adjust elevation value as desired
                       side: const BorderSide(color: Colors.grey, width: 2),
                     ),
-                    child:  Text(
+                    child: Text(
                       '${currentLocalization['submit']}',
                       style: TextStyle(
                         color: Colors.black,

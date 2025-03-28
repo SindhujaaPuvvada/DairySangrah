@@ -4,6 +4,7 @@ import 'package:farm_expense_mangement_app/models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../services/database/userdatabase.dart';
+import '../wrappers/wrapperhome.dart';
 
 class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
   const ProfileAppBar({super.key});
@@ -13,7 +14,12 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      //
+      leading: BackButton(
+          onPressed: () =>
+              Navigator.push(
+                  context, MaterialPageRoute(
+                  builder: (context) => const WrapperHomePage())
+              )),
       centerTitle: true,
       title: const Text(
         'Profile',

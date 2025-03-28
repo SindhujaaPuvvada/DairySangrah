@@ -85,9 +85,15 @@ class _AddExpensesState extends State<AddExpenses> {
   }
 
 
-  void _addExpense(Expense data) {
-    dbExpense.infoToServerExpense(data);
-    widget.onSubmit;
+  Future<void> _addExpense(Expense data) async {
+    await dbExpense.infoFromServerExpenseOnDate(
+        data.name, data.expenseOnMonth).then((doc) async {
+      if (doc.exists) {
+        data.value = data.value + doc['value'];
+      }
+      await dbExpense.infoToServerExpense(data);
+      widget.onSubmit();
+    });
   }
 
   @override
@@ -159,13 +165,20 @@ class _AddExpensesState extends State<AddExpenses> {
               ),
               Form(
                 key: _formKey,
-                autovalidateMode: AutovalidateMode.always,
                 child: Expanded(
                   child: ListView(children: [
                     Padding(
                       padding: const EdgeInsets.fromLTRB(1, 0, 1, 20),
                       child: TextFormField(
                         controller: _dateController,
+                        validator: (val){
+                          if(val == null || val.isEmpty) {
+                            return '${currentLocalization['please_choose_date']}';
+                          }
+                          else{
+                            return null;
+                          }
+                        },
                         decoration: InputDecoration(
                           labelText: '${currentLocalization['date_of_expense']}',
                           hintText: 'YYYY-MM-DD',
@@ -192,6 +205,7 @@ class _AddExpensesState extends State<AddExpenses> {
                               _selectedCategory = value;
                             });
                           },)
+
                     ),
 
                     if (_selectedCategory == 'Other')
@@ -268,6 +282,7 @@ class _AddExpensesState extends State<AddExpenses> {
                                                 child: TextFormField(
                                                   controller: _qtyControllers[item
                                                       .feedId],
+                                                  autovalidateMode: AutovalidateMode.onUserInteraction,
                                                   textAlign: TextAlign.center,
                                                   decoration: InputDecoration(
                                                     labelText: 'Enter qty consumed in Kg',
@@ -334,28 +349,31 @@ class _AddExpensesState extends State<AddExpenses> {
     );
   }
 
-  void _submitExpense() {
+  Future<void> _submitExpense() async {
 
-    final data = Expense(
-        name: (_selectedCategory.toString() != 'Other')
-            ? _selectedCategory.toString()
-            : _categoryTextController.text,
-        value: double.parse(_amountTextController.text),
-        expenseOnMonth:
-        DateTime.parse(_dateController.text));
+    if(_formKey.currentState!.validate()) {
+      final data = Expense(
+          name: (_selectedCategory.toString() != 'Other')
+              ? _selectedCategory.toString()
+              : _categoryTextController.text,
+          value: double.parse(_amountTextController.text),
+          expenseOnMonth:
+          DateTime.parse(_dateController.text));
 
-    _addExpense(data);
+      await _addExpense(data);
 
-    _selectedFeed.forEach((feed) {
-      var qty = double.parse(_qtyControllers[feed.feedId]!.text);
-      _updateQuantityForFeed(feed ,qty);
-    });
+      _selectedFeed.forEach((feed) {
+        var qty = double.parse(_qtyControllers[feed.feedId]!.text);
+        _updateQuantityForFeed(feed, qty);
+      });
 
-    Navigator.pop(context);
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(
-        builder: (context) => const TransactionPage(
-          showIncome: false,)));
+      Navigator.pop(context);
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(
+          builder: (context) =>
+          const TransactionPage(
+            showIncome: false,)));
+    }
 
   }
 
