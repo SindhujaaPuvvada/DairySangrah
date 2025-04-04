@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:farm_expense_mangement_app/screens/transaction/transactionpage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +10,6 @@ import '../home/localisations_en.dart';
 import '../home/localisations_hindi.dart';
 import '../home/localisations_punjabi.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-// import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 import 'package:excel/excel.dart';
 import 'dart:typed_data';
 

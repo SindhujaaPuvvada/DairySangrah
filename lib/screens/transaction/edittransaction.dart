@@ -1,5 +1,3 @@
-
-
 import 'package:farm_expense_mangement_app/models/transaction.dart';
 import 'package:farm_expense_mangement_app/screens/transaction/transactionpage.dart';
 import 'package:farm_expense_mangement_app/services/database/transactiondatabase.dart';
@@ -168,7 +166,7 @@ class _EditTransactionState extends State<EditTransaction> {
                   enabled: false,
                   style:  TextStyle(fontSize: 20, color: Colors.black),
                   // controller: _categoryTransaction,
-                    initialValue:(widget.showIncome) ? '${currentLocalization[widget?.sale?.name]}' : '${currentLocalization[widget?.expense?.name]}',
+                    initialValue:(widget.showIncome) ? '${currentLocalization[widget.sale?.name]}' : '${currentLocalization[widget.expense?.name]}',
                   decoration: InputDecoration(
                       labelText: (widget.showIncome) ? '${currentLocalization['income_category']}' : '${currentLocalization['expense_category']}',
                       labelStyle: const TextStyle(fontSize: 20, color: Colors.black)),
@@ -268,7 +266,7 @@ class _EditTransactionState extends State<EditTransaction> {
                       _deleteTransaction(context);
                     },
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
+                      backgroundColor: WidgetStateProperty.all<Color>(
                           const Color.fromRGBO(13, 166, 186, 0.9)),
                     ),
                     child: Text(
@@ -282,7 +280,7 @@ class _EditTransactionState extends State<EditTransaction> {
                       _submitForm(context);
                     },
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
+                      backgroundColor: WidgetStateProperty.all<Color>(
                           const Color.fromRGBO(13, 166, 186, 0.9)),
                     ),
                     child: Text(

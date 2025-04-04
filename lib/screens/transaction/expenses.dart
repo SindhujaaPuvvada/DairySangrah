@@ -51,7 +51,7 @@ class _AddExpensesState extends State<AddExpenses> {
   ];
 
   List<Feed> _feedTypes = [];
-  List<Feed> _selectedFeed = [];
+  final List<Feed> _selectedFeed = [];
 
 
 
@@ -111,9 +111,9 @@ class _AddExpensesState extends State<AddExpenses> {
   void dispose() {
     _dateController.dispose();
     _amountTextController.dispose();
-    _qtyControllers.values.forEach((txtCntrlr) {
+    for (var txtCntrlr in _qtyControllers.values) {
       txtCntrlr.dispose();
-    });
+    }
     super.dispose();
   }
 
@@ -131,10 +131,10 @@ class _AddExpensesState extends State<AddExpenses> {
       currentLocalization = LocalizationPun.translations;
     }
 
-    _feedTypes.forEach((fd) {
+    for (var fd in _feedTypes) {
       TextEditingController txtCntrlr = TextEditingController();
-      _qtyControllers[fd.feedId??""] = txtCntrlr;
-    });
+      _qtyControllers[fd.feedId ?? ""] = txtCntrlr;
+    }
 
     return Scaffold(
 
@@ -171,11 +171,11 @@ class _AddExpensesState extends State<AddExpenses> {
                       padding: const EdgeInsets.fromLTRB(1, 0, 1, 20),
                       child: TextFormField(
                         controller: _dateController,
-                        validator: (val){
-                          if(val == null || val.isEmpty) {
+                        validator: (val) {
+                          if (val == null || val.isEmpty) {
                             return '${currentLocalization['please_choose_date']}';
                           }
-                          else{
+                          else {
                             return null;
                           }
                         },
@@ -234,7 +234,7 @@ class _AddExpensesState extends State<AddExpenses> {
                               )
                           ),
                           const SizedBox(height: 10),
-                          SizedBox(height: 160,
+                          SizedBox(height: 160, width: 400,
                             child: Container(
                               decoration: BoxDecoration(
                                   border: Border.all(),
@@ -248,66 +248,81 @@ class _AddExpensesState extends State<AddExpenses> {
                                     mainAxisSize: MainAxisSize.max,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: <Widget>[
-                                      for (Feed item in _feedTypes)...[
-                                        Row(
-                                            mainAxisAlignment: MainAxisAlignment
-                                                .start,
-                                            children: [
-                                              Checkbox(
-                                                  checkColor: Colors.white,
-                                                  activeColor: const Color(0xFF0DA6BA),
-                                                  value: _selectedFeed.contains(
-                                                      item),
-                                                  onChanged: (isSelected) {
-                                                    if (isSelected == true) {
-                                                      _selectedFeed.add(
-                                                          item);
-                                                    } else
-                                                    if (isSelected == false) {
-                                                      _selectedFeed.remove(
-                                                          item);
-                                                    }
-                                                    setState(() {});
-                                                  }
-                                              ),
-                                              SizedBox(width: 150,
-                                                  child: Text('Ty: ${item
-                                                      .feedType} |\nQty: ${item
-                                                      .quantity}Kg |\nRt: ₹${item
-                                                      .ratePerKg}/Kg')),
-                                              SizedBox(width: 20),
-                                              (_selectedFeed.contains(
-                                                  item)) ?
-                                              Expanded(
-                                                child: TextFormField(
-                                                  controller: _qtyControllers[item
-                                                      .feedId],
-                                                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                                                  textAlign: TextAlign.center,
-                                                  decoration: InputDecoration(
-                                                    labelText: 'Enter qty consumed in Kg',
-                                                  ),
-                                                  validator: (value) {
-                                                    if (value == null ||
-                                                        value.isEmpty) {
-                                                      return currentLocalization['please_enter_value'] ??
-                                                          "";
-                                                    }
-                                                    else if (item.quantity -
-                                                        double.parse(value) <
-                                                        0) {
-                                                      return 'cannot be more than existing quantity!';
-                                                    }
-                                                    else{
-                                                      return null;
-                                                    }
-                                                  },
-                                                ),
-                                              ) : Text('')
-                                            ]
-                                        ),
-                                        SizedBox(height: 20),
+                                      if(_feedTypes.isEmpty)...[
+                                        Text('Out of Stock, please refill !',
+                                            style: TextStyle(fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.redAccent))
                                       ]
+                                      else
+                                        ...[
+                                          for (Feed item in _feedTypes)...[
+                                            Row(
+                                                mainAxisAlignment: MainAxisAlignment
+                                                    .start,
+                                                children: [
+                                                  Checkbox(
+                                                      checkColor: Colors.white,
+                                                      activeColor: const Color(
+                                                          0xFF0DA6BA),
+                                                      value: _selectedFeed
+                                                          .contains(
+                                                          item),
+                                                      onChanged: (isSelected) {
+                                                        if (isSelected ==
+                                                            true) {
+                                                          _selectedFeed.add(
+                                                              item);
+                                                        } else if (isSelected ==
+                                                            false) {
+                                                          _selectedFeed.remove(
+                                                              item);
+                                                        }
+                                                        setState(() {});
+                                                      }
+                                                  ),
+                                                  SizedBox(width: 150,
+                                                      child: Text('Ty: ${item
+                                                          .feedType} |\nQty: ${item
+                                                          .quantity}Kg |\nRt: ₹${item
+                                                          .ratePerKg}/Kg')),
+                                                  SizedBox(width: 20),
+                                                  (_selectedFeed.contains(
+                                                      item)) ?
+                                                  Expanded(
+                                                    child: TextFormField(
+                                                      controller: _qtyControllers[item
+                                                          .feedId],
+                                                      autovalidateMode: AutovalidateMode
+                                                          .onUserInteraction,
+                                                      textAlign: TextAlign
+                                                          .center,
+                                                      decoration: InputDecoration(
+                                                        labelText: 'Enter qty consumed in Kg',
+                                                      ),
+                                                      validator: (value) {
+                                                        if (value == null ||
+                                                            value.isEmpty) {
+                                                          return currentLocalization['please_enter_value'] ??
+                                                              "";
+                                                        }
+                                                        else if (item.quantity -
+                                                            double.parse(
+                                                                value) <
+                                                            0) {
+                                                          return 'cannot be more than existing quantity!';
+                                                        }
+                                                        else {
+                                                          return null;
+                                                        }
+                                                      },
+                                                    ),
+                                                  ) : Text('')
+                                                ]
+                                            ),
+                                            SizedBox(height: 20),
+                                          ]
+                                        ],
                                     ],
                                   ),
                                 ),
@@ -362,10 +377,10 @@ class _AddExpensesState extends State<AddExpenses> {
 
       await _addExpense(data);
 
-      _selectedFeed.forEach((feed) {
+      for (var feed in _selectedFeed) {
         var qty = double.parse(_qtyControllers[feed.feedId]!.text);
         _updateQuantityForFeed(feed, qty);
-      });
+      }
 
       Navigator.pop(context);
       Navigator.pushReplacement(
@@ -380,10 +395,10 @@ class _AddExpensesState extends State<AddExpenses> {
   void _calculateExpense() {
     double totPrice = 0;
     if(_formKey.currentState!.validate()){
-        _selectedFeed.forEach((feed){
+        for (var feed in _selectedFeed) {
             double qty = double.parse(_qtyControllers[feed.feedId]!.text);
             totPrice = totPrice + (qty*feed.ratePerKg);
-        });
+        }
         _amountTextController.text = (totPrice.toPrecision(2)).toString();
     }
 

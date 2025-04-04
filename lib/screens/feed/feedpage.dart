@@ -238,9 +238,9 @@ class _FeedState extends State<FeedPage> {
   void _deleteInvEntries() {
     String category = selectedSection.replaceAll(' ', '');
 
-    selectedEntries.forEach((docId){
+    for (var docId in selectedEntries) {
         fdDB.deleteFeedFromServer(category, docId);
-    });
+    }
 
     Navigator.push(
         context,

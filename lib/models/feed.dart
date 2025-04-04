@@ -11,7 +11,7 @@ class Feed {
   DateTime feedDate;
 
   Feed({
-    this.feedId = null,
+    this.feedId,
     required this.category,
     required this.feedType,
     required this.quantity,

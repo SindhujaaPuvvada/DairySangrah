@@ -47,7 +47,7 @@ class DatabaseForSale {
         .collection('User')
         .doc(uid)
         .collection('Sale')
-        .doc("${name.replaceAll(' ', '')}D${saleOnMonth!.day}M${saleOnMonth!.month}Y${saleOnMonth!.year}")
+        .doc("${name.replaceAll(' ', '')}D${saleOnMonth!.day}M${saleOnMonth.month}Y${saleOnMonth.year}")
         .get();
 
   }

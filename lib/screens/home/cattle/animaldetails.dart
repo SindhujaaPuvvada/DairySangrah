@@ -3,7 +3,6 @@ import 'package:farm_expense_mangement_app/screens/home/cattle/animallist.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../../models/cattle.dart';
 import '../../../services/database/cattledatabase.dart';
 import 'package:farm_expense_mangement_app/models/history.dart';
@@ -214,10 +213,10 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                               },
                               style: ButtonStyle(
                                 backgroundColor:
-                                MaterialStateProperty.all<Color>(
+                                WidgetStateProperty.all<Color>(
                                   const Color.fromRGBO(240, 255, 255, 1.0),
                                 ),
-                                side: MaterialStateProperty.all<BorderSide>(
+                                side: WidgetStateProperty.all<BorderSide>(
                                   const BorderSide(
                                       color: Colors
                                           .black), // Set the border color here
@@ -946,7 +945,7 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
                       }
                     },
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(
+                      backgroundColor: WidgetStateProperty.all(
                         const Color.fromRGBO(13, 166, 186, 1.0),
                       ),
                     ),
@@ -1138,7 +1137,7 @@ class _AddEventPopupState extends State<AddEventPopup> {
               }
             },
             style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(
+              backgroundColor: WidgetStateProperty.all(
                 const Color.fromRGBO(13, 166, 186, 0.6),
               ),
             ),

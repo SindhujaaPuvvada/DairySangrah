@@ -7,7 +7,7 @@ import 'package:farm_expense_mangement_app/models/cattle.dart';
 import 'package:farm_expense_mangement_app/screens/home/cattle/newcattle.dart';
 
 class AnimalList1 extends StatefulWidget {
-  const AnimalList1({Key? key}) : super(key: key);
+  const AnimalList1({super.key});
 
   @override
   _AnimalList1State createState() => _AnimalList1State();
@@ -92,8 +92,8 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
             ),
           );
         },
-        child: const Icon(Icons.add),
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
+        child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
@@ -143,7 +143,7 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: const BoxDecoration(
-                  color:  const Color.fromRGBO(13, 166, 186, 0.9),// White background for section name
+                  color:  Color.fromRGBO(13, 166, 186, 0.9),// White background for section name
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(16),
                     topRight: Radius.circular(16),

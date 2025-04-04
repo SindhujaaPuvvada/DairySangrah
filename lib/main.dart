@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/language.dart';
+import 'package:upgrader/upgrader.dart';
 final navigatorKey=GlobalKey<NavigatorState>();
 
 
@@ -42,7 +43,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: StreamBuilder<User?>(
+      home: UpgradeAlert(child: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           final user = snapshot.data;
@@ -57,6 +58,7 @@ class MyApp extends StatelessWidget {
             return const WrapperHomePage();
           }
         },
+      )
       ),
     );
   }

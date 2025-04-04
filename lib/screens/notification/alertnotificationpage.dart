@@ -92,12 +92,12 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
     }
 
     // Helper to trim content to a fixed number of words
-    String _trimContent(String content, int wordCount) {
+    String trimContent(String content, int wordCount) {
       final words = content.split(" ");
       if (words.length <= wordCount) {
         return content;
       }
-      return words.take(wordCount).join(" ") + "...";
+      return "${words.take(wordCount).join(" ")}...";
     }
 
     return Scaffold(
@@ -185,7 +185,7 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
                     subtitle: Padding(
                       padding: const EdgeInsets.only(top: 6.0),
                       child: Text(
-                        _trimContent(
+                        trimContent(
                             notifications[index]['details']!, 5),
                         style: const TextStyle(
                           fontSize: 14,
