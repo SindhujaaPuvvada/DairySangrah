@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../logging.dart';
 import '../../models/transaction.dart';
 import '../../services/database/transactiondatabase.dart';
 import '../../main.dart';
@@ -22,6 +23,8 @@ class AddIncome extends StatefulWidget {
 }
 
 class _AddIncomeState extends State<AddIncome> {
+
+  final log = logger(AddIncome);
   late Map<String, String> currentLocalization = {};
   late String languageCode = 'en';
 
@@ -95,7 +98,7 @@ class _AddIncomeState extends State<AddIncome> {
       Uint8List? fileBytes = await storageRef.getData();
 
       if (fileBytes == null) {
-        print("Error: Failed to download Excel file.");
+        log.e("Failed to download Excel file.");
         return 0.0;
       }
 
@@ -150,7 +153,7 @@ class _AddIncomeState extends State<AddIncome> {
           content: Text('Error fetching price!'),
         ),
       );
-      print("Error fetching price: $e");
+      log.e("Error fetching price",time: DateTime.now(), error: e.toString());
       return 0.0;
     }
   }

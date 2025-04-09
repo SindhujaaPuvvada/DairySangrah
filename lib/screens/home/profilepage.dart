@@ -33,7 +33,7 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
             FirebaseAuth.instance.signOut();
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const MyApp()),
+              MaterialPageRoute(builder: (context) => MyApp()),
             );
           },
           icon: const Icon(

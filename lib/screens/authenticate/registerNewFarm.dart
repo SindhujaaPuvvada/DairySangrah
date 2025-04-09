@@ -1,10 +1,10 @@
 import 'package:farm_expense_mangement_app/models/user.dart' as appUser;
 import 'package:farm_expense_mangement_app/screens/authenticate/phoneno.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../logging.dart';
 import '../../main.dart';
 import '../../services/database/userdatabase.dart';
 import '../../shared/constants.dart';
@@ -14,6 +14,8 @@ import '../home/localisations_punjabi.dart';
 import '../wrappers/wrapperhome.dart';
 
 class RegisterFarm extends StatefulWidget{
+  const RegisterFarm({super.key});
+
   @override
   State<RegisterFarm> createState() => _RegisterFarmState();
 }
@@ -25,6 +27,8 @@ class _RegisterFarmState extends State<RegisterFarm> {
 
   final user = FirebaseAuth.instance.currentUser;
   final uid = FirebaseAuth.instance.currentUser!.uid;
+
+  final log = logger(RegisterFarm);
 
   String ownerName = '';
   String farmName = '';
@@ -120,7 +124,7 @@ class _RegisterFarmState extends State<RegisterFarm> {
                                             builder: (
                                                 context) => const WrapperHomePage()));
                                   } catch (error) {
-                                    print(error.toString());
+                                    log.e('Encountered error',time:DateTime.now(), error: error.toString());
                                   }
                                 }
                               },

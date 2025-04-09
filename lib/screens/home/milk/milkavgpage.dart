@@ -40,9 +40,11 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
           .map((doc) => MilkByDate.fromFireStore(doc, null))
           .toList();
       _allMilkByDate = _originalMilkByDate;
-      totalMilkAcrossAllDates = _originalMilkByDate
-          .map((milk) => milk.totalMilk)
-          .reduce((a, b) => a + b); // Calculate the total milk across all dates
+      if(_allMilkByDate.isNotEmpty) {
+        totalMilkAcrossAllDates = _originalMilkByDate
+            .map((milk) => milk.totalMilk)
+            .reduce((a, b) => a + b);
+      }// Calculate the total milk across all dates
       _isLoading = false;
     });
 

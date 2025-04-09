@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:farm_expense_mangement_app/models/user.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/registerNewFarm.dart';
 import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,10 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:farm_expense_mangement_app/services/auth.dart';
 import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/phoneno.dart';
+import '../../logging.dart';
 import '../home/localisations_en.dart';
 import '../home/localisations_hindi.dart';
 import '../home/localisations_punjabi.dart';
 class OtpVerificationPage extends StatefulWidget {
+  const OtpVerificationPage({super.key});
+
   @override
   _OtpVerificationPageState createState() => _OtpVerificationPageState();
 }
@@ -20,6 +21,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   final _controllers = List.generate(6, (index) => TextEditingController());
   final AuthService _auth = AuthService();
   late String languageCode = 'en';
+  final log = logger(OtpVerificationPage);
 
 
 
@@ -142,7 +144,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     final snapshot =  await userDb.infoFromServer(uid);
 
                     if (SignUpPage.newFarmReg && !snapshot.exists) {
-                      print("in register block");
+                      //print("in register block");
 
                       Navigator.pushReplacement(
                           context, MaterialPageRoute(
@@ -156,7 +158,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     }
                   }
                   catch (e) {
-                    print("Invalid OTP!!" + e.toString());
+                    log.e("Invalid OTP!!", time: DateTime.now(), error: e.toString());
                   }
                 },
                 child: Text(

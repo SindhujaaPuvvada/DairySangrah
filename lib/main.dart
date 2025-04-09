@@ -8,6 +8,9 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/language.dart';
 import 'package:upgrader/upgrader.dart';
+import 'logging.dart';
+
+
 final navigatorKey=GlobalKey<NavigatorState>();
 
 
@@ -32,13 +35,15 @@ void main() async {
   runApp(
     ChangeNotifierProvider(
       create: (context) => AppData(),
-      child:  const MyApp(),
+      child:  MyApp(),
     )
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+
+  final log = logger(MyApp);
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +57,7 @@ class MyApp extends StatelessWidget {
             //Authenticate();
 
           } else {
-            // final cattleDb = DatabaseServicesForCattle(user.uid);
-
-            // cattleDb.infoToServerSingleCattle(cattle);
+            log.i('Already logged in!!!');
             return const WrapperHomePage();
           }
         },
