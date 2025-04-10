@@ -90,7 +90,12 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
     } else if (languageCode == 'pa') {
       currentLocalization = LocalizationPun.translations;
     }
-
+    String localizeSentence(String sentence) {
+      return sentence
+          .split(' ')
+          .map((word) => currentLocalization[word] ?? word)
+          .join(' ');
+    }
     // Helper to trim content to a fixed number of words
     String trimContent(String content, int wordCount) {
       final words = content.split(" ");
@@ -175,7 +180,7 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
                       ),
                     ),
                     title: Text(
-                      notifications[index]['title']!,
+                      currentLocalization[notifications[index]['title']] ?? notifications[index]['title']!,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -186,7 +191,7 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
                       padding: const EdgeInsets.only(top: 6.0),
                       child: Text(
                         trimContent(
-                            notifications[index]['details']!, 5),
+                            localizeSentence(notifications[index]['details']!), 5),
                         style: const TextStyle(
                           fontSize: 14,
                           color: Color(0xFF757575), // Medium gray
@@ -206,14 +211,14 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
                         builder: (context) {
                           return AlertDialog(
                             title: Text(
-                              notifications[index]['title']!,
+                              currentLocalization[notifications[index]['title']] ?? notifications[index]['title']!,
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             content: Text(
-                              notifications[index]['details']!,
+                              localizeSentence(notifications[index]['details']!),
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: Color(0xFF333333),
@@ -228,9 +233,10 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
                                   foregroundColor: const Color(
                                       0xFF0DA6BA),
                                 ),
-                                child: const Text(
-                                  'Close',
-                                  style: TextStyle(fontSize: 16),
+                                child:  Text(
+                          currentLocalization['Close'] ?? 'Close'
+,
+                          style: TextStyle(fontSize: 16),
                                 ),
                               ),
                             ],

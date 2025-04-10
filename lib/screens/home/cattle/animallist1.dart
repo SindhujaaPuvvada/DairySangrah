@@ -3,6 +3,11 @@ import 'package:farm_expense_mangement_app/screens/home/cattle/animaldetails.dar
 import 'package:farm_expense_mangement_app/services/database/cattledatabase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../localisations_en.dart';
+import '../localisations_hindi.dart';
+import 'package:provider/provider.dart';
+import '../localisations_punjabi.dart';
+import '../../../main.dart';
 
 class AnimalList2 extends StatefulWidget {
   final String animalType;
@@ -18,6 +23,8 @@ class _AnimalList2State extends State<AnimalList2> {
   late DatabaseServicesForCattle cattleDb;
   late List<Cattle> allCattle = [];
   List<Cattle> filteredCattle = [];
+  late Map<String, String> currentLocalization= {};
+  late String languageCode = 'en';
   final TextEditingController _searchController = TextEditingController();
   String? _selectedBreed; // Store the selected breed for filtering
 
@@ -95,13 +102,24 @@ class _AnimalList2State extends State<AnimalList2> {
 
   @override
   Widget build(BuildContext context) {
+    languageCode = Provider
+        .of<AppData>(context)
+        .persistentVariable;
+
+    if (languageCode == 'en') {
+      currentLocalization = LocalizationEn.translations;
+    } else if (languageCode == 'hi') {
+      currentLocalization = LocalizationHi.translations;
+    } else if (languageCode == 'pa') {
+      currentLocalization = LocalizationPun.translations;
+    }
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.black),
         title: Text(
-          '${widget.animalType} - ${widget.section}',
-          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black,fontSize: 20),
+            '${currentLocalization[widget.animalType] ?? widget.animalType} - ${currentLocalization[widget.section] ?? widget.section}',
+            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black,fontSize: 20),
           textAlign: TextAlign.center,
         ),
         centerTitle: true,
@@ -120,7 +138,7 @@ class _AnimalList2State extends State<AnimalList2> {
             child: DropdownButton<String>(
               value: _selectedBreed,
               hint: Text(
-                _selectedBreed ?? 'All',
+                _selectedBreed ?? currentLocalization['All'] ?? 'All',
                 style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
               ),
               icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
@@ -132,12 +150,13 @@ class _AnimalList2State extends State<AnimalList2> {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(
-                    value,
+                    currentLocalization[value] ?? value,
                     style: TextStyle(
                       color: _selectedBreed == value ? Colors.black : Colors.black,
                       fontWeight: _selectedBreed == value ? FontWeight.bold : FontWeight.normal,
                     ),
-                  ),
+                  )
+
                 );
               }).toList(),
             ),
@@ -155,7 +174,8 @@ class _AnimalList2State extends State<AnimalList2> {
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      labelText: 'Search Cattle',
+                      labelText: currentLocalization['Search Cattle'] ?? 'Search Cattle',
+
                       prefixIcon: const Icon(Icons.search),
                       contentPadding: const EdgeInsets.symmetric(vertical: 10), // Reduced height
                       border: OutlineInputBorder(
@@ -235,14 +255,16 @@ class _AnimalList2State extends State<AnimalList2> {
                           ),
                         ),
                         title: Text(
-                          "RF ID: ${cattleInfo.rfid}",
+                          "${currentLocalization['RF ID'] ?? 'RF ID'}: ${cattleInfo.rfid}",
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Breed: ${cattleInfo.breed}"),
-                            Text("Sex: ${cattleInfo.sex}"),
+                            Text("${currentLocalization['Breed'] ?? 'Breed'}: ${currentLocalization[cattleInfo.breed] ?? cattleInfo.breed}"),
+                            Text("${currentLocalization['Sex'] ?? 'Sex'}: ${currentLocalization[cattleInfo.sex] ?? cattleInfo.sex}"),
+
+
                           ],
                         ),
                       ),

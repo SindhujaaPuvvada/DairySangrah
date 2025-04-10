@@ -184,7 +184,7 @@ class _HomePageState extends State<HomePage> {
                   Expanded(
                     child: buildClickableContainer(
                       context,
-                      ' Milk Details',
+                      'Milk Details',
                       'asset/milk.png',
                       avgMilkPerCowColor,
                           () => Navigator.push(

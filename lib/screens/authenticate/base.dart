@@ -20,7 +20,6 @@ class _DairyMitraRegistrationPageState
   late String languageCode = 'en';
 
 
-
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;

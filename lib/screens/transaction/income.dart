@@ -341,13 +341,14 @@ class _AddIncomeState extends State<AddIncome> {
                   ),
                 ),
 
-                if (_selectedCategory == 'Milk Sale') ...[
+                if (_selectedCategory =='Milk Sale'
+                ) ...[
                   Padding(
                     padding: const EdgeInsets.fromLTRB(1, 0, 1, 20),
                     child: DropdownButtonFormField<String>(
                       value: _selectedBuyer,
-                      decoration: const InputDecoration(
-                        labelText: 'Select Buyer',
+                      decoration: InputDecoration(
+                        labelText: currentLocalization['Select Buyer'] ?? 'Select Buyer',
                         border: OutlineInputBorder(),
                         filled: true,
                         fillColor: Color.fromRGBO(240, 255, 255, 1),
@@ -367,10 +368,10 @@ class _AddIncomeState extends State<AddIncome> {
                   ),
                   if(_selectedBuyer != 'D to C')...[
                     _buildTextField(
-                        _fatController, 'Fat Percentage', _calculateMilkIncome),
+                        _fatController, currentLocalization['Fat Percentage'] ?? 'Fat Percentage', _calculateMilkIncome),
                     _buildTextField(
-                        _snfController, 'SNF Percentage', _calculateMilkIncome),
-                    _buildTextField(_quantityController, 'Quantity (Liters)',
+                        _snfController, currentLocalization['SNF Percentage'] ?? 'SNF Percentage', _calculateMilkIncome),
+                    _buildTextField(_quantityController, currentLocalization['Quantity (Liters)'] ?? 'Quantity (Liters)',
                         _calculateMilkIncome),
                   ],
                 ],
@@ -394,8 +395,8 @@ class _AddIncomeState extends State<AddIncome> {
                   child: TextFormField(
                     controller: _amountTextController,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Total Income',
+                    decoration:  InputDecoration(
+                      labelText: currentLocalization['Total Income'] ?? 'Total Income',
                       border: OutlineInputBorder(),
                       filled: true,
                       fillColor: Color.fromRGBO(240, 255, 255, 1),

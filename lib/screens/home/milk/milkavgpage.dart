@@ -144,7 +144,7 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              "${currentLocalization['total_milk'] ?? 'Total Milk'}: $totalMilkAcrossAllDates Liters",
+              "${currentLocalization['Total Milk'] ?? 'Total Milk'}: $totalMilkAcrossAllDates Liters",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
