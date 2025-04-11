@@ -1,15 +1,19 @@
 import 'package:farm_expense_mangement_app/models/cattle.dart';
 import 'package:farm_expense_mangement_app/screens/home/cattle/animaldetails.dart';
-import 'package:farm_expense_mangement_app/screens/home/cattle/newcattle.dart';
 import 'package:farm_expense_mangement_app/services/database/cattledatabase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../localisations_en.dart';
+import '../localisations_hindi.dart';
+import 'package:provider/provider.dart';
+import '../localisations_punjabi.dart';
+import '../../../main.dart';
 
 class AnimalList2 extends StatefulWidget {
   final String animalType;
   final String section;
 
-  const AnimalList2({required this.animalType, required this.section, Key? key}) : super(key: key);
+  const AnimalList2({required this.animalType, required this.section, super.key});
 
   @override
   State<AnimalList2> createState() => _AnimalList2State();
@@ -19,6 +23,8 @@ class _AnimalList2State extends State<AnimalList2> {
   late DatabaseServicesForCattle cattleDb;
   late List<Cattle> allCattle = [];
   List<Cattle> filteredCattle = [];
+  late Map<String, String> currentLocalization= {};
+  late String languageCode = 'en';
   final TextEditingController _searchController = TextEditingController();
   String? _selectedBreed; // Store the selected breed for filtering
 
@@ -34,7 +40,7 @@ class _AnimalList2State extends State<AnimalList2> {
     final snapshot = await cattleDb.infoFromServerAllCattle(FirebaseAuth.instance.currentUser!.uid);
     setState(() {
       allCattle = snapshot.docs.map((doc) => Cattle.fromFireStore(doc, null)).toList();
-      print(widget.animalType);
+      //print(widget.animalType);
       // print(widget.section);
       _filterCattle();
     });
@@ -43,8 +49,8 @@ class _AnimalList2State extends State<AnimalList2> {
   void _filterCattle() {
     setState(() {
       filteredCattle = allCattle.where((cattle) {
-        print(cattle.type);
-        print(cattle.state);
+        //print(cattle.type);
+        //print(cattle.state);
         if (widget.animalType == 'Cow' && cattle.type != 'Cow') return false;
         if (widget.animalType == 'Buffalo' && cattle.type != 'Buffalo') return false;
         if (cattle.state != widget.section) return false;
@@ -53,7 +59,7 @@ class _AnimalList2State extends State<AnimalList2> {
       }).toList();
       _searchCattle(); // Apply search filter after breed filter
     });
-    print(filteredCattle);
+    //print(filteredCattle);
   }
 
   void _viewCattleDetail(Cattle cattle) {
@@ -96,13 +102,24 @@ class _AnimalList2State extends State<AnimalList2> {
 
   @override
   Widget build(BuildContext context) {
+    languageCode = Provider
+        .of<AppData>(context)
+        .persistentVariable;
+
+    if (languageCode == 'en') {
+      currentLocalization = LocalizationEn.translations;
+    } else if (languageCode == 'hi') {
+      currentLocalization = LocalizationHi.translations;
+    } else if (languageCode == 'pa') {
+      currentLocalization = LocalizationPun.translations;
+    }
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.black),
         title: Text(
-          '${widget.animalType} - ${widget.section}',
-          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black,fontSize: 20),
+            '${currentLocalization[widget.animalType] ?? widget.animalType} - ${currentLocalization[widget.section] ?? widget.section}',
+            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black,fontSize: 20),
           textAlign: TextAlign.center,
         ),
         centerTitle: true,
@@ -121,7 +138,7 @@ class _AnimalList2State extends State<AnimalList2> {
             child: DropdownButton<String>(
               value: _selectedBreed,
               hint: Text(
-                '${_selectedBreed ?? 'All'}',
+                _selectedBreed ?? currentLocalization['All'] ?? 'All',
                 style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
               ),
               icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
@@ -133,12 +150,13 @@ class _AnimalList2State extends State<AnimalList2> {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(
-                    value,
+                    currentLocalization[value] ?? value,
                     style: TextStyle(
                       color: _selectedBreed == value ? Colors.black : Colors.black,
                       fontWeight: _selectedBreed == value ? FontWeight.bold : FontWeight.normal,
                     ),
-                  ),
+                  )
+
                 );
               }).toList(),
             ),
@@ -156,7 +174,8 @@ class _AnimalList2State extends State<AnimalList2> {
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      labelText: 'Search Cattle',
+                      labelText: currentLocalization['Search Cattle'] ?? 'Search Cattle',
+
                       prefixIcon: const Icon(Icons.search),
                       contentPadding: const EdgeInsets.symmetric(vertical: 10), // Reduced height
                       border: OutlineInputBorder(
@@ -236,14 +255,16 @@ class _AnimalList2State extends State<AnimalList2> {
                           ),
                         ),
                         title: Text(
-                          "RF ID: ${cattleInfo.rfid}",
+                          "${currentLocalization['RF ID'] ?? 'RF ID'}: ${cattleInfo.rfid}",
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Breed: ${cattleInfo.breed}"),
-                            Text("Sex: ${cattleInfo.sex}"),
+                            Text("${currentLocalization['Breed'] ?? 'Breed'}: ${currentLocalization[cattleInfo.breed] ?? cattleInfo.breed}"),
+                            Text("${currentLocalization['Sex'] ?? 'Sex'}: ${currentLocalization[cattleInfo.sex] ?? cattleInfo.sex}"),
+
+
                           ],
                         ),
                       ),

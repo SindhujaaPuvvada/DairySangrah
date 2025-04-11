@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Feed {
+  String? feedId;
   String category;
   String feedType;
   double quantity;
@@ -10,6 +11,7 @@ class Feed {
   DateTime feedDate;
 
   Feed({
+    this.feedId,
     required this.category,
     required this.feedType,
     required this.quantity,
@@ -31,10 +33,11 @@ class Feed {
   }
 
   // Updated fromFireStore to require only one argument
-  factory Feed.fromFireStore(DocumentSnapshot<Map<String, dynamic>> snapshot) {
+  factory Feed.fromFireStore(DocumentSnapshot<Map<String, dynamic>> snapshot, String category) {
     final json = snapshot.data();
     return Feed(
-      category: "",
+      feedId: snapshot.id,
+      category: category,
       feedType: json?['feedType'] ?? '',
       quantity: json?['quantity'] ?? 0,
       source: json?['source'] ?? '',

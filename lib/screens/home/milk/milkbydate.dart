@@ -126,7 +126,8 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
           Padding(
             padding: const EdgeInsets.only(left: 20.0, top: 20.0),
             child: Text(
-              '${currentLocalization['date']}: ${widget.dateOfMilk!.day}-${widget.dateOfMilk!.month}-${widget.dateOfMilk!.year}                 ${'Total Milk'}: ${_calculateTotalMilk().toStringAsFixed(2)}L',
+              '${currentLocalization['date']}: ${widget.dateOfMilk!.day}-${widget.dateOfMilk!.month}-${widget.dateOfMilk!.year}                 ${currentLocalization['Total Milk'] ?? 'Total Milk'}: ${_calculateTotalMilk().toStringAsFixed(2)}L'
+              ,
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,

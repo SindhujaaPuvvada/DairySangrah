@@ -24,11 +24,12 @@ class DatabaseForSale {
         .collection('User')
         .doc(uid)
         .collection('Sale')
-        .doc("${sale.name.replaceAll(' ', '')}D${sale.saleOnMonth!.day}M${sale.saleOnMonth!.month}Y${sale.saleOnMonth!.year}")
+        .doc("${sale.name.replaceAll(' ', '')}D${sale.saleOnMonth!.day}M${sale
+        .saleOnMonth!.month}Y${sale.saleOnMonth!.year}")
         .set(sale.toFireStore());
   }
 
-  Future<void> deleteFromServer(Sale sale) async {
+  Future<void> deleteSaleFromServer(Sale sale) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
     return await db
@@ -37,6 +38,18 @@ class DatabaseForSale {
         .collection('Sale')
         .doc("${sale.name.replaceAll(' ', '')}D${sale.saleOnMonth!.day}M${sale.saleOnMonth!.month}Y${sale.saleOnMonth!.year}")
         .delete();
+  }
+
+  Future<DocumentSnapshot> infoFromServerSaleOnDate(String name, DateTime? saleOnMonth) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+
+    return await db
+        .collection('User')
+        .doc(uid)
+        .collection('Sale')
+        .doc("${name.replaceAll(' ', '')}D${saleOnMonth!.day}M${saleOnMonth.month}Y${saleOnMonth.year}")
+        .get();
+
   }
 }
 
@@ -56,18 +69,20 @@ class DatabaseForExpense {
         .get();
   }
 
-  Future<void> infoToServerExpanse(Expense expense) async {
+  Future<void> infoToServerExpense(Expense expense) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
     return await db
         .collection('User')
         .doc(uid)
         .collection('Expense')
-        .doc("${expense.name.replaceAll(' ', '')}D${expense.expenseOnMonth!.day}M${expense.expenseOnMonth!.month}Y${expense.expenseOnMonth!.year}")
+        .doc("${expense.name.replaceAll(' ', '')}D${expense.expenseOnMonth!
+        .day}M${expense.expenseOnMonth!.month}Y${expense.expenseOnMonth!.year}")
         .set(expense.toFireStore());
+
   }
 
-  Future<void> deleteFromServer(Expense expense) async {
+  Future<void> deleteExpenseFromServer(Expense expense) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
     return await db
@@ -76,5 +91,17 @@ class DatabaseForExpense {
         .collection('Expense')
         .doc("${expense.name.replaceAll(' ', '')}D${expense.expenseOnMonth!.day}M${expense.expenseOnMonth!.month}Y${expense.expenseOnMonth!.year}")
         .delete();
+  }
+
+  Future<DocumentSnapshot> infoFromServerExpenseOnDate(String name, DateTime? expenseOnMonth) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+
+    return await db
+        .collection('User')
+        .doc(uid)
+        .collection('Expense')
+        .doc("${name.replaceAll(' ', '')}D${expenseOnMonth!.day}M${expenseOnMonth.month}Y${expenseOnMonth.year}")
+        .get();
+
   }
 }

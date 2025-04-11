@@ -3,6 +3,8 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -16,6 +18,7 @@ import 'package:flutter/foundation.dart'
 /// ```
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
+    dotenv.load(fileName:'firebase_options.env');
     if (kIsWeb) {
       return web;
     }
@@ -43,8 +46,8 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAt0_9gr0EIyM4YRKSgUqR2Qt_tG0zs6uI',
+  static FirebaseOptions web = FirebaseOptions(
+    apiKey: dotenv.env['WEB_API']!,
     appId: '1:856392093031:web:0de39960e0aeb7dc33b3c2',
     messagingSenderId: '856392093031',
     projectId: 'farm-expense-management-cp',
@@ -53,16 +56,16 @@ class DefaultFirebaseOptions {
     measurementId: 'G-4CMTQM9SE3',
   );
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyALWWg6zUU0KsjClXs9SvX_5q30tOLMTSw',
+  static FirebaseOptions android = FirebaseOptions(
+    apiKey: dotenv.env['ANDROID_API']!,
     appId: '1:856392093031:android:edbd56a8d78133bf33b3c2',
     messagingSenderId: '856392093031',
     projectId: 'farm-expense-management-cp',
     storageBucket: 'farm-expense-management-cp.appspot.com',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDEBroxwravOFvgMLexWrAWPrmMzvvYD0w',
+  static FirebaseOptions ios = FirebaseOptions(
+    apiKey: dotenv.env['IOS_API']!,
     appId: '1:856392093031:ios:b3ec6d3c92f45aa533b3c2',
     messagingSenderId: '856392093031',
     projectId: 'farm-expense-management-cp',
@@ -70,8 +73,8 @@ class DefaultFirebaseOptions {
     iosBundleId: 'com.example.farmExpenseMangementApp',
   );
 
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDEBroxwravOFvgMLexWrAWPrmMzvvYD0w',
+  static FirebaseOptions macos = FirebaseOptions(
+    apiKey: dotenv.env['MACOS_API']!,
     appId: '1:856392093031:ios:537a36e9dcad893433b3c2',
     messagingSenderId: '856392093031',
     projectId: 'farm-expense-management-cp',

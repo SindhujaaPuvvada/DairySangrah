@@ -1,7 +1,6 @@
 import 'package:farm_expense_mangement_app/screens/feed/feedUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../models/feed.dart';
 import 'feedpage.dart';
 
@@ -50,20 +49,20 @@ class _ConcentratePageState extends State<ConcentratePage> {
   @override
   void initState() {
     super.initState();
-    _homemadeIngredients.forEach((ing) {
+    for (var ing in _homemadeIngredients) {
       TextEditingController txtCntrlr = TextEditingController.fromValue(
           TextEditingValue(text: '0.0'));
       _ingControllers[ing] = txtCntrlr;
-    });
+    }
   }
 
 
   @override
   void dispose() {
     super.dispose();
-    _ingControllers.values.forEach((txtCntrlr) {
+    for (var txtCntrlr in _ingControllers.values) {
       txtCntrlr.dispose();
-    });
+    }
   }
 
   @override
@@ -144,6 +143,8 @@ class _ConcentratePageState extends State<ConcentratePage> {
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     Checkbox(
+                                        checkColor: Colors.white,
+                                        activeColor: const Color(0xFF0DA6BA),
                                         value: _selectedIngredients.contains(
                                             item),
                                         onChanged: (isSelected) {
@@ -256,7 +257,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
       quantity = quantity * 100;
       rate = rate / 100;
     }
-    Feed feed = new Feed(
+    Feed feed = Feed(
       category: "Concentrate",
       feedType: type,
       quantity: quantity,

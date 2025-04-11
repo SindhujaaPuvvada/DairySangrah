@@ -2,7 +2,8 @@
     <application
         android:label="DairyMate"
         android:name="${applicationName}"
-        android:icon="@mipmap/bgscreen">
+        android:icon="@mipmap/bgscreen"
+        android:usesCleartextTraffic="false">
         <activity
             android:name=".MainActivity"
             android:exported="true"

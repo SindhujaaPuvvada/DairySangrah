@@ -24,8 +24,8 @@ class LanguagePopup {
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildLanguageOption(context, 'English', 'en'),
-              _buildLanguageOption(context, 'Hindi', 'hi'),
-              _buildLanguageOption(context, 'Punjabi', 'pa'),
+              //_buildLanguageOption(context, 'Hindi', 'hi'),
+              //_buildLanguageOption(context, 'Punjabi', 'pa'),
             ],
           ),
         );

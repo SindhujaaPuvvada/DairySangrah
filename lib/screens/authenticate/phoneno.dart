@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:farm_expense_mangement_app/services/auth.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/otp.dart';
 import '../home/localisations_en.dart';
 import '../home/localisations_hindi.dart';
@@ -17,6 +16,8 @@ class SignUpPage extends StatelessWidget {
   late Map<String, String> currentLocalization= {};
 
   late String languageCode = 'en';
+
+  SignUpPage({super.key});
 
 
   @override
@@ -116,7 +117,7 @@ class SignUpPage extends StatelessWidget {
                   ),
                   onPressed: ()  async{
                     // Add +91 to the phone number before passing it to the function
-                    phoneNumber = "+91" + _phoneController.text.trim();
+                    phoneNumber = "+91${_phoneController.text.trim()}";
                     Navigator.push(
                         context, MaterialPageRoute(
                         builder: (context) =>  OtpVerificationPage()));

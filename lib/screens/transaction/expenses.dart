@@ -1,8 +1,13 @@
+import 'package:farm_expense_mangement_app/models/feed.dart';
 import 'package:farm_expense_mangement_app/models/transaction.dart';
+import 'package:farm_expense_mangement_app/screens/transaction/transUtils.dart';
 import 'package:farm_expense_mangement_app/screens/transaction/transactionpage.dart';
+import 'package:farm_expense_mangement_app/services/database/feeddatabase.dart';
+import 'package:farm_expense_mangement_app/shared/constants.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 import '../../services/database/transactiondatabase.dart';
@@ -20,19 +25,21 @@ class AddExpenses extends StatefulWidget {
 }
 
 class _AddExpensesState extends State<AddExpenses> {
-  late Map<String, String> currentLocalization= {};
+  late Map<String, String> currentLocalization = {};
   late String languageCode = 'en';
 
   final user = FirebaseAuth.instance.currentUser;
   final uid = FirebaseAuth.instance.currentUser!.uid;
 
-  late DatabaseForExpense dbExpanse;
+  late DatabaseForExpense dbExpense;
+  late DatabaseServicesForFeed fdDB;
 
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _amountTextController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _categoryTextController = TextEditingController();
+  final Map<String, TextEditingController> _qtyControllers = {};
   String? _selectedCategory;
 
   final List<String> sourceOptions = [
@@ -42,6 +49,26 @@ class _AddExpensesState extends State<AddExpenses> {
     'Equipment and Machinery',
     'Other'
   ];
+
+  List<Feed> _feedTypes = [];
+  final List<Feed> _selectedFeed = [];
+
+
+
+
+  void _getFeedData() {
+    fdCategoryId.forEach((fdType) async {
+      final snapshot = await fdDB.infoFromServerForCategory(fdType);
+
+      setState(() {
+        List<Feed> feeds = snapshot.docs.map((doc) =>
+            Feed.fromFireStore(doc,fdType)).toList();
+        _feedTypes = _feedTypes + feeds;
+      });
+    });
+
+  }
+
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -57,29 +84,44 @@ class _AddExpensesState extends State<AddExpenses> {
     }
   }
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    dbExpanse = DatabaseForExpense(uid: uid);
+
+  Future<void> _addExpense(Expense data) async {
+    await dbExpense.infoFromServerExpenseOnDate(
+        data.name, data.expenseOnMonth).then((doc) async {
+      if (doc.exists) {
+        data.value = data.value + doc['value'];
+      }
+      await dbExpense.infoToServerExpense(data);
+      widget.onSubmit();
+    });
   }
 
-  void _addExpense(Expense data) {
-    dbExpanse.infoToServerExpanse(data);
-    widget.onSubmit;
+  @override
+  void initState() {
+    super.initState();
+    dbExpense = DatabaseForExpense(uid: uid);
+    fdDB = DatabaseServicesForFeed(uid);
+    setState(() {
+      _getFeedData();
+    });
   }
+
 
   @override
   void dispose() {
     _dateController.dispose();
     _amountTextController.dispose();
-
+    for (var txtCntrlr in _qtyControllers.values) {
+      txtCntrlr.dispose();
+    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    languageCode = Provider.of<AppData>(context).persistentVariable;
+    languageCode = Provider
+        .of<AppData>(context)
+        .persistentVariable;
 
     if (languageCode == 'en') {
       currentLocalization = LocalizationEn.translations;
@@ -88,6 +130,12 @@ class _AddExpensesState extends State<AddExpenses> {
     } else if (languageCode == 'pa') {
       currentLocalization = LocalizationPun.translations;
     }
+
+    for (var fd in _feedTypes) {
+      TextEditingController txtCntrlr = TextEditingController();
+      _qtyControllers[fd.feedId ?? ""] = txtCntrlr;
+    }
+
     return Scaffold(
 
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
@@ -123,6 +171,14 @@ class _AddExpensesState extends State<AddExpenses> {
                       padding: const EdgeInsets.fromLTRB(1, 0, 1, 20),
                       child: TextFormField(
                         controller: _dateController,
+                        validator: (val) {
+                          if (val == null || val.isEmpty) {
+                            return '${currentLocalization['please_choose_date']}';
+                          }
+                          else {
+                            return null;
+                          }
+                        },
                         decoration: InputDecoration(
                           labelText: '${currentLocalization['date_of_expense']}',
                           hintText: 'YYYY-MM-DD',
@@ -139,98 +195,164 @@ class _AddExpensesState extends State<AddExpenses> {
                     ),
                     // SizedBox(height: 10),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(1, 0, 1, 20),
-                      child: TextFormField(
-                        keyboardType: TextInputType.number,
-                        controller: _amountTextController,
-                        decoration: InputDecoration(
-                          labelText: '${currentLocalization['how_much_did_you_spend']}',
-                          border: OutlineInputBorder(),
-                          filled: true,
-                          fillColor: Color.fromRGBO(240, 255, 255, 1),
+                        padding: const EdgeInsets.fromLTRB(1, 0, 1, 20),
+                        child: TransUtils.buildDropdown(
+                          label: '${currentLocalization['select_expense_type']}*',
+                          value: _selectedCategory,
+                          items: sourceOptions,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedCategory = value;
+                            });
+                          },)
 
-                        ),
-                      ),
-                    ),
-                    // SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(1, 0, 1, 20),
-                      child: DropdownButtonFormField<String>(
-                        value: _selectedCategory,
-                        decoration: InputDecoration(
-                          labelText: '${currentLocalization['select_expense_type']}*',
-                          border: OutlineInputBorder(),
-                          filled: true,
-                          fillColor: Color.fromRGBO(240, 255, 255, 1),
-
-                        ),
-                        items: sourceOptions.map((String source) {
-                          return DropdownMenuItem<String>(
-                            value: source,
-                            child: Text('${currentLocalization[source]}'),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedCategory = value;
-                          });
-                        },
-                      ),
                     ),
 
                     if (_selectedCategory == 'Other')
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(1, 0, 1, 30),
-                        child: TextFormField(
-                          controller: _categoryTextController,
-                          decoration: InputDecoration(
-                            labelText: '${currentLocalization['enter_category']}',
-                            border: OutlineInputBorder(),
-                            filled: true,
-                            fillColor: Color.fromRGBO(240, 255, 255, 1),
-
-                          ),
-                        ),
+                          padding: const EdgeInsets.fromLTRB(1, 0, 1, 20),
+                          child: TransUtils.buildTextField(
+                              _categoryTextController,
+                              "${currentLocalization['enter_category']}")
                       ),
+                    if (_selectedCategory == 'Feed')...[
+                      Column(
+                        children: [
+                          Padding(
+                              padding: const EdgeInsets.fromLTRB(1, 0, 1, 10),
+                              child: Row(
+                                  mainAxisAlignment: MainAxisAlignment
+                                      .spaceEvenly,
+                                  children: [
+                                    Text(
+                                      'Select Feed Consumption :',
+                                      style: TextStyle(fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color.fromRGBO(
+                                              4, 142, 161, 1.0)),),
+                                  ]
+                              )
+                          ),
+                          const SizedBox(height: 10),
+                          SizedBox(height: 160, width: 400,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  border: Border.all(),
+                                  borderRadius: BorderRadius.circular(12.0)
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                    0, 20, 10, 20),
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      if(_feedTypes.isEmpty)...[
+                                        Text('Out of Stock, please refill !',
+                                            style: TextStyle(fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.redAccent))
+                                      ]
+                                      else
+                                        ...[
+                                          for (Feed item in _feedTypes)...[
+                                            Row(
+                                                mainAxisAlignment: MainAxisAlignment
+                                                    .start,
+                                                children: [
+                                                  Checkbox(
+                                                      checkColor: Colors.white,
+                                                      activeColor: const Color(
+                                                          0xFF0DA6BA),
+                                                      value: _selectedFeed
+                                                          .contains(
+                                                          item),
+                                                      onChanged: (isSelected) {
+                                                        if (isSelected ==
+                                                            true) {
+                                                          _selectedFeed.add(
+                                                              item);
+                                                        } else if (isSelected ==
+                                                            false) {
+                                                          _selectedFeed.remove(
+                                                              item);
+                                                        }
+                                                        setState(() {});
+                                                      }
+                                                  ),
+                                                  SizedBox(width: 150,
+                                                      child: Text('Ty: ${item
+                                                          .feedType} |\nQty: ${item
+                                                          .quantity}Kg |\nRt: ₹${item
+                                                          .ratePerKg}/Kg')),
+                                                  SizedBox(width: 20),
+                                                  (_selectedFeed.contains(
+                                                      item)) ?
+                                                  Expanded(
+                                                    child: TextFormField(
+                                                      controller: _qtyControllers[item
+                                                          .feedId],
+                                                      autovalidateMode: AutovalidateMode
+                                                          .onUserInteraction,
+                                                      textAlign: TextAlign
+                                                          .center,
+                                                      decoration: InputDecoration(
+                                                        labelText: 'Enter qty consumed in Kg',
+                                                      ),
+                                                      validator: (value) {
+                                                        if (value == null ||
+                                                            value.isEmpty) {
+                                                          return currentLocalization['please_enter_value'] ??
+                                                              "";
+                                                        }
+                                                        else if (item.quantity -
+                                                            double.parse(
+                                                                value) <
+                                                            0) {
+                                                          return 'cannot be more than existing quantity!';
+                                                        }
+                                                        else {
+                                                          return null;
+                                                        }
+                                                      },
+                                                    ),
+                                                  ) : Text('')
+                                                ]
+                                            ),
+                                            SizedBox(height: 20),
+                                          ]
+                                        ],
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 20),
+                      Container(
+                        alignment: Alignment.center,
+                        child:
+                        TransUtils.buildElevatedButton(
+                            'Calculate',
+                            onPressed: () => _calculateExpense()),
+                      ),
+                      SizedBox(height: 20),
+                    ],
+                    Padding(
+                        padding: const EdgeInsets.fromLTRB(1, 0, 1, 20),
+                        child: TransUtils.buildTextField(_amountTextController,
+                            "${currentLocalization['how_much_did_you_spend']}")
+                    ),
 
-                    // SizedBox(height: 10),
                     Container(
                       alignment: Alignment.center,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          final data = Expense(
-                              name: (_selectedCategory.toString() != 'Other')
-                                  ? _selectedCategory.toString()
-                                  : _categoryTextController.text,
-                              value: double.parse(_amountTextController.text),
-                              expenseOnMonth:
-                                  DateTime.parse(_dateController.text));
-                          _addExpense(data);
-                          Navigator.pop(context);
-                          Navigator.pushReplacement(
-                              context, MaterialPageRoute(builder: (context) => const TransactionPage(showIncome: false,)));
-                        },
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30)),
-                          textStyle: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                          minimumSize: const Size(120, 50),
-                          backgroundColor:
-                              const Color.fromRGBO(13, 166, 186, 1.0),
-                          foregroundColor: Colors.white,
-                          elevation: 10, // adjust elevation value as desired
-                          side: const BorderSide(color: Colors.grey, width: 2),
-                        ),
-                        child: Text(
+                      child:
+                      TransUtils.buildElevatedButton(
                           '${currentLocalization['submit']}',
-                          style: TextStyle(
-                            color:Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15
-                          ),
-                        ),
-                      ),
+                          onPressed: () => _submitExpense()),
                     )
                   ]),
                 ),
@@ -240,5 +362,57 @@ class _AddExpensesState extends State<AddExpenses> {
         ),
       ),
     );
+  }
+
+  Future<void> _submitExpense() async {
+
+    if(_formKey.currentState!.validate()) {
+      final data = Expense(
+          name: (_selectedCategory.toString() != 'Other')
+              ? _selectedCategory.toString()
+              : _categoryTextController.text,
+          value: double.parse(_amountTextController.text),
+          expenseOnMonth:
+          DateTime.parse(_dateController.text));
+
+      await _addExpense(data);
+
+      for (var feed in _selectedFeed) {
+        var qty = double.parse(_qtyControllers[feed.feedId]!.text);
+        _updateQuantityForFeed(feed, qty);
+      }
+
+      Navigator.pop(context);
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(
+          builder: (context) =>
+          const TransactionPage(
+            showIncome: false,)));
+    }
+
+  }
+
+  void _calculateExpense() {
+    double totPrice = 0;
+    if(_formKey.currentState!.validate()){
+        for (var feed in _selectedFeed) {
+            double qty = double.parse(_qtyControllers[feed.feedId]!.text);
+            totPrice = totPrice + (qty*feed.ratePerKg);
+        }
+        _amountTextController.text = (totPrice.toPrecision(2)).toString();
+    }
+
+  }
+
+  void _updateQuantityForFeed(Feed feed, double newQty) {
+
+    if(feed.quantity - newQty == 0){
+      //delete the feed if all the quantity is used up
+      fdDB.deleteFeedFromServer(feed.category, feed.feedId!);
+    }
+    else{
+      feed.quantity = feed.quantity - newQty;
+      fdDB.infoToServerFeed(feed);
+    }
   }
 }

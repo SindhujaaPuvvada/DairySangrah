@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../models/feed.dart';
 import 'feedUtils.dart';
 import 'feedpage.dart';
@@ -216,7 +215,7 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
       quantity = quantity * 100;
       rate = rate /100;
     }
-    Feed feed = new Feed(
+    Feed feed = Feed(
       category: "GreenFodder",
       feedType: type,
       quantity: quantity,

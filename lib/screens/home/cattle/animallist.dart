@@ -5,9 +5,15 @@ import 'package:farm_expense_mangement_app/services/database/cattledatabase.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:farm_expense_mangement_app/models/cattle.dart';
 import 'package:farm_expense_mangement_app/screens/home/cattle/newcattle.dart';
+// import '../../notification/alertnotifications.dart';
+import '../localisations_en.dart';
+import '../localisations_hindi.dart';
+import 'package:provider/provider.dart';
+import '../localisations_punjabi.dart';
+import '../../../main.dart';
 
 class AnimalList1 extends StatefulWidget {
-  const AnimalList1({Key? key}) : super(key: key);
+  const AnimalList1({super.key});
 
   @override
   _AnimalList1State createState() => _AnimalList1State();
@@ -20,6 +26,8 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
   int dryCount = 0;
   int milkedCount = 0;
   int heiferCount = 0;
+  late Map<String, String> currentLocalization= {};
+  late String languageCode = 'en';
 
   @override
   void initState() {
@@ -45,11 +53,29 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
+    languageCode = Provider
+        .of<AppData>(context)
+        .persistentVariable;
+
+    if (languageCode == 'en') {
+      currentLocalization = LocalizationEn.translations;
+    } else if (languageCode == 'hi') {
+      currentLocalization = LocalizationHi.translations;
+    } else if (languageCode == 'pa') {
+      currentLocalization = LocalizationPun.translations;
+    }
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Animals', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: Text(
+          currentLocalization['Animals'] ?? 'Animals',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
         centerTitle: true,
         bottom: TabBar(
@@ -58,9 +84,10 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
           unselectedLabelColor: Colors.black54,
           labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold), // Increased text size
           unselectedLabelStyle: const TextStyle(fontSize: 16),
-          tabs: const [
-            Tab(text: 'Cows'),
-            Tab(text: 'Buffalos'),
+          tabs:  [
+            Tab(text: currentLocalization['Cow'] ?? 'Cow'),
+            Tab(text: currentLocalization['Buffalo'] ?? 'Buffalo'),
+
           ],
           onTap: (index) {
             if (index == 0) {
@@ -81,6 +108,7 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
         children: [
           _buildCattleSection('Cow'),
           _buildCattleSection('Buffalo'),
+
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -92,8 +120,8 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
             ),
           );
         },
-        child: const Icon(Icons.add),
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
+        child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
@@ -105,11 +133,11 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
       padding: const EdgeInsets.all(10),
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
-      children: [
-        _buildSectionCard('Calf', CalfCount, type),
+      children: [_buildSectionCard('Calf', CalfCount, type),
         _buildSectionCard('Dry', dryCount, type),
         _buildSectionCard('Milked', milkedCount, type),
         _buildSectionCard('Heifer', heiferCount, type),
+
       ],
     );
   }
@@ -143,17 +171,18 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: const BoxDecoration(
-                  color:  const Color.fromRGBO(13, 166, 186, 0.9),// White background for section name
+                  color:  Color.fromRGBO(13, 166, 186, 0.9),// White background for section name
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(16),
                     topRight: Radius.circular(16),
                   ),
                 ),
                 child: Text(
-                  section,
+                  currentLocalization[section] ?? section,
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
+
               ),
 
               // Spacer for middle section
@@ -173,14 +202,15 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
                   ),
                 ),
                 child: Text(
-                  'Total Count: $count ',
+                  '${currentLocalization['Total Count'] ?? 'Total Count'}: $count',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black, // White text for contrast
+                    color: Colors.black,
                   ),
                 ),
+
               ),
             ],
           ),

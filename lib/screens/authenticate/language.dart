@@ -9,6 +9,8 @@ import 'package:farm_expense_mangement_app/main.dart';
 
 
 class SignUpPage extends StatefulWidget {
+  const SignUpPage({super.key});
+
   @override
   _SignUpPageState createState() => _SignUpPageState();
 }
@@ -57,8 +59,8 @@ class _SignUpPageState extends State<SignUpPage> {
 
                     // Language Options
                     languageOption('ENGLISH', 'en', 'ENGLISH'),
-                    languageOption('हिन्दी', 'hi', 'हिन्दी'),
-                    languageOption('ਪੰਜਾਬੀ', 'pa', 'ਪੰਜਾਬੀ'),
+                    //languageOption('हिन्दी', 'hi', 'हिन्दी'),
+                    //languageOption('ਪੰਜਾਬੀ', 'pa', 'ਪੰਜਾਬੀ'),
                   ],
                 ),
               ),

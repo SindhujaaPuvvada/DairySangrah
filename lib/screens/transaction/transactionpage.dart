@@ -28,7 +28,7 @@ class _TransactionPageState extends State<TransactionPage> {
   final uid = FirebaseAuth.instance.currentUser!.uid;
 
   late DatabaseForSale dbSale;
-  late DatabaseForExpense dbExpanse;
+  late DatabaseForExpense dbExpense;
 
   bool showIncome = true;
   List<Sale> incomeTransactions = [];
@@ -52,7 +52,7 @@ class _TransactionPageState extends State<TransactionPage> {
   }
 
   Future<void> _fetchExpense() async {
-    final snapshot = await dbExpanse.infoFromServerAllTransaction();
+    final snapshot = await dbExpense.infoFromServerAllTransaction();
     setState(() {
       expenseTransactions = snapshot.docs
           .map((doc) => Expense.fromFireStore(doc, null))
@@ -69,7 +69,7 @@ class _TransactionPageState extends State<TransactionPage> {
   void initState() {
     super.initState();
     dbSale = DatabaseForSale(uid: uid);
-    dbExpanse = DatabaseForExpense(uid: uid);
+    dbExpense = DatabaseForExpense(uid: uid);
     showIncome = widget.showIncome; // Set showIncome based on the parameter
     _fetchIncome();
     _fetchExpense();

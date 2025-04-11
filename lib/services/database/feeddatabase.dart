@@ -16,7 +16,7 @@ class DatabaseServicesForFeed {
         .collection('Feed')
         .doc((fdCategoryId.indexOf(feed.category)+1).toString())
         .collection(feed.category)
-        .doc()
+        .doc(feed.feedId)
         .set(feed.toFireStore(), SetOptions(merge: true));
 
   }
@@ -34,28 +34,19 @@ class DatabaseServicesForFeed {
         .get();
   }
 
-  // Function to get all feed items for the user
- /* Future<QuerySnapshot<Map<String, dynamic>>> infoFromServerAllFeed() async {
-    return await db
-        .collection('User')
-        .doc(uid)
-        .collection('Feed')
-        .orderBy('feedType')
-        .get();
-  }
-
   // Function to delete a feed type from Firestore
-  Future<void> deleteFeed(String feedType) async {
+  Future<void> deleteFeedFromServer(String category, String docID) async {
     await db
         .collection('User')
         .doc(uid)
         .collection('Feed')
-        .doc('feedType')
+        .doc((fdCategoryId.indexOf(category) + 1).toString())
+        .collection(category)
+        .doc(docID)
         .delete();
-    print('Feed item deleted: $feedType');
   }
 
-  // Function to reduce weekly quantity of a specific feed item
+  /*// Function to reduce weekly quantity of a specific feed item
   Future<void> reduceWeeklyQuantity(String itemName) async {
     final feedRef = db.collection('User').doc(uid).collection('Feed').doc(itemName);
 

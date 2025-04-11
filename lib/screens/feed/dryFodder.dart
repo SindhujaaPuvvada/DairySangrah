@@ -1,7 +1,6 @@
 import 'package:farm_expense_mangement_app/screens/feed/feedUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../models/feed.dart';
 import 'feedpage.dart';
 
@@ -148,7 +147,7 @@ class _DryFodderPageState extends State<DryFodderPage> {
       rate = rate / 100;
     }
 
-    Feed feed = new Feed(
+    Feed feed = Feed(
       category: "DryFodder",
       feedType: type,
       quantity: quantity,

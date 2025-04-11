@@ -6,6 +6,8 @@ import '../home/localisations_punjabi.dart';
 import 'package:provider/provider.dart';
 import 'package:farm_expense_mangement_app/main.dart';
 class DairyMitraRegistrationPage extends StatefulWidget {
+  const DairyMitraRegistrationPage({super.key});
+
   @override
   _DairyMitraRegistrationPageState createState() =>
       _DairyMitraRegistrationPageState();
@@ -16,7 +18,6 @@ class _DairyMitraRegistrationPageState
   String? selectedOption;
   late Map<String, String> currentLocalization= {};
   late String languageCode = 'en';
-
 
 
   @override
@@ -53,7 +54,7 @@ class _DairyMitraRegistrationPageState
 
             // "DairyMitra Registration" text
             Text(
-              'DairyMitra Registration',
+              'DairyMate Registration',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,

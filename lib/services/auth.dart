@@ -2,13 +2,14 @@ import 'package:farm_expense_mangement_app/models/user.dart' as my_app_user;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
 import 'package:get/get.dart';
-import 'package:flutter/material.dart';
-import 'package:farm_expense_mangement_app/screens/authenticate/otp.dart';
+
+import '../logging.dart';
 
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   var verificationId= ''.obs;
+  final log = logger(AuthService);
 
   // Create user object based on FirebaseUser
   my_app_user.User? _userFromFirebaseUser(User? user) {
@@ -58,35 +59,36 @@ class AuthService {
     },
         verificationFailed: (e){
           if (e.code == 'invalid-phone-number') {
-            print('The phone number entered is invalid.');
+            log.e('The phone number entered is invalid.');
             // Show an error message to the user about invalid phone number
           } else if (e.code == 'too-many-requests') {
-            print('Too many requests. Try again later.');
+            log.e('Too many requests. Try again later.');
             // Show an error message about too many requests
           } else if (e.code == 'quota-exceeded') {
-            print('SMS quota exceeded. Please try again later.');
+            log.e('SMS quota exceeded. Please try again later.');
             // Show an error message about SMS quota being exceeded
           } else if (e.code == 'operation-not-allowed') {
-            print('Phone authentication is not enabled. Please enable it in Firebase.');
+            log.e('Phone authentication is not enabled. Please enable it in Firebase.');
             // Handle operation-not-allowed error
           } else if (e.code == 'network-request-failed') {
-            print('Network error occurred. Please check your internet connection.');
+            log.e('Network error occurred. Please check your internet connection.');
             // Show an error message about network issues
           } else {
-            print('Verification failed: ${e.message}');
+            log.e('Verification failed: ${e.message}');
             // Handle any other errors
           }
         },
         codeSent: (verificationId,resendToken){
 this.verificationId.value = verificationId ;
-print("verify1");
-print(verificationId);
+//print("verify1");
+//print(verificationId);
 // Navigator.push(MaterialPageRoute(builder: (context) => OtpVerificationPage()));
         },
         codeAutoRetrievalTimeout:(verificationId){
         this.verificationId.value=verificationId;
     }
     );
+    return null;
 
   }
 
@@ -96,18 +98,18 @@ print(verificationId);
       // Use await to wait for the sign-in process to complete
       var credentials = await _auth.signInWithCredential(
         PhoneAuthProvider.credential(
-          verificationId: this.verificationId.value,
+          verificationId: verificationId.value,
           smsCode: otp,
         ),
       );
 
 
       // Check if the user is not null and return true if successful, otherwise false
-      print(credentials.user);
+      //print(credentials.user);
       return credentials.user != null ? true : false;
     } catch (e) {
       // Handle exceptions, like an invalid OTP
-      print("Error during OTP verification: $e");
+      log.e("Error during OTP verification",time:DateTime.now(),error: e.toString());
       return false;
     }
   }
@@ -120,7 +122,7 @@ print(verificationId);
       User? user = result.user;
       return _userFromFirebaseUser(user);
     } catch (error) {
-      print(error.toString());
+      log.e("Error during email authentication",time:DateTime.now(),error: error.toString());
       return null;
     }
   }
@@ -135,7 +137,7 @@ print(verificationId);
     try {
       return await _auth.sendPasswordResetEmail(email: email);
     } catch (error) {
-      print(error.toString());
+      log.e("Error during update password!",time:DateTime.now(),error: error.toString());
       return;
     }
   }
@@ -145,7 +147,7 @@ print(verificationId);
     try {
       return await _auth.signOut();
     } catch (error) {
-      print(error.toString());
+      log.e("Error during signout!",time:DateTime.now(),error: error.toString());
     }
   }
 }

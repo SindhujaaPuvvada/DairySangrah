@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/feed.dart';
@@ -84,7 +83,7 @@ class feedUtils{
     else if (price != 0.0 && quantity != 0.0) {
       rate = price / quantity;
     }
-    return   [price,rate];;
+    return   [price,rate];
   }
 
 

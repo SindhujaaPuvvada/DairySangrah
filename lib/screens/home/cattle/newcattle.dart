@@ -1,7 +1,6 @@
 import 'package:farm_expense_mangement_app/models/cattle.dart';
 import 'package:farm_expense_mangement_app/screens/home/cattle/animallist.dart';
 import 'package:farm_expense_mangement_app/screens/notification/alertnotifications.dart';
-// import 'package:farm_expense_mangement_app/screens/home/animallist1.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -356,7 +355,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
                 child: DropdownButtonFormField<String>(
                   value: _selectedState,
                   decoration: InputDecoration(
-                    labelText: '${currentLocalization['status'] ?? ""}',
+                    labelText: currentLocalization['status'] ?? "",
                     border: OutlineInputBorder(),
                     filled: true,
                     fillColor: Color.fromRGBO(240, 255, 255, 0.7),
@@ -381,7 +380,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
                 child: DropdownButtonFormField<String>(
                   value: _selectedIsPregnant,
                   decoration: InputDecoration(
-                    labelText: '${currentLocalization['isPregnant'] ?? ""}',
+                    labelText: currentLocalization['isPregnant'] ?? "",
                     border: OutlineInputBorder(),
                     filled: true,
                     fillColor: Color.fromRGBO(240, 255, 255, 0.7),
@@ -416,11 +415,11 @@ class _AddNewCattleState extends State<AddNewCattle> {
                       }
                     },
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(
+                      backgroundColor: WidgetStateProperty.all(
                           const Color.fromRGBO(13, 166, 186, 1.0)),
                     ),
                     child: Text(
-                      '${currentLocalization['submit'] ?? ""}',
+                      currentLocalization['submit'] ?? "",
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
