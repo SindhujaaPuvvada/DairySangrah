@@ -70,7 +70,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           },
         ),
         title: Text(
-          'Login To Dairy Mitra',
+          'Login To Dairy Mate',
           style: TextStyle(
             fontWeight: FontWeight.bold, // Make the title bold
           ),

@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
         builder: (context, snapshot) {
           final user = snapshot.data;
           if (user == null) {
-            return Authenticate();
+            return SignUpPage();
             //Authenticate();
 
           } else {

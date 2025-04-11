@@ -39,7 +39,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
 
   @override
   void initState() {
-    // TODO: implement initState
+
     super.initState();
     cattleDb = DatabaseServicesForCattle(uid);
     cattleHistory = DatabaseServiceForCattleHistory(uid: uid);
@@ -243,7 +243,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                           Padding(
                             padding: const EdgeInsets.fromLTRB(10, 7, 10, 7),
                             child: GestureDetector(
-                              onLongPress: () {
+                              /*onLongPress: () {
                                 showModalBottomSheet(
                                   context: context,
                                   builder: (BuildContext context) {
@@ -277,7 +277,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                     );
                                   },
                                 );
-                              },
+                              },*/
                               child: Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(12),
