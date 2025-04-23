@@ -28,6 +28,8 @@ class _FeedState extends State<FeedPage> {
   late DatabaseServicesForFeed fdDB;
 
   late String selectedSection = 'Green Fodder'; // Default section
+  late String selectedSection1 = 'Green Fodder'; // Default section
+
 
   bool _showCheckboxes = false;
 
@@ -53,6 +55,7 @@ class _FeedState extends State<FeedPage> {
       currentLocalization = LocalizationPun.translations;
     }
 
+
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
       appBar: AppBar(
@@ -64,8 +67,8 @@ class _FeedState extends State<FeedPage> {
                   )),
           iconTheme: const IconThemeData(color: Colors.black),
           title: Text(
-            currentLocalization['inventory'] ?? "",
-            style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black),
+            currentLocalization['Inventory']??"",
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
             textAlign: TextAlign.center,
           ),
           backgroundColor: const Color.fromRGBO(4, 142, 161, 1.0),
@@ -159,11 +162,20 @@ class _FeedState extends State<FeedPage> {
             return Container(
                 padding: EdgeInsets.all(10.0),
                 child: ListTile(
-                    title: Text(item['feedType'] ?? 'Unknown Item',
-                        style: TextStyle(color: const Color(0xFF0DA6BA),
-                            fontWeight: FontWeight.bold)),
-                    subtitle: Text("Quantity: ${item['quantity'] ??
-                        0} Kg | Rate: ₹${item['ratePerKg']} / Kg | Date: $sFdDate | Source: ${item['source']}"),
+                    title: Text(
+                      currentLocalization[item['feedType']] ?? currentLocalization['unknown_item'] ?? 'Unknown Item',
+                      style: TextStyle(
+                        color: const Color(0xFF0DA6BA),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Text(
+                        "${currentLocalization['quantity'] ?? 'Quantity'}: ${item['quantity'] ?? 0} Kg"
+                            " | ${currentLocalization['Rate'] ?? 'Rate'}: ₹${item['ratePerKg']} / Kg"
+                            " | ${currentLocalization['date'] ?? 'Date'}: $sFdDate"
+                            " | ${currentLocalization['Source'] ?? 'Source'}: ${currentLocalization[item['source']]}"
+                    ),
+
                     tileColor: Color.fromRGBO(177, 243, 238, 0.4),
                     onLongPress: () {
                       setState(() {
@@ -222,12 +234,12 @@ class _FeedState extends State<FeedPage> {
           ),
         ),
         child: Center(
-          child: Text(
-            sectionName,
+          child:Text(
+            currentLocalization[sectionName] ?? sectionName,
             style: TextStyle(
               fontSize: 16,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected ? Colors.black : Colors.black,
+              color: Colors.black,
             ),
           ),
         ),
