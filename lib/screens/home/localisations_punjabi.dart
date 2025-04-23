@@ -223,7 +223,7 @@ class LocalizationPun {
     'Homemade Ingredients': 'ਘਰੇਲੂ ਸਮਗਰੀਆਂ',
     'Total Income': 'ਕੁੱਲ ਆਮਦਨ',
     // 'Enter Custom Purchased Type': 'ਕਸਟਮ ਖਰੀਦਿਆ ਕਿਸਮ ਦਰਜ ਕਰੋ',
-
+    "Search Cattle": "ਪਸ਼ੂ ਖੋਜੋ"
 
   };
 }
