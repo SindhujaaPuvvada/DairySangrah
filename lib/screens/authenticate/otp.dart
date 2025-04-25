@@ -86,7 +86,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           },
         ),
         title: Text(
-          currentLocalization['Login To DairyMate']??"",
+          currentLocalization['Login To Dairy Sangrah']??"",
           style: TextStyle(
             fontWeight: FontWeight.bold, // Make the title bold
           ),

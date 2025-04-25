@@ -23,7 +23,7 @@ class _SignUpPageState extends State<SignUpPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'DairyMate',
+          'Dairy Sangrah',
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),

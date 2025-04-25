@@ -122,7 +122,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: <Widget>[
             Text(
-              '𝒟𝒶𝒾𝓇𝓎𝑀𝒶𝓉𝑒',
+              '𝒹𝒶𝒾𝓇𝓎 𝓈𝒶𝓃𝑔𝓇𝒶𝒽',
               style: TextStyle(
                 fontSize: 35, // Adjust the size as needed
                 fontWeight: FontWeight.bold,

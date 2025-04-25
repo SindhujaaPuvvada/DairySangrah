@@ -54,7 +54,7 @@ class _DairyMitraRegistrationPageState
 
             // "DairyMitra Registration" text
             Text(
-              currentLocalization['DairyMate Registration']??"",
+              currentLocalization['Dairy Sangrah Registration']??"",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
