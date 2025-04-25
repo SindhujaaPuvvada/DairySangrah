@@ -11,6 +11,8 @@ import '../../main.dart';
 import '../home/localisations_en.dart';
 import '../home/localisations_hindi.dart';
 import '../home/localisations_punjabi.dart';
+import 'package:provider/provider.dart';
+import 'package:farm_expense_mangement_app/main.dart';
 class OtpVerificationPage extends StatefulWidget {
   const OtpVerificationPage({super.key});
 
@@ -24,6 +26,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   final AuthService _auth = AuthService();
   late String languageCode = 'en';
   final log = logger(OtpVerificationPage);
+  late Map<String, String> currentLocalization= {};
+  // late String languageCode = 'en';
 
 
 
@@ -56,6 +60,16 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
 
  @override
   Widget build(BuildContext context) {
+   languageCode = Provider.of<AppData>(context).persistentVariable;
+   //print(languageCode);
+
+   if (languageCode == 'en') {
+     currentLocalization = LocalizationEn.translations;
+   } else if (languageCode == 'hi') {
+     currentLocalization = LocalizationHi.translations;
+   } else if (languageCode == 'pa') {
+     currentLocalization = LocalizationPun.translations;
+   }
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -72,7 +86,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           },
         ),
         title: Text(
-          'Login To Dairy Mate',
+          currentLocalization['Login To DairyMate']??"",
           style: TextStyle(
             fontWeight: FontWeight.bold, // Make the title bold
           ),
@@ -87,7 +101,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           children: <Widget>[
             // "Enter OTP" text (bold)
             Text(
-              'Enter OTP',
+              currentLocalization['Enter OTP']??"",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -190,7 +204,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   }
                 },
                 child: Text(
-                  'Continue',
+                  currentLocalization['Continue']??"",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -207,7 +221,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text(
-                  "Didn't receive code?",
+                  currentLocalization["Didn't receive code?"]??"",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w300, // Light weight font
@@ -218,7 +232,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     // Handle resend OTP logic here
                   },
                   child: Text(
-                    'Resend OTP',
+                    currentLocalization['Resend OTP']??"",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600, // Slightly more weight
@@ -232,17 +246,17 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             SizedBox(height: 20), // Space between the resend OTP section and the terms text
 
             // Terms and conditions text
-            Center(
-              child: Text(
-                'By signing up you agree to our Terms Conditions & Privacy Policy.',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500, // Slightly more weight than previous text
-                  color: Colors.grey[600], // Text color
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
+            // Center(
+            //   child: Text(
+            //     'By signing up you agree to our Terms Conditions & Privacy Policy.',
+            //     style: TextStyle(
+            //       fontSize: 16,
+            //       fontWeight: FontWeight.w500, // Slightly more weight than previous text
+            //       color: Colors.grey[600], // Text color
+            //     ),
+            //     textAlign: TextAlign.center,
+            //   ),
+            // ),
           ],
         ),
       ),

@@ -122,14 +122,14 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: <Widget>[
             Text(
-              '𝒹𝒶𝒾𝓇𝓎 𝓈𝒶𝓃𝑔𝓇𝒶𝒽',
+              '𝒟𝒶𝒾𝓇𝓎𝑀𝒶𝓉𝑒',
               style: TextStyle(
                 fontSize: 35, // Adjust the size as needed
                 fontWeight: FontWeight.bold,
                 color: Colors.black87, // You can choose a color that fits your theme
               ),
             ),
-            const SizedBox(height: 16), // Space between the text and the content
+            const SizedBox(height: 10), // Space between the text and the content
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -164,6 +164,7 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
+            const SizedBox(height: 10),
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

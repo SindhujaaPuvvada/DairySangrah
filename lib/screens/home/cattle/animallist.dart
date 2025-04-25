@@ -37,6 +37,7 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
     cattleDb = DatabaseServicesForCattle(uid!);
     setState(() {
       _fetchCounts('Cow');
+      // _fetchCounts('Buffalo');
     });
      // Fetch counts for cows initially
   }
