@@ -364,7 +364,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
                     return DropdownMenuItem<String>(
                       value: stage,
                       child: Text(
-                          currentLocalization[stage.toLowerCase()] ?? ""),
+                          currentLocalization[stage] ?? ""),
                     );
                   }).toList(),
                   onChanged: (value) {

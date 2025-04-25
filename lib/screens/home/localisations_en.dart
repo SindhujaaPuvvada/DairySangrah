@@ -2,6 +2,8 @@ class LocalizationEn {
   static const Map<String, String> translations = {
     'Cows':'Cows',
     // 'cow':'Cow',
+    'Cow':'Cow',
+    'Buffalo':'Buffalo',
     'Buffalos':'Buffalos',
     'calve':'Calve',
     'Type':'Type',
