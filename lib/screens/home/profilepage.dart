@@ -1,15 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:farm_expense_mangement_app/logging.dart';
 import 'package:farm_expense_mangement_app/main.dart';
 import 'package:farm_expense_mangement_app/models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../services/database/userdatabase.dart';
+import '../authenticate/authUtils.dart';
 import '../wrappers/wrapperhome.dart';
 
 class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const ProfileAppBar({super.key});
+  ProfileAppBar({super.key});
 
   final Color myColor = const Color(0xFF39445A);
+  final log = logger(ProfileAppBar);
 
   @override
   Widget build(BuildContext context) {
@@ -24,49 +27,147 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: const Text(
         'Profile',
         style: TextStyle(color: Colors.white,
-        fontWeight: FontWeight.bold),
+            fontWeight: FontWeight.bold),
       ),
       backgroundColor: const Color.fromRGBO(13, 166, 186, 0.9),
       actions: [
-        IconButton(
-          onPressed: () {
-            FirebaseAuth.instance.signOut();
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => MyApp()),
-            );
-          },
-          icon: const Icon(
-            Icons.output_outlined,
-            color: Colors.white,
+        MenuBar(
+          style: MenuStyle(backgroundColor: WidgetStatePropertyAll<Color>(
+              Color.fromRGBO(13, 166, 186, 0.9)),
+            elevation: WidgetStatePropertyAll<double>(0.0),
           ),
-        )
+          children: [
+            SubmenuButton(
+              menuChildren: [
+                MenuItemButton(
+                  onPressed: () {
+                    FirebaseAuth.instance.signOut();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => MyApp()),
+                    );
+                  },
+                  child: Text('Log out'),
+                ),
+                SubmenuButton(
+                  menuChildren:
+                  [
+                    MenuItemButton(
+                        child: Text('Delete Data'),
+                        onPressed: () {
+                          showDialog(context: context,
+                              builder: (context) {
+                                return AuthUtils
+                                    .buildAlertDialog(
+                                    title: "Are you Sure?",
+                                    content: "This will delete all the farm data permanently but the farm still remains registered. Please choose YES to continue and CANCEL to go back!",
+                                    opt1: 'YES',
+                                    onPressedOpt1: () async {
+                                      var user = FirebaseAuth.instance
+                                          .currentUser!;
+                                      DatabaseServicesForUser userDB = DatabaseServicesForUser(
+                                          user.uid);
+
+                                      await userDB.deleteFarmDataFromServer(user.uid);
+
+                                      Navigator
+                                          .pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  MyApp()));
+                                    },
+                                    opt2: 'CANCEL',
+                                    onPressedOpt2: () {
+                                      Navigator.pop(context);
+                                    }
+                                );
+                              });
+                        }
+                    ),
+                    MenuItemButton(
+                      child: Text('Delete Account'),
+                      onPressed: () {
+                        showDialog(context: context,
+                            builder: (context) {
+                              return AuthUtils
+                                  .buildAlertDialog(
+                                title: "Are you Sure?",
+                                content: "This will delete all the user and farm data permanently. Please choose DELETE to continue and CANCEL to go back!",
+                                opt1: 'DELETE',
+                                onPressedOpt1: () async {
+                                  var user = FirebaseAuth.instance
+                                      .currentUser!;
+                                  DatabaseServicesForUser userDB = DatabaseServicesForUser(
+                                      user.uid);
+
+                                  //deleting the current user account permanently
+                                  user.delete()
+                                      .then((val) async {
+
+                                    await userDB.deleteUserFromServer(
+                                        user.uid);
+
+                                    Navigator
+                                        .pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                MyApp()));
+                                  }).catchError((e) {
+                                    if (e.code ==
+                                        'requires-recent-login') {
+                                      showDialog(context: context,
+                                          builder: (context) {
+                                            return AuthUtils
+                                                .buildAlertDialog(
+                                                title: 'This action requires recent login!',
+                                                content: 'Please choose Re-LOGIN and try again or choose CANCEL to go back!',
+                                                opt1: 'RE-LOGIN',
+                                                onPressedOpt1: () {
+                                                  FirebaseAuth
+                                                      .instance
+                                                      .signOut();
+                                                  Navigator.pushReplacement(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              MyApp()));
+                                                },
+                                                opt2: 'CANCEL',
+                                                onPressedOpt2: () {
+                                                  Navigator.pop(context);
+                                                  Navigator.pop(context);
+                                                }
+                                            );
+                                          });
+                                    }
+                                    else {
+                                      log.e('Encountered error',
+                                          time: DateTime.now(),
+                                          error: e.toString());
+                                    }
+                                  });
+                                },
+                                opt2: 'CANCEL',
+                                onPressedOpt2: () => Navigator.pop(context),
+                              );
+                            });
+                      },
+                    )
+                  ],
+                  child: Text('More Options'),
+                )
+              ],
+              child: const Icon(Icons.settings,
+                color: Colors.white,),
+            )
+          ],),
       ],
-      // flexibleSpace: Padding(
-      //   padding: const EdgeInsets.fromLTRB(0,70,0,0),
-      //   child: Column(
-      //
-      //    children: [
-      //      const CircleAvatar(
-      //        radius: 35,
-      //        child: Icon(
-      //          Icons.person,
-      //          size: 60,
-      //        ),
-      //      ),
-      //      const SizedBox(height: 20),
-      //      ProfileInfoRow(
-      //        label: 'Farm Owner: ',
-      //        value: farmUser.ownerName,
-      //      ),
-      //    ]
-      //   ),
-      // ),
     );
   }
 
   @override
-  // TODO: implement preferredSize
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
@@ -77,7 +178,6 @@ class ProfilePage extends StatefulWidget implements PreferredSizeWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 
   @override
-  // TODO: implement preferredSize
   Size get preferredSize => throw UnimplementedError();
 }
 
@@ -167,13 +267,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
                 ),
-                // const CircleAvatar(
-                //   radius: 50,
-                //   child: Icon(
-                //     Icons.person,
-                //     size: 60,
-                //   ),
-                // ),
+
                 const SizedBox(height: 50),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12.0, 0, 12, 0),
@@ -208,32 +302,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           Row(
                             children: [
-
-                              const Icon(Icons.email,color: Color.fromRGBO(13, 166, 186, 1),),
-                              const SizedBox(width: 16,),
-
-                              // Image.asset("asset/profile_dairy_logo.jpg",width: 40,height: 40),
-                              const SizedBox(
-                                  width: 100,
-                                  child: Text(
-                                    "Email  ",
-                                    style: TextStyle(fontSize: 18),
-                                  )),
-                              const SizedBox(
-                                width: 60,
-                              ),
-                              Expanded(
-                                  child: Text(
-                                user!.email ?? "",
-                                style: const TextStyle(fontSize: 18),
-                              )),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Row(
-                            children: [
                               const Icon(
                                 Icons.phone,
                                 color: Color.fromRGBO(13, 166, 186, 1),
@@ -241,9 +309,6 @@ class _ProfilePageState extends State<ProfilePage> {
                               const SizedBox(
                                 width: 16,
                               ),
-                              // Icon(Icons.location_pin,color: Color.fromRGBO(13, 166, 186, 1),),
-                              // SizedBox(width: 16,),
-                              // Image.asset("asset/profile_dairy_logo.jpg",width: 40,height: 40),
                               const SizedBox(
                                   width: 100,
                                   child: Text(
@@ -294,26 +359,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                 ),
-                // ProfileInfoRow(
-                //   label: 'Farm Owner: ',
-                //   value: farmUser.ownerName,
-                // ),
-                // ProfileInfoRow(
-                //   label: 'Farm Name: ',
-                //   value: farmUser.farmName,
-                // ),
-                // ProfileInfoRow(
-                //   label: 'Email: ',
-                //   value: user!.email ?? "",
-                // ),
-                // ProfileInfoRow(
-                //   label: 'Phone Number: ',
-                //   value: '${farmUser.phoneNo}',
-                // ),
-                // ProfileInfoRow(
-                //   label: 'Address: ',
-                //   value: farmUser.location,
-                // ),
+
                 const SizedBox(height: 40),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -408,7 +454,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  hintText: 'Owner Name',
+                  labelText: 'Owner Name',
                 ),
               ),
               const SizedBox(height: 25),
@@ -418,7 +464,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  hintText: 'Farm Name',
+                  labelText: 'Farm Name',
                 ),
               ),
               const SizedBox(height: 25),
@@ -429,7 +475,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  hintText: 'Phone No.',
+                  labelText: 'Phone No.',
                 ),
               ),
               const SizedBox(height: 25),
@@ -439,7 +485,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  hintText: 'Farm Address',
+                  labelText: 'Farm Address',
                 ),
               ),
               const SizedBox(height: 25),
@@ -457,6 +503,9 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   );
                   updateUser(farmUser);
                   Navigator.pop(context);
+                  Navigator.push(
+                      context, MaterialPageRoute(
+                      builder: (context) => const WrapperHomePage()));
                 },
                 child: const Text(
                   'Save Changes',

@@ -80,7 +80,7 @@ class _RegisterFarmState extends State<RegisterFarm> {
                             const SizedBox(height: 20.0),
                             TextFormField(
                               decoration: textInputDecorationReg.copyWith(
-                                  hintText: 'Owner_name'),
+                                  labelText: 'Owner_name'),
                               onChanged: (val) {
                                 setState(() => ownerName = val);
                               },
@@ -88,7 +88,7 @@ class _RegisterFarmState extends State<RegisterFarm> {
                             const SizedBox(height: 20.0),
                             TextFormField(
                               decoration: textInputDecorationReg.copyWith(
-                                  hintText: 'Farm_name'),
+                                  labelText: 'Farm_name'),
                               onChanged: (val) {
                                 setState(() => farmName = val);
                               },
@@ -96,7 +96,7 @@ class _RegisterFarmState extends State<RegisterFarm> {
                             const SizedBox(height: 20.0),
                             TextFormField(
                               decoration: textInputDecorationReg.copyWith(
-                                  hintText: 'Location'),
+                                  labelText: 'Farm Address'),
                               onChanged: (val) {
                                 setState(() => location = val);
                               },

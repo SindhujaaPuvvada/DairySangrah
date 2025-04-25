@@ -81,7 +81,7 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
         _appBar = const HomeAppBar();
         _bodyScreen = const HomePage();
       } else if (_selectedIndex == 1) {
-        _appBar = const ProfileAppBar();
+        _appBar = ProfileAppBar();
         _bodyScreen = const ProfilePage();
       } else if (_selectedIndex == 2) {
         LanguagePopup.showLanguageOptions(context);

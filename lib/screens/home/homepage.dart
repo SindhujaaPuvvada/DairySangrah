@@ -19,6 +19,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     return PreferredSize(
       preferredSize: const Size.fromHeight(240),
       child: AppBar(
+        automaticallyImplyLeading: false,
         centerTitle: true,
         flexibleSpace: ClipRRect(
           borderRadius: const BorderRadius.only(

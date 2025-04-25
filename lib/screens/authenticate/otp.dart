@@ -1,3 +1,4 @@
+import 'package:farm_expense_mangement_app/screens/authenticate/authUtils.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/registerNewFarm.dart';
 import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,6 +7,7 @@ import 'package:farm_expense_mangement_app/services/auth.dart';
 import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/phoneno.dart';
 import '../../logging.dart';
+import '../../main.dart';
 import '../home/localisations_en.dart';
 import '../home/localisations_hindi.dart';
 import '../home/localisations_punjabi.dart';
@@ -151,14 +153,40 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                           builder: (context) => RegisterFarm()));
                     }
                     else {
-                      //print("in wrapper block");
-                      Navigator.pushReplacement(
-                          context, MaterialPageRoute(
-                          builder: (context) => const WrapperHomePage()));
+                      if (snapshot.exists) {
+                        //print("in wrapper block");
+                        Navigator.pushReplacement(
+                            context, MaterialPageRoute(
+                            builder: (context) => const WrapperHomePage()));
+                      }
+                      else {
+                        showDialog(context: context,
+                            builder: (context) {
+                              return AuthUtils.buildAlertDialog(
+                                  title: 'No existing Farm!',
+                                  content: 'There is no farm registered with this number.Please choose REGISTER to register as a new Farm or choose CANCEL to go back!',
+                                  opt1: 'REGISTER',
+                                  onPressedOpt1: () {
+                                    Navigator.pushReplacement(
+                                        context, MaterialPageRoute(
+                                        builder: (context) => RegisterFarm()));
+                                  },
+                                  opt2: 'CANCEL',
+                                  onPressedOpt2: () async {
+                                    await FirebaseAuth
+                                        .instance
+                                        .currentUser!.delete();
+                                    Navigator.pushReplacement(
+                                      context, MaterialPageRoute(
+                                          builder: (context) => MyApp()));
+                                  }
+                              );
+                            });
+                      }
                     }
                   }
                   catch (e) {
-                    log.e("Invalid OTP!!", time: DateTime.now(), error: e.toString());
+                    log.e("Encountered error!!", time: DateTime.now(), error: e.toString());
                   }
                 },
                 child: Text(
