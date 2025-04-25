@@ -135,6 +135,12 @@ class _AddExpensesState extends State<AddExpenses> {
       TextEditingController txtCntrlr = TextEditingController();
       _qtyControllers[fd.feedId ?? ""] = txtCntrlr;
     }
+    Map<String, String> categoryMap = {
+      'Feed': currentLocalization['feed']!,
+      'Veterinary': currentLocalization['Veterinary']!,
+      'Labor Costs': currentLocalization['Labor Costs']!,
+      'Equipment and Machinery':currentLocalization['Equipment and Machinery']!,
+    };
 
     return Scaffold(
 
@@ -194,18 +200,22 @@ class _AddExpensesState extends State<AddExpenses> {
                       ),
                     ),
                     // SizedBox(height: 10),
-                    Padding(
-                        padding: const EdgeInsets.fromLTRB(1, 0, 1, 20),
-                        child: TransUtils.buildDropdown(
-                          label: '${currentLocalization['select_expense_type']}*',
-                          value: _selectedCategory,
-                          items: sourceOptions,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedCategory = value;
-                            });
-                          },)
 
+
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(1, 0, 1, 20),
+                      child: TransUtils.buildDropdown(
+                        label: '${currentLocalization['select_expense_type']}*',
+                        value: _selectedCategory != null ? categoryMap[_selectedCategory!] : null,
+                        items: categoryMap.values.toList(),
+                        onChanged: (selectedLocalizedValue) {
+                          setState(() {
+                            _selectedCategory = categoryMap.entries
+                                .firstWhere((entry) => entry.value == selectedLocalizedValue)
+                                .key;
+                          });
+                        },
+                      ),
                     ),
 
                     if (_selectedCategory == 'Other')

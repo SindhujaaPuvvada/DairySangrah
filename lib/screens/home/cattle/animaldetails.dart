@@ -87,15 +87,21 @@ class _AnimalDetailsState extends State<AnimalDetails> {
   void deleteCattle() {
     cattleDb
         .deleteCattle(widget.rfid)
-        .then((value) => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Deleted'),
-                duration: Duration(seconds: 2),
-              ),
-            ));
+        .then((value) =>
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Deleted'),
+            duration: Duration(seconds: 2),
+          ),
+        ));
     Navigator.pop(context);
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => const AnimalList1()));
+    Navigator.pop(context);
+    Navigator.pop(context);
+
+
+    //   Navigator.push(
+    //       context, MaterialPageRoute(builder: (context) => const AnimalList1()));
+    // }
   }
 
   bool isDetailVisible = false;
@@ -558,7 +564,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                     width: 100,
                                     child: Text(
                                       currentLocalization[_cattle.state
-                                          .toLowerCase()] ?? "",
+                                          ] ?? "",
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white,

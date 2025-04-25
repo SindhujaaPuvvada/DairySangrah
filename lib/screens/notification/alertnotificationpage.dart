@@ -90,20 +90,46 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
     } else if (languageCode == 'pa') {
       currentLocalization = LocalizationPun.translations;
     }
+
     String localizeSentence(String sentence) {
-      return sentence
-          .split(' ')
-          .map((word) => currentLocalization[word] ?? word)
-          .join(' ');
-    }
-    // Helper to trim content to a fixed number of words
-    String trimContent(String content, int wordCount) {
-      final words = content.split(" ");
-      if (words.length <= wordCount) {
-        return content;
+      List<String> parts = sentence.split(' ');
+      if (parts.isEmpty) return sentence;
+
+      String firstWord = parts[0];
+      String rest = sentence.substring(firstWord.length).trim();
+
+      int isIndex = rest.indexOf('is ');
+      int dashIndex = rest.indexOf('-');
+
+      String localizedFirst = currentLocalization[firstWord] ?? firstWord;
+      String middle = "";
+      String remaining = "";
+
+      if (dashIndex != -1 && (isIndex == -1 || dashIndex < isIndex)) {
+        middle = rest.substring(0, dashIndex+1).trim();
+        remaining = rest.substring(dashIndex + 1).trim();
+      } else if (isIndex != -1) {
+        middle = rest.substring(0, isIndex).trim();
+        remaining = rest.substring(isIndex).trim();
+      } else {
+        middle = rest;
       }
-      return "${words.take(wordCount).join(" ")}...";
+
+      String localizedRemaining = currentLocalization[remaining] ?? remaining;
+
+      return '$localizedFirst ${middle.isNotEmpty ? middle + ' ' : ''}$localizedRemaining';
     }
+
+
+
+    // Helper to trim content to a fixed number of words
+    // String trimContent(String content, int wordCount) {
+    //   final words = content.split(" ");
+    //   if (words.length <= wordCount) {
+    //     return content;
+    //   }
+    //   return "${words.take(wordCount).join(" ")}...";
+    // }
 
     return Scaffold(
         appBar: AppBar(
@@ -189,12 +215,11 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
                     ),
                     subtitle: Padding(
                       padding: const EdgeInsets.only(top: 6.0),
-                      child: Text(
-                        trimContent(
-                            localizeSentence(notifications[index]['details']!), 5),
+                      child:Text(
+                        localizeSentence(notifications[index]['details']!),
                         style: const TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF757575), // Medium gray
+                          fontSize: 16,
+                          color: Color(0xFF333333),
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
