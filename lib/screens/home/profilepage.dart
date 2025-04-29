@@ -63,13 +63,6 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                                     content: "This will delete all the farm data permanently but the farm still remains registered. Please choose YES to continue and CANCEL to go back!",
                                     opt1: 'YES',
                                     onPressedOpt1: () async {
-                                      var user = FirebaseAuth.instance
-                                          .currentUser!;
-                                      DatabaseServicesForUser userDB = DatabaseServicesForUser(
-                                          user.uid);
-
-                                      await userDB.deleteFarmDataFromServer(user.uid);
-
                                       Navigator
                                           .pushReplacement(
                                           context,
@@ -98,16 +91,10 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                                 onPressedOpt1: () async {
                                   var user = FirebaseAuth.instance
                                       .currentUser!;
-                                  DatabaseServicesForUser userDB = DatabaseServicesForUser(
-                                      user.uid);
 
                                   //deleting the current user account permanently
                                   user.delete()
                                       .then((val) async {
-
-                                    await userDB.deleteUserFromServer(
-                                        user.uid);
-
                                     Navigator
                                         .pushReplacement(
                                         context,

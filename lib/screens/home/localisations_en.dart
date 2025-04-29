@@ -168,6 +168,7 @@ class LocalizationEn {
     "need":"Need",
     "stock":"Stock",
     'Born on Farm':'Born on Farm',
+    'Homemade':'Homemade',
     'Purchased':'Purchased',
     'new_cattle_added_successfully':"New Cattle Added Successfully!!",
     'notifications': "Notifications"
