@@ -244,7 +244,7 @@ class _AddExpensesState extends State<AddExpenses> {
                               )
                           ),
                           const SizedBox(height: 10),
-                          SizedBox(height: 160, width: 400,
+                          SizedBox(height: MediaQuery.of(context).size.height * 0.25, width: MediaQuery.of(context).size.width * 0.95,
                             child: Container(
                               decoration: BoxDecoration(
                                   border: Border.all(),
@@ -291,7 +291,7 @@ class _AddExpensesState extends State<AddExpenses> {
                                                         setState(() {});
                                                       }
                                                   ),
-                                                  SizedBox(width: 150,
+                                                  SizedBox(width: MediaQuery.of(context).size.width * 0.37,
                                                       child: Text('${currentLocalization['Type']}: ${currentLocalization[item
                                                           .feedType]??item.feedType} |\n${currentLocalization['Quantity']}: ${item
                                                           .quantity} ${currentLocalization['Kg']} |\n${currentLocalization['Rate']}: ₹${item

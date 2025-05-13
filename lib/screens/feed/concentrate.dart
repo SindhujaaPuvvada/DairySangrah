@@ -190,7 +190,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
                                           setState(() {});
                                         }
                                     ),
-                                    SizedBox(width: 100, child: Text(currentLocalization[item]??"")),
+                                    SizedBox(width: MediaQuery.of(context).size.width * 0.20, child: Text(currentLocalization[item]??"")),
                                     SizedBox(width: 20),
                                     (_selectedIngredients.contains(item)) ?
                                     Expanded(
