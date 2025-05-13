@@ -1,12 +1,12 @@
 import 'package:farm_expense_mangement_app/models/cattle.dart';
-import 'package:farm_expense_mangement_app/screens/home/cattle/animaldetails.dart';
+import 'package:farm_expense_mangement_app/screens/cattle/animaldetails.dart';
 import 'package:farm_expense_mangement_app/services/database/cattledatabase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../localisations_en.dart';
-import '../localisations_hindi.dart';
+import '../home/localisations_en.dart';
+import '../home/localisations_hindi.dart';
 import 'package:provider/provider.dart';
-import '../localisations_punjabi.dart';
+import '../home/localisations_punjabi.dart';
 import '../../../main.dart';
 
 class AnimalList2 extends StatefulWidget {
@@ -54,7 +54,7 @@ class _AnimalList2State extends State<AnimalList2> {
         if (widget.animalType == 'Cow' && cattle.type != 'Cow') return false;
         if (widget.animalType == 'Buffalo' && cattle.type != 'Buffalo') return false;
         if (cattle.state != widget.section) return false;
-        if (_selectedBreed != null && _selectedBreed != 'All' && cattle.breed != _selectedBreed) return false; // Filter by breed
+        if (_selectedBreed != null && _selectedBreed != 'All' && cattle.breed.toLowerCase() != _selectedBreed!.toLowerCase()) return false; // Filter by breed
         return true;
       }).toList();
       _searchCattle(); // Apply search filter after breed filter
@@ -76,7 +76,7 @@ class _AnimalList2State extends State<AnimalList2> {
     setState(() {
       filteredCattle = filteredCattle.where((cattle) {
 
-        if (_selectedBreed != null && _selectedBreed != 'All' && cattle.breed != _selectedBreed) return false; // Apply breed filter
+        if (_selectedBreed != null && _selectedBreed != 'All' && cattle.breed.toLowerCase() != _selectedBreed!.toLowerCase()) return false; // Apply breed filter
         return cattle.rfid.toLowerCase().contains(query); // Search functionality
       }).toList();
     });
@@ -91,7 +91,7 @@ class _AnimalList2State extends State<AnimalList2> {
 
   void _clearSearch() {
     _searchController.clear();
-    _searchCattle(); // Apply breed filter after clearing search
+    _filterCattle(); // Apply breed filter after clearing search
   }
 
   @override
@@ -138,19 +138,19 @@ class _AnimalList2State extends State<AnimalList2> {
             child: DropdownButton<String>(
               value: _selectedBreed,
               hint: Text(
-                _selectedBreed ?? currentLocalization['All'] ?? 'All',
+                _selectedBreed ?? currentLocalization['all'] ?? 'All',
                 style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
               ),
               icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
               onChanged: (String? newValue) {
                 _filterByBreed(newValue);
               },
-              items: <String>['All', 'sahiwal', 'Gir', 'Holstein', 'Jersey']
+              items: <String>['All', 'Sahiwal', 'Gir', 'Holstein', 'Jersey']
                   .map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(
-                    currentLocalization[value] ?? value,
+                    currentLocalization[value.toLowerCase()] ?? value,
                     style: TextStyle(
                       color: _selectedBreed == value ? Colors.black : Colors.black,
                       fontWeight: _selectedBreed == value ? FontWeight.bold : FontWeight.normal,
@@ -175,7 +175,7 @@ class _AnimalList2State extends State<AnimalList2> {
                     controller: _searchController,
                     decoration: InputDecoration(
                       labelText: currentLocalization['Search Cattle'] ?? 'Search Cattle',
-
+                      hintText: currentLocalization['RF ID']?? 'Filter by RFID',
                       prefixIcon: const Icon(Icons.search),
                       contentPadding: const EdgeInsets.symmetric(vertical: 10), // Reduced height
                       border: OutlineInputBorder(
@@ -187,6 +187,9 @@ class _AnimalList2State extends State<AnimalList2> {
                         borderSide: const BorderSide(color: Colors.black38, width: 1),
                       ),
                     ),
+                    onChanged: (value){
+                      _filterCattle();
+                    },
                   ),
                 ),
                 IconButton(
@@ -261,8 +264,8 @@ class _AnimalList2State extends State<AnimalList2> {
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("${currentLocalization['Breed'] ?? 'Breed'}: ${currentLocalization[cattleInfo.breed] ?? cattleInfo.breed}"),
-                            Text("${currentLocalization['Sex'] ?? 'Sex'}: ${currentLocalization[cattleInfo.sex] ?? cattleInfo.sex}"),
+                            Text("${currentLocalization['breed'] ?? 'Breed'}: ${currentLocalization[cattleInfo.breed.toLowerCase()] ?? cattleInfo.breed}"),
+                            Text("${currentLocalization['sex'] ?? 'Sex'}: ${currentLocalization[cattleInfo.sex.toLowerCase()] ?? cattleInfo.sex}"),
 
 
                           ],

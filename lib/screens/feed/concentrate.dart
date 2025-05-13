@@ -3,6 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../models/feed.dart';
 import 'feedpage.dart';
+import 'package:provider/provider.dart';
+import '../../main.dart';
+import '../home/localisations_en.dart';
+import '../home/localisations_hindi.dart';
+import '../home/localisations_punjabi.dart';
 
 class ConcentratePage extends StatefulWidget {
   const ConcentratePage({super.key});
@@ -25,6 +30,10 @@ class _ConcentratePageState extends State<ConcentratePage> {
 
   String _selectedType = 'Homemade'; // Default value
   String _selectedUnit = 'Kg';
+  late Map<String, String> currentLocalization = {};
+  late Map<String, String> sourceMap;
+  late Map<String, String> unitMap;
+  late String languageCode = 'en';
 
   // List of dropdown items
   final List<String> _homemadeIngredients = [
@@ -45,6 +54,8 @@ class _ConcentratePageState extends State<ConcentratePage> {
   ];
 
   List<String> _selectedIngredients = [];
+
+
 
   @override
   void initState() {
@@ -67,6 +78,28 @@ class _ConcentratePageState extends State<ConcentratePage> {
 
   @override
   Widget build(BuildContext context) {
+    languageCode = Provider
+        .of<AppData>(context)
+        .persistentVariable;
+
+    if (languageCode == 'en') {
+      currentLocalization = LocalizationEn.translations;
+    } else if (languageCode == 'hi') {
+      currentLocalization = LocalizationHi.translations;
+    } else if (languageCode == 'pa') {
+      currentLocalization = LocalizationPun.translations;
+    }
+
+    sourceMap = {
+      'Purchased': currentLocalization['purchased'] ?? 'Purchased',
+      'Homemade': currentLocalization['homemade'] ?? 'Homemade',
+    };
+
+    unitMap = {
+      'Kg':currentLocalization['Kg']??'Kg',
+      'Quintal':currentLocalization['Quintal']??'Quintal'
+    };
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -75,8 +108,8 @@ class _ConcentratePageState extends State<ConcentratePage> {
             Navigator.pop(context);
           },
         ),
-        title: const Text(
-          'Concentrate',
+        title: Text(
+          currentLocalization['Concentrate']??"",
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),
@@ -91,9 +124,9 @@ class _ConcentratePageState extends State<ConcentratePage> {
             children: [
               const SizedBox(height: 20),
               feedUtils.buildDropdown(
-                label: 'Source',
+                label: currentLocalization['Source'] ?? "Source",
                 value: _selectedType,
-                items: ['Homemade', 'Purchased'],
+                items: sourceMap,
                 onChanged: (value) {
                   setState(() {
                     _selectedType = value!;
@@ -113,13 +146,13 @@ class _ConcentratePageState extends State<ConcentratePage> {
               if (_selectedType == 'Homemade') ...[
                 feedUtils.buildTextField(
                     _customHomemadeController,
-                    'Enter Custom Homemade Type'),
+                    currentLocalization['Enter Custom Homemade Type']??""),
                 const SizedBox(height: 20),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Text(
-                        'Select Ingredients:', style: TextStyle(fontSize: 18,
+                        currentLocalization['Select Ingredients:']??"", style: TextStyle(fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: const Color.fromRGBO(4, 142, 161, 1.0)),),
                     ]
@@ -157,7 +190,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
                                           setState(() {});
                                         }
                                     ),
-                                    SizedBox(width: 100, child: Text(item)),
+                                    SizedBox(width: MediaQuery.of(context).size.width * 0.20, child: Text(currentLocalization[item]??"")),
                                     SizedBox(width: 20),
                                     (_selectedIngredients.contains(item)) ?
                                     Expanded(
@@ -165,7 +198,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
                                         controller: _ingControllers[item],
                                         textAlign: TextAlign.center,
                                         decoration: InputDecoration(
-                                          labelText: 'Enter its cost',
+                                          labelText: currentLocalization['Enter its cost']??"",
                                         ),
                                       ),
                                     ) : Text('')
@@ -182,7 +215,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
                 if (_selectedType == 'Purchased') ...[
                   feedUtils.buildTextField(
                       _customPurchasedController,
-                      'Enter Custom Purchased Type'),
+                      currentLocalization['Enter Custom Purchased Type']??""),
                 ],
               const SizedBox(height: 20),
               const SizedBox(height: 20),
@@ -193,16 +226,16 @@ class _ConcentratePageState extends State<ConcentratePage> {
                   Expanded(
                     flex: 2,
                     child: feedUtils.buildTextField(
-                        _quantityController, 'Quantity'),
+                        _quantityController, currentLocalization['Quantity']??""),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     flex: 1,
                     child: feedUtils.buildDropdown(
-                        label: 'Unit',
+                        label: currentLocalization['Unit']??"",
                         value:
                         _selectedUnit,
-                        items: ['Kg', 'Quintal'],
+                        items: unitMap,
                         onChanged: (newValue) {
                           setState(() {
                             _selectedUnit = newValue!;
@@ -213,17 +246,17 @@ class _ConcentratePageState extends State<ConcentratePage> {
                 ],
               ),
               const SizedBox(height: 20),
-              feedUtils.buildTextField(_rateController, 'Rate per Unit'),
+              feedUtils.buildTextField(_rateController, currentLocalization['Rate per Unit']??""),
               const SizedBox(height: 20),
-              feedUtils.buildTextField(_priceController, 'Price'),
+              feedUtils.buildTextField(_priceController, currentLocalization['Total Price']??""),
               const SizedBox(height: 40),
               Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    feedUtils.buildElevatedButton('Calculate',
+                    feedUtils.buildElevatedButton(currentLocalization['Calculate']??"",
                         onPressed: () => _calculatePrice()),
-                    feedUtils.buildElevatedButton('Save',
+                    feedUtils.buildElevatedButton(currentLocalization['Save']??"",
                         onPressed: () => _submitData()),
                   ],
                 ),
@@ -248,7 +281,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
 
     if(type.isEmpty){
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Custom Type cannot be empty!')),
+        SnackBar(content: Text(currentLocalization['Custom Type cannot be empty!']??'')),
       );
       return;
     }

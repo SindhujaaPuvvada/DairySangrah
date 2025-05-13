@@ -1,10 +1,10 @@
-//TODO:for User database access
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import '../../models/user.dart';
+
 
 class DatabaseServicesForUser {
   final String uid;
+
   DatabaseServicesForUser(this.uid);
 
   Future<void> infoToServer(String uid, FarmUser userInfo) async {
@@ -18,4 +18,5 @@ class DatabaseServicesForUser {
 
     return await db.collection('User').doc(uid).get();
   }
+
 }

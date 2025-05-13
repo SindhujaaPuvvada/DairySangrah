@@ -54,7 +54,7 @@ class _DairyMitraRegistrationPageState
 
             // "DairyMitra Registration" text
             Text(
-              'DairyMate Registration',
+              currentLocalization['Dairy Sangrah Registration']??"",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -66,7 +66,7 @@ class _DairyMitraRegistrationPageState
 
             // Subtitle text
             Text(
-              'Get started with your farm management journey',
+              currentLocalization['Get started with your farm management journey']??"",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.normal,
@@ -161,7 +161,7 @@ class _DairyMitraRegistrationPageState
                   children: [
                     SizedBox(width: 16),
                     Text(
-                      'Join an Existing Farm',
+                      currentLocalization['Join an Existing Farm']??"",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
@@ -210,7 +210,7 @@ class _DairyMitraRegistrationPageState
                       );
                     },
                     child: Text(
-                      'Confirm',
+                      currentLocalization['Confirm']??"",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,

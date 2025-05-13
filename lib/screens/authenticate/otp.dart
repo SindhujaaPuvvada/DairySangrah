@@ -1,3 +1,4 @@
+import 'package:farm_expense_mangement_app/screens/authenticate/authUtils.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/registerNewFarm.dart';
 import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,9 +7,11 @@ import 'package:farm_expense_mangement_app/services/auth.dart';
 import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/phoneno.dart';
 import '../../logging.dart';
+import '../../main.dart';
 import '../home/localisations_en.dart';
 import '../home/localisations_hindi.dart';
 import '../home/localisations_punjabi.dart';
+import 'package:provider/provider.dart';
 class OtpVerificationPage extends StatefulWidget {
   const OtpVerificationPage({super.key});
 
@@ -22,7 +25,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   final AuthService _auth = AuthService();
   late String languageCode = 'en';
   final log = logger(OtpVerificationPage);
-
+  late Map<String, String> currentLocalization= {};
 
 
   @override
@@ -54,6 +57,16 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
 
  @override
   Widget build(BuildContext context) {
+   languageCode = Provider.of<AppData>(context).persistentVariable;
+   //print(languageCode);
+
+   if (languageCode == 'en') {
+     currentLocalization = LocalizationEn.translations;
+   } else if (languageCode == 'hi') {
+     currentLocalization = LocalizationHi.translations;
+   } else if (languageCode == 'pa') {
+     currentLocalization = LocalizationPun.translations;
+   }
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -70,7 +83,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           },
         ),
         title: Text(
-          'Login To Dairy Mate',
+          currentLocalization['Login To Dairy Sangrah']??"",
           style: TextStyle(
             fontWeight: FontWeight.bold, // Make the title bold
           ),
@@ -85,7 +98,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           children: <Widget>[
             // "Enter OTP" text (bold)
             Text(
-              'Enter OTP',
+              currentLocalization['Enter OTP']??"",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -151,18 +164,44 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                           builder: (context) => RegisterFarm()));
                     }
                     else {
-                      //print("in wrapper block");
-                      Navigator.pushReplacement(
-                          context, MaterialPageRoute(
-                          builder: (context) => const WrapperHomePage()));
+                      if (snapshot.exists) {
+                        //print("in wrapper block");
+                        Navigator.pushReplacement(
+                            context, MaterialPageRoute(
+                            builder: (context) => const WrapperHomePage()));
+                      }
+                      else {
+                        showDialog(context: context,
+                            builder: (context) {
+                              return AuthUtils.buildAlertDialog(
+                                  title: currentLocalization['No existing Farm!']??'',
+                                  content: currentLocalization['Not Registered Content']??'',
+                                  opt1: currentLocalization['register']??'',
+                                  onPressedOpt1: () {
+                                    Navigator.pushReplacement(
+                                        context, MaterialPageRoute(
+                                        builder: (context) => RegisterFarm()));
+                                  },
+                                  opt2: currentLocalization['cancel']??'',
+                                  onPressedOpt2: () async {
+                                    await FirebaseAuth
+                                        .instance
+                                        .currentUser!.delete();
+                                    Navigator.pushReplacement(
+                                      context, MaterialPageRoute(
+                                          builder: (context) => MyApp()));
+                                  }
+                              );
+                            });
+                      }
                     }
                   }
                   catch (e) {
-                    log.e("Invalid OTP!!", time: DateTime.now(), error: e.toString());
+                    log.e("Encountered error!!", time: DateTime.now(), error: e.toString());
                   }
                 },
                 child: Text(
-                  'Continue',
+                  currentLocalization['Continue']??"",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -179,7 +218,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text(
-                  "Didn't receive code?",
+                  currentLocalization["Didn't receive code?"]??"",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w300, // Light weight font
@@ -190,7 +229,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     // Handle resend OTP logic here
                   },
                   child: Text(
-                    'Resend OTP',
+                    currentLocalization['Resend OTP']??"",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600, // Slightly more weight
@@ -204,17 +243,17 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             SizedBox(height: 20), // Space between the resend OTP section and the terms text
 
             // Terms and conditions text
-            Center(
-              child: Text(
-                'By signing up you agree to our Terms Conditions & Privacy Policy.',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500, // Slightly more weight than previous text
-                  color: Colors.grey[600], // Text color
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
+            // Center(
+            //   child: Text(
+            //     'By signing up you agree to our Terms Conditions & Privacy Policy.',
+            //     style: TextStyle(
+            //       fontSize: 16,
+            //       fontWeight: FontWeight.w500, // Slightly more weight than previous text
+            //       color: Colors.grey[600], // Text color
+            //     ),
+            //     textAlign: TextAlign.center,
+            //   ),
+            // ),
           ],
         ),
       ),

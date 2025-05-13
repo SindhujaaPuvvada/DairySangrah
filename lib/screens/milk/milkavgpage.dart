@@ -1,16 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../../models/cattle.dart';
 import '../../../models/milk.dart';
 import '../../../services/database/cattledatabase.dart';
 import '../../../services/database/milkdatabase.dart';
 import 'milkbydate.dart';
 import '../../../main.dart';
-import '../localisations_en.dart';
-import '../localisations_hindi.dart';
-import '../localisations_punjabi.dart';
+import '../home/localisations_en.dart';
+import '../home/localisations_hindi.dart';
+import '../home/localisations_punjabi.dart';
 
 class AvgMilkPage extends StatefulWidget {
   const AvgMilkPage({super.key});
@@ -144,7 +143,7 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              "${currentLocalization['Total Milk'] ?? 'Total Milk'}: $totalMilkAcrossAllDates Liters",
+              "${currentLocalization['Total Milk'] ?? 'Total Milk'}: $totalMilkAcrossAllDates ${currentLocalization['Litres']}",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -154,9 +153,8 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
           ),
           Expanded(
             child: _allMilkByDate.isEmpty
-                ? const Center(
-              child: Text(
-                'No entries found for selected date.',
+                ? Center(
+              child: Text(currentLocalization['no_entries_for_sel_date']??'',
                 style: TextStyle(fontSize: 18),
               ),
             )

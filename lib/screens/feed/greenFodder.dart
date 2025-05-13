@@ -3,6 +3,11 @@ import 'package:get/get.dart';
 import '../../models/feed.dart';
 import 'feedUtils.dart';
 import 'feedpage.dart';
+import 'package:provider/provider.dart';
+import '../../main.dart';
+import '../home/localisations_en.dart';
+import '../home/localisations_hindi.dart';
+import '../home/localisations_punjabi.dart';
 
 class GreenFodderPage extends StatefulWidget {
   const GreenFodderPage({super.key});
@@ -25,9 +30,15 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
 
 
   String _selectedType = 'Maize';
-  String _selectedSource = 'Purchased';
+  late String _selectedSource = 'Purchased';
   bool _isCustomType = false;
   String _selectedUnit = 'Kg';
+  late Map<String, String> currentLocalization = {};
+  late String languageCode = 'en';
+  late Map<String, String> typeMap;
+  late Map<String, String> sourceMap;
+  late Map<String,String> unitMap;
+
 
   @override
   void dispose() {
@@ -46,6 +57,40 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
 
   @override
   Widget build(BuildContext context) {
+    languageCode = Provider
+        .of<AppData>(context)
+        .persistentVariable;
+
+    if (languageCode == 'en') {
+      currentLocalization = LocalizationEn.translations;
+    } else if (languageCode == 'hi') {
+      currentLocalization = LocalizationHi.translations;
+    } else if (languageCode == 'pa') {
+      currentLocalization = LocalizationPun.translations;
+    }
+    typeMap = {
+      'Maize': currentLocalization['Maize'] ?? 'Maize',
+      'Barley': currentLocalization['Barley'] ?? 'Barley',
+      'Mustard': currentLocalization['Mustard'] ?? 'Mustard',
+      'Rye Grass': currentLocalization['Rye Grass'] ?? 'Rye Grass',
+      'Bajra': currentLocalization['Bajra'] ?? 'Bajra',
+      'Sorghum': currentLocalization['Sorghum'] ?? 'Sorghum',
+      'Barseem': currentLocalization['Barseem'] ?? 'Barseem',
+      'Oats': currentLocalization['Oats'] ?? 'Oats',
+      'Others': currentLocalization['Others'] ?? 'Others',
+    };
+
+    sourceMap = {
+      'Purchased': currentLocalization['purchased'] ?? 'Purchased',
+      'Own Farm': currentLocalization['own farm'] ?? 'Own Farm',
+    };
+
+    unitMap = {
+      'Kg':currentLocalization['Kg']??'Kg',
+      'Quintal':currentLocalization['Quintal']??'Quintal'
+    };
+
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -54,8 +99,8 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
             Navigator.pop(context);
           },
         ),
-        title: const Text(
-          'Green Fodder',
+        title: Text(
+          currentLocalization['Green Fodder']??"",
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),
@@ -71,19 +116,9 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
               const SizedBox(height: 20),
 
               feedUtils.buildDropdown(
-                label: 'Type',
+                label: currentLocalization['Type'] ?? "Type",
                 value: _selectedType,
-                items: [
-                  'Maize',
-                  'Barley',
-                  'Mustard',
-                  'Rye Grass',
-                  'Bajra',
-                  'Sorghum',
-                  'Barseem',
-                  'Oats',
-                  'Others'
-                ],
+                items: typeMap,
                 onChanged: (newValue) {
                   setState(() {
                     _selectedType = newValue!;
@@ -92,86 +127,90 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
                 },
               ),
 
+
+
               const SizedBox(height: 20),
 
               (_isCustomType)?
                   Column(
                     children: [
-                feedUtils.buildTextField(_customTypeController, 'Enter custom type'),
+                feedUtils.buildTextField(_customTypeController, currentLocalization['Enter custom type']??""),
                 const SizedBox(height: 20),
                 ])
                 : Column(),
 
               feedUtils.buildDropdown(
-                label: 'Source',
+                label: currentLocalization['Source'] ?? "Source",
                 value: _selectedSource,
-                items: ['Purchased', 'Own Farm'],
+                items: sourceMap,
                 onChanged: (newValue) {
                   setState(() {
                     _selectedSource = newValue!;
                   });
                 },
               ),
-
+              
               const SizedBox(height: 20),
-
               Row(
                 children: [
                   Expanded(
                     flex: 2,
-                    child: feedUtils.buildTextField(_quantityController, 'Quantity/Yield'),
+                    child: feedUtils.buildTextField(_quantityController, currentLocalization['Quantity/Yield']??""),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     flex: 1,
                     child: feedUtils.buildDropdown(
-                        label: 'Unit',
+                        label: currentLocalization['Unit']??"",
                         value: _selectedUnit,
-                        items: ['Kg', 'Quintal'],
+                        items: unitMap,
                         onChanged: (newValue) {
                           setState(() {
                             _selectedUnit = newValue!;
                           });
                         }
                     ),
+                    // print(_selectedSource),
                   ),
                 ],
-              ),
 
+              ),
+            // print(_selectedSource),
               const SizedBox(height: 20),
 
-              (_selectedSource == 'Purchased')
+
+              (_selectedSource =='Purchased')
                   ?
                   Container(
                     child:
               Column(
                   children: [
-                    feedUtils.buildTextField(_rateController, 'Rate per Unit'),
+                    feedUtils.buildTextField(_rateController, currentLocalization['Rate per Unit']??""),
                     const SizedBox(height: 20),
-                    feedUtils.buildTextField(_priceController, 'Total Price'),
+                    feedUtils.buildTextField(_priceController, currentLocalization['Total Price']??""),
                   ])
                   )
                   :
               Container(
                 child: Column(
                   children: [
-                    feedUtils.buildTextField(_areaController, 'Land Area(in acres)'),
+                    feedUtils.buildTextField(_areaController, currentLocalization['Land Area(in acres)']??""),
                     const SizedBox(height: 20),
-                    feedUtils.buildTextField(_seedCostController, 'Seed Cost'),
-                    const SizedBox(height: 20),
-                    feedUtils.buildTextField(
-                        _fertilizerCostController, 'Fertilizers Cost'),
+                    feedUtils.buildTextField(_seedCostController, currentLocalization['Seed Cost']??""),
                     const SizedBox(height: 20),
                     feedUtils.buildTextField(
-                        _inoculantsCostController, 'Inoculants Cost'),
+                        _fertilizerCostController, currentLocalization['Fertilizers Cost']??""),
                     const SizedBox(height: 20),
-                    feedUtils.buildTextField(_laborCostController, 'Labor Cost'),
+                    feedUtils.buildTextField(
+                        _inoculantsCostController, currentLocalization['Inoculants Cost']??""),
                     const SizedBox(height: 20),
-                    feedUtils.buildTextField(_dieselCostController, 'Diesel Cost'),
+                    feedUtils.buildTextField(_laborCostController, currentLocalization['Labor Cost']??""),
                     const SizedBox(height: 20),
-                    feedUtils.buildTextField(_priceController, 'Total Production Cost'),
+                    feedUtils.buildTextField(_dieselCostController, currentLocalization['Diesel Cost']??""),
                     const SizedBox(height: 20),
-                    feedUtils.buildTextField(_rateController, 'Rate per Unit'),
+                    feedUtils.buildTextField(_priceController, currentLocalization['Total Production Cost']??""),
+                    const SizedBox(height: 20),
+                    feedUtils.buildTextField(_rateController, currentLocalization['Rate per Unit']??""),
                 ]
                   ),
               ),
@@ -182,9 +221,9 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    feedUtils.buildElevatedButton('Calculate',
+                    feedUtils.buildElevatedButton(currentLocalization['Calculate']??"",
                         onPressed:() => _calculatePrice()),
-                    feedUtils.buildElevatedButton('Save',
+                    feedUtils.buildElevatedButton(currentLocalization['Save']??"",
                         onPressed:() => _submitData()),
                   ],
                 ),
@@ -197,7 +236,7 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
     );
   }
 
-  void _submitData() {
+  Future<void> _submitData() async {
     final type = _isCustomType ? _customTypeController.text : _selectedType;
     double quantity = double.parse(_quantityController.text);
     final source = _selectedSource;
@@ -206,7 +245,7 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
 
     if(type.isEmpty){
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Custom Type cannot be empty!')),
+        SnackBar(content: Text(currentLocalization['Custom Type cannot be empty!']??'')),
       );
       return;
     }
@@ -225,7 +264,7 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
       feedDate: DateTime.now(),
     );
 
-    feedUtils.saveFeedDetails(feed);
+    await feedUtils.saveFeedDetails(feed);
 
      Navigator.push(
         context,
@@ -263,6 +302,5 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
     });
 
   }
-
 
 }

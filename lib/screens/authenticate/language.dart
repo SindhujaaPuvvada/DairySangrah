@@ -23,7 +23,7 @@ class _SignUpPageState extends State<SignUpPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Sign Up',
+          'Dairy Sangrah',
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),
@@ -59,8 +59,8 @@ class _SignUpPageState extends State<SignUpPage> {
 
                     // Language Options
                     languageOption('ENGLISH', 'en', 'ENGLISH'),
-                    //languageOption('हिन्दी', 'hi', 'हिन्दी'),
-                    //languageOption('ਪੰਜਾਬੀ', 'pa', 'ਪੰਜਾਬੀ'),
+                    languageOption('हिन्दी', 'hi', 'हिन्दी'),
+                    languageOption('ਪੰਜਾਬੀ', 'pa', 'ਪੰਜਾਬੀ'),
                   ],
                 ),
               ),

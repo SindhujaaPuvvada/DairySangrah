@@ -3,6 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../models/feed.dart';
 import 'feedpage.dart';
+import 'package:provider/provider.dart';
+import '../../main.dart';
+import '../home/localisations_en.dart';
+import '../home/localisations_hindi.dart';
+import '../home/localisations_punjabi.dart';
 
 
 
@@ -25,8 +30,12 @@ class _DryFodderPageState extends State<DryFodderPage> {
   String _selectedType = 'Wheat Straw';
   String _selectedSource = 'Purchased';
   String _selectedUnit = 'Kg';
-  final List<String> _fodderTypes = ['Wheat Straw', 'Paddy Straw', 'Others'];
-  final List<String> _sourceTypes = ['Purchased', 'Own Farm'];
+  late Map<String, String> currentLocalization = {};
+  late Map<String, String> typeMap;
+  late Map<String, String> sourceMap;
+  late Map<String, String> unitMap;
+
+  late String languageCode = 'en';
 
   @override
   void dispose() {
@@ -39,6 +48,34 @@ class _DryFodderPageState extends State<DryFodderPage> {
 
   @override
   Widget build(BuildContext context) {
+    languageCode = Provider
+        .of<AppData>(context)
+        .persistentVariable;
+
+    if (languageCode == 'en') {
+      currentLocalization = LocalizationEn.translations;
+    } else if (languageCode == 'hi') {
+      currentLocalization = LocalizationHi.translations;
+    } else if (languageCode == 'pa') {
+      currentLocalization = LocalizationPun.translations;
+    }
+
+    typeMap = {
+      'Wheat Straw': currentLocalization['Wheat Straw'] ?? 'Wheat Straw',
+      'Paddy Straw': currentLocalization['Paddy Straw'] ?? 'Paddy Straw',
+      'Others': currentLocalization['Others'] ?? 'Others',
+    };
+
+    sourceMap = {
+      'Purchased': currentLocalization['purchased'] ?? 'Purchased',
+      'Own Farm': currentLocalization['own farm'] ?? 'Own Farm',
+    };
+
+    unitMap = {
+      'Kg':currentLocalization['Kg']??'Kg',
+      'Quintal':currentLocalization['Quintal']??'Quintal'
+    };
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -47,8 +84,8 @@ class _DryFodderPageState extends State<DryFodderPage> {
             Navigator.pop(context);
           },
         ),
-        title: const Text(
-          'Dry Fodder',
+        title: Text(
+          currentLocalization['Dry Fodder']??"",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color.fromRGBO(4, 142, 161, 1.0),
@@ -61,39 +98,46 @@ class _DryFodderPageState extends State<DryFodderPage> {
             children: [
               const SizedBox(height: 20),
               feedUtils.buildDropdown(
-                  label: 'Type', value: _selectedType, items: _fodderTypes,
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedType = value!;
-                    });
-                  }),
+                label: currentLocalization['Type'] ?? "Type",
+                value: _selectedType,
+                items: typeMap,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedType = value!;
+                  });
+                },
+              ),
+
               if (_selectedType == 'Others') ...[
                 const SizedBox(height: 20),
-                feedUtils.buildTextField(_customTypeController, 'Custom Type'),
+                feedUtils.buildTextField(_customTypeController, currentLocalization['Enter custom type']??""),
               ],
               const SizedBox(height: 20),
               feedUtils.buildDropdown(
-                label: 'Source', value: _selectedSource, items: _sourceTypes,
+                label: currentLocalization['Source'] ?? "Source",
+                value: _selectedSource,
+                items: sourceMap,
                 onChanged: (value) {
                   setState(() {
                     _selectedSource = value!;
                   });
-                },),
+                },
+              ),
               const SizedBox(height: 20),
               Row(
                 children: [
                   Expanded(
                     flex: 2,
                     child: feedUtils.buildTextField(
-                        _quantityController, 'Quantity'),
+                        _quantityController, currentLocalization['Quantity']??""),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     flex: 1,
                     child: feedUtils.buildDropdown(
-                        label: 'Unit',
+                        label: currentLocalization['Unit']??"",
                         value: _selectedUnit,
-                        items: ['Kg', 'Quintal'],
+                        items: unitMap,
                         onChanged: (newValue) {
                           setState(() {
                             _selectedUnit = newValue!;
@@ -104,17 +148,17 @@ class _DryFodderPageState extends State<DryFodderPage> {
                 ],
               ),
               const SizedBox(height: 20),
-              feedUtils.buildTextField(_rateController, 'Rate per Unit'),
+              feedUtils.buildTextField(_rateController, currentLocalization['Rate per Unit']??""),
               const SizedBox(height: 20),
-              feedUtils.buildTextField(_priceController, 'Price'),
+              feedUtils.buildTextField(_priceController, currentLocalization['Total Price']??""),
               const SizedBox(height: 40),
               Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    feedUtils.buildElevatedButton('Calculate',
+                    feedUtils.buildElevatedButton(currentLocalization['Calculate']??"",
                         onPressed: () => _calculatePrice()),
-                    feedUtils.buildElevatedButton('Save',
+                    feedUtils.buildElevatedButton(currentLocalization['Save']??"",
                         onPressed: () => _submitData()),
                   ],
                 ),
@@ -137,7 +181,7 @@ class _DryFodderPageState extends State<DryFodderPage> {
 
     if(type.isEmpty){
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Custom Type cannot be empty!')),
+        SnackBar(content: Text(currentLocalization['Custom Type cannot be empty!']??'')),
       );
       return;
     }

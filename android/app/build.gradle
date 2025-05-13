@@ -31,7 +31,7 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
-        setProperty("archivesBaseName", "DairyMate-v${versionName}-(${versionCode})")
+        setProperty("archivesBaseName", "DairySangrah-v${versionName}-(${versionCode})")
     }
 
     buildTypes {

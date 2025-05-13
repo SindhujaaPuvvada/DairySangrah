@@ -50,19 +50,29 @@ class DatabaseServicesForCattle {
         .orderBy('rfid')
         .get();
   }
-
   Future<void> deleteCattle(String rfid) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
+    final FirebaseFirestore db = FirebaseFirestore.instance;
 
-    QuerySnapshot querySnapshot = await db
+    // Reference to the specific cattle document
+    final DocumentReference cattleDocRef = db
         .collection('User')
         .doc(uid)
         .collection('Cattle')
-        .where('rfid', isEqualTo: rfid)
-        .get();
+        .doc(rfid);
 
-    for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+    // Delete all documents in the 'History' subcollection
+    final QuerySnapshot historyDocs = await cattleDocRef.collection('History').get();
+    // print(historyDocs);
+    for (QueryDocumentSnapshot doc in historyDocs.docs) {
       await doc.reference.delete();
     }
+
+
+    // Now delete the main cattle document
+    await cattleDocRef.delete();
   }
+
+
+
+
 }

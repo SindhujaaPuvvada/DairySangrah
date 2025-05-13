@@ -1,15 +1,13 @@
-import 'package:farm_expense_mangement_app/screens/home/cattle/animallist1.dart';
-// import 'package:farm_expense_mangement_app/screens/home/animallist2.dart';
+import 'package:farm_expense_mangement_app/screens/cattle/animallist1.dart';
 import 'package:flutter/material.dart';
 import 'package:farm_expense_mangement_app/services/database/cattledatabase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:farm_expense_mangement_app/models/cattle.dart';
-import 'package:farm_expense_mangement_app/screens/home/cattle/newcattle.dart';
-// import '../../notification/alertnotifications.dart';
-import '../localisations_en.dart';
-import '../localisations_hindi.dart';
+import 'package:farm_expense_mangement_app/screens/cattle/newcattle.dart';
+import '../home/localisations_en.dart';
+import '../home/localisations_hindi.dart';
 import 'package:provider/provider.dart';
-import '../localisations_punjabi.dart';
+import '../home/localisations_punjabi.dart';
 import '../../../main.dart';
 
 class AnimalList1 extends StatefulWidget {
@@ -193,9 +191,6 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 decoration: BoxDecoration(
-                  // color: Colors.blueAccent.withOpacity(0.7),
-                  // Background color for the total count
-                  // color:Colors.white,
                   borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(16),
                     bottomRight: Radius.circular(16),

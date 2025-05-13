@@ -1,15 +1,14 @@
 import 'package:farm_expense_mangement_app/models/cattle.dart';
-import 'package:farm_expense_mangement_app/screens/home/cattle/animallist.dart';
+import 'package:farm_expense_mangement_app/screens/cattle/animallist.dart';
 import 'package:farm_expense_mangement_app/screens/notification/alertnotifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../../services/database/cattledatabase.dart';
 import '../../../main.dart';
-import '../localisations_en.dart';
-import '../localisations_hindi.dart';
-import '../localisations_punjabi.dart';
+import '../home/localisations_en.dart';
+import '../home/localisations_hindi.dart';
+import '../home/localisations_punjabi.dart';
 
 class AddNewCattle extends StatefulWidget {
   const AddNewCattle({super.key});
@@ -68,10 +67,11 @@ class _AddNewCattleState extends State<AddNewCattle> {
         weight: _weightTextController.text.isNotEmpty
             ? int.parse(_weightTextController.text)
             : 0,
+        source: _selectedSource != null ? _selectedSource! : '',
         state: _selectedState != null ? _selectedState! : '',
         type: _selectedType != null ? _selectedType! : ' ',
         isPregnant: (_selectedIsPregnant != null &&
-            _selectedIsPregnant == currentLocalization['yes'])
+            _selectedIsPregnant == 'Yes')
             ? true : false,
         dateOfBirth: _birthDate!
     );
@@ -79,7 +79,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
 
     if (exists) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('RFID already exists')),
+        SnackBar(content: Text(currentLocalization['rfid_already_exists']??'')),
       );
       return;
     }
@@ -174,7 +174,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter tag number';
+                      return currentLocalization['please_enter_tag_num']??'';
                     }
                     return null;
                   },
@@ -193,7 +193,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
                   items: typeOptions.map((String type) {
                     return DropdownMenuItem<String>(
                       value: type,
-                      child: Text('${currentLocalization[type] ?? ""}*'),
+                      child: Text(currentLocalization[type] ?? ""),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -203,7 +203,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please select type of cattle';
+                      return currentLocalization['please_select_cattle_type']??'';
                     }
                     return null;
                   },
@@ -224,8 +224,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
                     return DropdownMenuItem<String>(
                       value: gender,
                       child: Text(
-                          '${currentLocalization[gender.toLowerCase()] ??
-                              ""}*'),
+                          currentLocalization[gender.toLowerCase()]??""),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -235,7 +234,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please select gender';
+                      return currentLocalization['please_select_gender']??'';
                     }
                     return null;
                   },
@@ -314,7 +313,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
                     items: sourceOptions.map((String source) {
                       return DropdownMenuItem<String>(
                         value: source,
-                        child: Text(currentLocalization[source] ?? ""),
+                        child: Text(currentLocalization[source.toLowerCase()] ?? ""),
                       );
                     }).toList(),
                     onChanged: (value) {
@@ -324,7 +323,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please Enter Source of Cattle';
+                        return currentLocalization['please_select_source']??'';
                       }
                       return null;
                     }),
@@ -343,7 +342,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please Enter Breed';
+                      return currentLocalization['please_enter_breed']??'';
                     }
                     return null;
                   },
@@ -364,7 +363,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
                     return DropdownMenuItem<String>(
                       value: stage,
                       child: Text(
-                          currentLocalization[stage.toLowerCase()] ?? ""),
+                          currentLocalization[stage] ?? ""),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -374,7 +373,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
                   },
                 ),
               ),
-              (_selectedGender == currentLocalization['female']) ?
+              (_selectedGender == 'Female') ?
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
                 child: DropdownButtonFormField<String>(

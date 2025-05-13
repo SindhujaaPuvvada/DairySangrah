@@ -84,14 +84,14 @@ class _EditTransactionState extends State<EditTransaction> {
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => TransactionPage(showIncome: widget.showIncome)));
 
-    // Check if the expiry date is in the past
+    // Check if the transaction date is in future
     if (_dateOfTransaction.isAfter(DateTime.now())) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Error'),
-            content: const Text('Please select a valid expiry date.'),
+            content: const Text('Please select a valid date.'),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
@@ -204,59 +204,15 @@ class _EditTransactionState extends State<EditTransaction> {
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter stock';
+                      return currentLocalization['please_enter_value']??'';
                     }
-                    if (int.tryParse(value) == null) {
-                      return 'Please enter a valid number';
+                    if (double.tryParse(value) == null) {
+                      return currentLocalization['enter_valid_number']??'';
                     }
                     return null;
                   },
                 ),
               ),
-              // Container(
-              //   margin: const EdgeInsets.symmetric(vertical: 8.0),
-              //   padding: const EdgeInsets.all(8.0),
-              //   decoration: BoxDecoration(
-              //     border: Border.all(color: Colors.grey),
-              //     borderRadius: BorderRadius.circular(8.0),
-              //   ),
-              //   child: TextFormField(
-              //     controller: _needController,
-              //     decoration: const InputDecoration(labelText: 'Need'),
-              //     keyboardType: TextInputType.number,
-              //     validator: (value) {
-              //       if (value == null || value.isEmpty) {
-              //         return 'Please enter need';
-              //       }
-              //       if (int.tryParse(value) == null) {
-              //         return 'Please enter a valid number';
-              //       }
-              //       return null;
-              //     },
-              //   ),
-              // ),
-              // Container(
-              //   margin: const EdgeInsets.symmetric(vertical: 8.0),
-              //   padding: const EdgeInsets.all(8.0),
-              //   decoration: BoxDecoration(
-              //     border: Border.all(color: Colors.grey),
-              //     borderRadius: BorderRadius.circular(10.0),
-              //   ),
-              //   child: TextFormField(
-              //     controller: _stockController,
-              //     decoration: const InputDecoration(labelText: 'Stock'),
-              //     keyboardType: TextInputType.number,
-              //     validator: (value) {
-              //       if (value == null || value.isEmpty) {
-              //         return 'Please enter stock';
-              //       }
-              //       if (int.tryParse(value) == null) {
-              //         return 'Please enter a valid number';
-              //       }
-              //       return null;
-              //     },
-              //   ),
-              // ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.center,

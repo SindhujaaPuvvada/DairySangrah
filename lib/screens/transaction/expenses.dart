@@ -135,6 +135,12 @@ class _AddExpensesState extends State<AddExpenses> {
       TextEditingController txtCntrlr = TextEditingController();
       _qtyControllers[fd.feedId ?? ""] = txtCntrlr;
     }
+    Map<String, String> categoryMap = {
+      'Feed': currentLocalization['feed']!,
+      'Veterinary': currentLocalization['Veterinary']!,
+      'Labor Costs': currentLocalization['Labor Costs']!,
+      'Equipment and Machinery':currentLocalization['Equipment and Machinery']!,
+    };
 
     return Scaffold(
 
@@ -194,18 +200,22 @@ class _AddExpensesState extends State<AddExpenses> {
                       ),
                     ),
                     // SizedBox(height: 10),
-                    Padding(
-                        padding: const EdgeInsets.fromLTRB(1, 0, 1, 20),
-                        child: TransUtils.buildDropdown(
-                          label: '${currentLocalization['select_expense_type']}*',
-                          value: _selectedCategory,
-                          items: sourceOptions,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedCategory = value;
-                            });
-                          },)
 
+
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(1, 0, 1, 20),
+                      child: TransUtils.buildDropdown(
+                        label: '${currentLocalization['select_expense_type']}*',
+                        value: _selectedCategory != null ? categoryMap[_selectedCategory!] : null,
+                        items: categoryMap.values.toList(),
+                        onChanged: (selectedLocalizedValue) {
+                          setState(() {
+                            _selectedCategory = categoryMap.entries
+                                .firstWhere((entry) => entry.value == selectedLocalizedValue)
+                                .key;
+                          });
+                        },
+                      ),
                     ),
 
                     if (_selectedCategory == 'Other')
@@ -225,7 +235,7 @@ class _AddExpensesState extends State<AddExpenses> {
                                       .spaceEvenly,
                                   children: [
                                     Text(
-                                      'Select Feed Consumption :',
+                                      currentLocalization['sel_feed_consumption']??'',
                                       style: TextStyle(fontSize: 18,
                                           fontWeight: FontWeight.bold,
                                           color: const Color.fromRGBO(
@@ -234,7 +244,7 @@ class _AddExpensesState extends State<AddExpenses> {
                               )
                           ),
                           const SizedBox(height: 10),
-                          SizedBox(height: 160, width: 400,
+                          SizedBox(height: MediaQuery.of(context).size.height * 0.25, width: MediaQuery.of(context).size.width * 0.95,
                             child: Container(
                               decoration: BoxDecoration(
                                   border: Border.all(),
@@ -249,7 +259,7 @@ class _AddExpensesState extends State<AddExpenses> {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: <Widget>[
                                       if(_feedTypes.isEmpty)...[
-                                        Text('Out of Stock, please refill !',
+                                        Text(currentLocalization['out_of_stock']??'',
                                             style: TextStyle(fontSize: 18,
                                                 fontWeight: FontWeight.bold,
                                                 color: Colors.redAccent))
@@ -281,11 +291,11 @@ class _AddExpensesState extends State<AddExpenses> {
                                                         setState(() {});
                                                       }
                                                   ),
-                                                  SizedBox(width: 150,
-                                                      child: Text('Ty: ${item
-                                                          .feedType} |\nQty: ${item
-                                                          .quantity}Kg |\nRt: ₹${item
-                                                          .ratePerKg}/Kg')),
+                                                  SizedBox(width: MediaQuery.of(context).size.width * 0.37,
+                                                      child: Text('${currentLocalization['Type']}: ${currentLocalization[item
+                                                          .feedType]??item.feedType} |\n${currentLocalization['Quantity']}: ${item
+                                                          .quantity} ${currentLocalization['Kg']} |\n${currentLocalization['Rate']}: ₹${item
+                                                          .ratePerKg} / ${currentLocalization['Kg']}')),
                                                   SizedBox(width: 20),
                                                   (_selectedFeed.contains(
                                                       item)) ?
@@ -298,7 +308,7 @@ class _AddExpensesState extends State<AddExpenses> {
                                                       textAlign: TextAlign
                                                           .center,
                                                       decoration: InputDecoration(
-                                                        labelText: 'Enter qty consumed in Kg',
+                                                        labelText: currentLocalization['enter_qty_consumed_kg']??'',
                                                       ),
                                                       validator: (value) {
                                                         if (value == null ||
@@ -310,7 +320,7 @@ class _AddExpensesState extends State<AddExpenses> {
                                                             double.parse(
                                                                 value) <
                                                             0) {
-                                                          return 'cannot be more than existing quantity!';
+                                                          return currentLocalization['cannot_be_more_than_existing']??'';
                                                         }
                                                         else {
                                                           return null;
@@ -336,7 +346,7 @@ class _AddExpensesState extends State<AddExpenses> {
                         alignment: Alignment.center,
                         child:
                         TransUtils.buildElevatedButton(
-                            'Calculate',
+                            currentLocalization['Calculate']??'Calculate',
                             onPressed: () => _calculateExpense()),
                       ),
                       SizedBox(height: 20),
