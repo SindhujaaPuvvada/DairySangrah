@@ -44,9 +44,9 @@ class _TransactionPageState extends State<TransactionPage> {
           .map((doc) => Sale.fromFireStore(doc, null))
           .where((sale) =>
       (selectedStartDate == null ||
-          sale.saleOnMonth!.isAfter(selectedStartDate!)) &&
+          sale.saleOnMonth!.isAfter(selectedStartDate!.add(Duration(days: -1)))) &&
           (selectedEndDate == null ||
-              sale.saleOnMonth!.isBefore(selectedEndDate!)))
+              sale.saleOnMonth!.isBefore(selectedEndDate!.add(Duration(days: 1)))))
           .toList();
     });
   }
@@ -58,9 +58,9 @@ class _TransactionPageState extends State<TransactionPage> {
           .map((doc) => Expense.fromFireStore(doc, null))
           .where((expense) =>
       (selectedStartDate == null ||
-          expense.expenseOnMonth!.isAfter(selectedStartDate!)) &&
+          expense.expenseOnMonth!.isAfter(selectedStartDate!.add(Duration(days: -1)))) &&
           (selectedEndDate == null ||
-              expense.expenseOnMonth!.isBefore(selectedEndDate!)))
+              expense.expenseOnMonth!.isBefore(selectedEndDate!.add(Duration(days: 1)))))
           .toList();
     });
   }
@@ -250,7 +250,7 @@ class _TransactionPageState extends State<TransactionPage> {
           );
         },
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1),
-        tooltip: 'Add Transaction',
+        tooltip: currentLocalization['add_transaction'],
         child: const Icon(
           Icons.add,
           color: Colors.black,
@@ -431,9 +431,9 @@ class TotalTransactionPage extends StatelessWidget {
     final totalIncome = incomeTransactions
         .where((sale) =>
     (selectedStartDate == null ||
-        sale.saleOnMonth!.isAfter(selectedStartDate!)) &&
+        sale.saleOnMonth!.isAfter(selectedStartDate!.add(Duration(days: -1)))) &&
         (selectedEndDate == null ||
-            sale.saleOnMonth!.isBefore(selectedEndDate!)))
+            sale.saleOnMonth!.isBefore(selectedEndDate!.add(Duration(days: 1)))))
         .map((sale) => sale.value)
         .fold<double>(0, (prev, amount) => prev + amount);
 
@@ -441,9 +441,9 @@ class TotalTransactionPage extends StatelessWidget {
     final totalExpense = expenseTransactions
         .where((expense) =>
     (selectedStartDate == null ||
-        expense.expenseOnMonth!.isAfter(selectedStartDate!)) &&
+        expense.expenseOnMonth!.isAfter(selectedStartDate!.add(Duration(days: -1)))) &&
         (selectedEndDate == null ||
-            expense.expenseOnMonth!.isBefore(selectedEndDate!)))
+            expense.expenseOnMonth!.isBefore(selectedEndDate!.add(Duration(days: 1)))))
         .map((expense) => expense.value)
         .fold<double>(0, (prev, amount) => prev + amount);
 
@@ -479,7 +479,7 @@ class TotalTransactionPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              '${currentLocalization["date_range"]} ${selectedStartDate != null ? "${selectedStartDate!.day}/${selectedStartDate!.month}/${selectedStartDate!.year}" : "Start"} - ${selectedEndDate != null ? "${selectedEndDate!.day}/${selectedEndDate!.month}/${selectedEndDate!.year}" : "End"}',
+              '${currentLocalization["date_range"]} ${selectedStartDate != null ? "${selectedStartDate!.day}/${selectedStartDate!.month}/${selectedStartDate!.year}" : "${currentLocalization['start']}"} - ${selectedEndDate != null ? "${selectedEndDate!.day}/${selectedEndDate!.month}/${selectedEndDate!.year}" : "${currentLocalization['end']}"}',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),

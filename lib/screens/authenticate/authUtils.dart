@@ -13,7 +13,7 @@ class AuthUtils {
       title: Text(
           title,
           style: const TextStyle(
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight
                 .bold,
             color: Color.fromRGBO(
@@ -25,14 +25,22 @@ class AuthUtils {
             style: TextButton
                 .styleFrom(
                 foregroundColor: const Color(
-                    0xFF0DA6BA)),
+                    0xFF0DA6BA),
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight
+                      .bold,)),
             onPressed: onPressedOpt1,
             child: Text(opt1)),
         TextButton(
             style: TextButton
                 .styleFrom(
                 foregroundColor: const Color(
-                    0xFF0DA6BA)),
+                    0xFF0DA6BA),
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight
+                      .bold,)),
             onPressed: onPressedOpt2,
             child: Text(opt2)),
       ],

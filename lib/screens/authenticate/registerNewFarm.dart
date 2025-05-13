@@ -57,7 +57,7 @@ class _RegisterFarmState extends State<RegisterFarm> {
           backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
           title:  Center(
             child: Text(
-              "Register New Farm",
+              currentLocalization['Register a New Farm']??'',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
@@ -75,12 +75,12 @@ class _RegisterFarmState extends State<RegisterFarm> {
                               controller: TextEditingController(text: phoneNo.toString()),
                               readOnly: true,
                               decoration: textInputDecorationReg.copyWith(
-                                  labelText: 'Phone No.'),
+                                  labelText: currentLocalization['Phone No.']),
                             ),
                             const SizedBox(height: 20.0),
                             TextFormField(
                               decoration: textInputDecorationReg.copyWith(
-                                  labelText: 'Owner_name'),
+                                  labelText: currentLocalization['Owner Name']),
                               onChanged: (val) {
                                 setState(() => ownerName = val);
                               },
@@ -88,7 +88,7 @@ class _RegisterFarmState extends State<RegisterFarm> {
                             const SizedBox(height: 20.0),
                             TextFormField(
                               decoration: textInputDecorationReg.copyWith(
-                                  labelText: 'Farm_name'),
+                                  labelText: currentLocalization['Farm Name'],),
                               onChanged: (val) {
                                 setState(() => farmName = val);
                               },
@@ -96,7 +96,7 @@ class _RegisterFarmState extends State<RegisterFarm> {
                             const SizedBox(height: 20.0),
                             TextFormField(
                               decoration: textInputDecorationReg.copyWith(
-                                  labelText: 'Farm Address'),
+                                  labelText: currentLocalization['Farm Address']),
                               onChanged: (val) {
                                 setState(() => location = val);
                               },
@@ -128,8 +128,8 @@ class _RegisterFarmState extends State<RegisterFarm> {
                                   }
                                 }
                               },
-                              child: const Text(
-                                'Register',
+                              child: Text(
+                                currentLocalization['register']??'',
                                 style: TextStyle(color: Colors.white),
                               ),
                             ),

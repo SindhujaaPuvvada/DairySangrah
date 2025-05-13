@@ -33,9 +33,10 @@ class feedUtils{
   static Widget buildDropdown({
     required String label,
     required String value,
-    required List<String> items,
+    required Map<String,String> items,
     required ValueChanged<String?> onChanged,
   }) {
+    var itemsList = items.entries.toList();
     return DropdownButtonFormField<String>(
       value: value,
       decoration: InputDecoration(
@@ -47,10 +48,10 @@ class feedUtils{
         contentPadding: const EdgeInsets.symmetric(
             vertical: 10.0, horizontal: 12.0),
       ),
-      items: items.map((String item) {
+      items: itemsList.map((item){
         return DropdownMenuItem<String>(
-          value: item,
-          child: Text(item),
+          value: item.key,
+          child: Text(item.value),
         );
       }).toList(),
       onChanged: onChanged,
@@ -87,11 +88,11 @@ class feedUtils{
   }
 
 
-  static saveFeedDetails(Feed fd) {
+  static saveFeedDetails(Feed fd) async {
     String uid = FirebaseAuth.instance.currentUser!.uid;
     DatabaseServicesForFeed fdDB = DatabaseServicesForFeed(uid);
     if(fd.ratePerKg != 0.0) {
-      fdDB.infoToServerFeed(fd);
+      await fdDB.infoToServerFeed(fd);
     }
   }
 }

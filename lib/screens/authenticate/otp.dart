@@ -12,7 +12,6 @@ import '../home/localisations_en.dart';
 import '../home/localisations_hindi.dart';
 import '../home/localisations_punjabi.dart';
 import 'package:provider/provider.dart';
-import 'package:farm_expense_mangement_app/main.dart';
 class OtpVerificationPage extends StatefulWidget {
   const OtpVerificationPage({super.key});
 
@@ -27,8 +26,6 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   late String languageCode = 'en';
   final log = logger(OtpVerificationPage);
   late Map<String, String> currentLocalization= {};
-  // late String languageCode = 'en';
-
 
 
   @override
@@ -177,15 +174,15 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                         showDialog(context: context,
                             builder: (context) {
                               return AuthUtils.buildAlertDialog(
-                                  title: 'No existing Farm!',
-                                  content: 'There is no farm registered with this number.Please choose REGISTER to register as a new Farm or choose CANCEL to go back!',
-                                  opt1: 'REGISTER',
+                                  title: currentLocalization['No existing Farm!']??'',
+                                  content: currentLocalization['Not Registered Content']??'',
+                                  opt1: currentLocalization['register']??'',
                                   onPressedOpt1: () {
                                     Navigator.pushReplacement(
                                         context, MaterialPageRoute(
                                         builder: (context) => RegisterFarm()));
                                   },
-                                  opt2: 'CANCEL',
+                                  opt2: currentLocalization['cancel']??'',
                                   onPressedOpt2: () async {
                                     await FirebaseAuth
                                         .instance

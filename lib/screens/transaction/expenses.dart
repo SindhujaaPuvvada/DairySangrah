@@ -235,7 +235,7 @@ class _AddExpensesState extends State<AddExpenses> {
                                       .spaceEvenly,
                                   children: [
                                     Text(
-                                      'Select Feed Consumption :',
+                                      currentLocalization['sel_feed_consumption']??'',
                                       style: TextStyle(fontSize: 18,
                                           fontWeight: FontWeight.bold,
                                           color: const Color.fromRGBO(
@@ -259,7 +259,7 @@ class _AddExpensesState extends State<AddExpenses> {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: <Widget>[
                                       if(_feedTypes.isEmpty)...[
-                                        Text('Out of Stock, please refill !',
+                                        Text(currentLocalization['out_of_stock']??'',
                                             style: TextStyle(fontSize: 18,
                                                 fontWeight: FontWeight.bold,
                                                 color: Colors.redAccent))
@@ -292,10 +292,10 @@ class _AddExpensesState extends State<AddExpenses> {
                                                       }
                                                   ),
                                                   SizedBox(width: 150,
-                                                      child: Text('Ty: ${item
-                                                          .feedType} |\nQty: ${item
-                                                          .quantity}Kg |\nRt: ₹${item
-                                                          .ratePerKg}/Kg')),
+                                                      child: Text('${currentLocalization['Type']}: ${currentLocalization[item
+                                                          .feedType]??item.feedType} |\n${currentLocalization['Quantity']}: ${item
+                                                          .quantity} ${currentLocalization['Kg']} |\n${currentLocalization['Rate']}: ₹${item
+                                                          .ratePerKg} / ${currentLocalization['Kg']}')),
                                                   SizedBox(width: 20),
                                                   (_selectedFeed.contains(
                                                       item)) ?
@@ -308,7 +308,7 @@ class _AddExpensesState extends State<AddExpenses> {
                                                       textAlign: TextAlign
                                                           .center,
                                                       decoration: InputDecoration(
-                                                        labelText: 'Enter qty consumed in Kg',
+                                                        labelText: currentLocalization['enter_qty_consumed_kg']??'',
                                                       ),
                                                       validator: (value) {
                                                         if (value == null ||
@@ -320,7 +320,7 @@ class _AddExpensesState extends State<AddExpenses> {
                                                             double.parse(
                                                                 value) <
                                                             0) {
-                                                          return 'cannot be more than existing quantity!';
+                                                          return currentLocalization['cannot_be_more_than_existing']??'';
                                                         }
                                                         else {
                                                           return null;
@@ -346,7 +346,7 @@ class _AddExpensesState extends State<AddExpenses> {
                         alignment: Alignment.center,
                         child:
                         TransUtils.buildElevatedButton(
-                            'Calculate',
+                            currentLocalization['Calculate']??'Calculate',
                             onPressed: () => _calculateExpense()),
                       ),
                       SizedBox(height: 20),

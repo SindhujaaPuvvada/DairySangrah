@@ -1,14 +1,13 @@
-import 'package:farm_expense_mangement_app/screens/home/milk/milkavgpage.dart';
+import 'package:farm_expense_mangement_app/screens/milk/milkavgpage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../../main.dart';
 import '../../../models/milk.dart';
 import '../../../services/database/milkdatabase.dart';
-import '../localisations_en.dart';
-import '../localisations_hindi.dart';
-import '../localisations_punjabi.dart';
+import '../home/localisations_en.dart';
+import '../home/localisations_hindi.dart';
+import '../home/localisations_punjabi.dart';
 
 class MilkByDatePage extends StatefulWidget {
   final DateTime? dateOfMilk;
@@ -409,6 +408,8 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
   final uid = FirebaseAuth.instance.currentUser!.uid;
   late DatabaseForMilk db;
   late DatabaseForMilkByDate dbByDate;
+  late Map<String, String> currentLocalization= {};
+  late String languageCode = 'en';
 
   double? milkInMorning;
   double? milkInEvening;
@@ -443,11 +444,23 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
 
   @override
   Widget build(BuildContext context) {
+
+    languageCode = Provider
+        .of<AppData>(context)
+        .persistentVariable;
+
+    if (languageCode == 'en') {
+      currentLocalization = LocalizationEn.translations;
+    } else if (languageCode == 'hi') {
+      currentLocalization = LocalizationHi.translations;
+    } else if (languageCode == 'pa') {
+      currentLocalization = LocalizationPun.translations;
+    }
+
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
       appBar: AppBar(
-        title: const Text(
-          'Edit Milk Details',
+        title: Text( currentLocalization['edit_milk_data']??'',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
@@ -469,12 +482,12 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Rf id : ${widget.data.rfid}',
+                    "${currentLocalization['rf_id']} : ${widget.data.rfid}",
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    'Date : ${widget.data.dateOfMilk!.day}-${widget.data.dateOfMilk!.month}-${widget.data.dateOfMilk!.year}',
+                    '${currentLocalization['date']} : ${widget.data.dateOfMilk!.day}-${widget.data.dateOfMilk!.month}-${widget.data.dateOfMilk!.year}',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -484,7 +497,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
               ),
               const SizedBox(height: 30.0),
               _buildInputBox(
-                labelText: 'Morning Milk (L)',
+                labelText: currentLocalization['morning_milk']??"",
                 initialValue: milkInMorning.toString(),
                 onChanged: (value) {
                   setState(() {
@@ -494,7 +507,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
               ),
               const SizedBox(height: 30.0),
               _buildInputBox(
-                labelText: 'Evening Milk (L)',
+                labelText: currentLocalization['evening_milk']??"",
                 initialValue: milkInEvening.toString(),
                 onChanged: (value) {
                   setState(() {
@@ -526,10 +539,10 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
                                   dateOfMilk: widget.data.dateOfMilk)));
                     }
                   },
-                  child: const Padding(
+                  child: Padding(
                     padding: EdgeInsets.all(4.0),
                     child: Text(
-                      'Save',
+                      currentLocalization['Save']??'',
                       style: TextStyle(fontSize: 15, color: Colors.black),
                     ),
                   ),

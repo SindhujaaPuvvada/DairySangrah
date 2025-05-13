@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:farm_expense_mangement_app/screens/home/cattle/animallist.dart';
+import 'package:farm_expense_mangement_app/screens/cattle/animallist.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,10 +8,10 @@ import '../../../services/database/cattledatabase.dart';
 import 'package:farm_expense_mangement_app/models/history.dart';
 import 'package:farm_expense_mangement_app/services/database/cattlehistorydatabase.dart';
 import '../../../main.dart';
-import '../../notification/alertnotifications.dart';
-import '../localisations_en.dart';
-import '../localisations_hindi.dart';
-import '../localisations_punjabi.dart';
+import '../notification/alertnotifications.dart';
+import '../home/localisations_en.dart';
+import '../home/localisations_hindi.dart';
+import '../home/localisations_punjabi.dart';
 
 class AnimalDetails extends StatefulWidget {
   final String rfid;
@@ -89,8 +89,8 @@ class _AnimalDetailsState extends State<AnimalDetails> {
         .deleteCattle(widget.rfid)
         .then((value) =>
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Deleted'),
+           SnackBar(
+            content: Text(currentLocalization['Deleted']??''),
             duration: Duration(seconds: 2),
           ),
         ));
@@ -98,10 +98,6 @@ class _AnimalDetailsState extends State<AnimalDetails> {
     Navigator.pop(context);
     Navigator.pop(context);
 
-
-    //   Navigator.push(
-    //       context, MaterialPageRoute(builder: (context) => const AnimalList1()));
-    // }
   }
 
   bool isDetailVisible = false;
@@ -126,7 +122,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
           width: 30,
           height: 35,
         );
-      } else if (event.name == currentLocalization['Vaccination']) {
+      } else if (event.name == currentLocalization['vaccination']) {
         return Image.asset(
           'asset/Vaccination.png',
           width: 30,
@@ -530,7 +526,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                   SizedBox(
                                     width: 100,
                                     child: Text(
-                                      _cattle.breed,
+                                      currentLocalization[_cattle.breed.toLowerCase()]??_cattle.breed,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white,
@@ -598,7 +594,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                   SizedBox(
                                     width: 100,
                                     child: Text(
-                                      _cattle.source,
+                                      currentLocalization[_cattle.source.toLowerCase()]??_cattle.source,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white,
@@ -610,7 +606,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                               ),
                             ),
                             const SizedBox(height: 10),
-                            (_cattle.sex == 'Female') ?
+                            (_cattle.sex == currentLocalization['female']) ?
                             Container(
                               height: 60,
                               color: const Color.fromRGBO(13, 166, 186, 1.0),
@@ -653,8 +649,8 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                 ],
               );
             } else {
-              return const Center(
-                child: Text('Error in fetch'),
+              return Center(
+                child: Text(currentLocalization['Error in Fetch']??''),
               );
             }
           }),
@@ -671,7 +667,9 @@ class EditAnimalDetail extends StatefulWidget {
   State<EditAnimalDetail> createState() => _EditAnimalDetailState();
 }
 
-class _EditAnimalDetailState extends State<EditAnimalDetail> {
+class _EditAnimalDetailState extends State<EditAnimalDetail>{
+late Map<String, String> currentLocalization= {};
+late String languageCode = 'en';
   final _formKey = GlobalKey<FormState>();
   // final TextEditingController _rfidTextController = TextEditingController();
   final TextEditingController _weightTextController = TextEditingController();
@@ -753,11 +751,24 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
 
   @override
   Widget build(BuildContext context) {
+
+    languageCode = Provider
+        .of<AppData>(context)
+        .persistentVariable;
+
+    if (languageCode == 'en') {
+      currentLocalization = LocalizationEn.translations;
+    } else if (languageCode == 'hi') {
+      currentLocalization = LocalizationHi.translations;
+    } else if (languageCode == 'pa') {
+      currentLocalization = LocalizationPun.translations;
+    }
+
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1.0),
       appBar: AppBar(
-        title: const Text(
-          'Edit Details',
+        title: Text(
+          currentLocalization['edit_details']??'',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -785,8 +796,8 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
                 padding: const EdgeInsets.fromLTRB(5, 8, 5, 26),
                 child: DropdownButtonFormField<String>(
                   value: _selectedGender,
-                  decoration: const InputDecoration(
-                    labelText: 'Gender*',
+                  decoration: InputDecoration(
+                    labelText: "${currentLocalization['gender']??''}*",
                     border: OutlineInputBorder(),
                     filled: true,
                     fillColor: Color.fromRGBO(240, 255, 255, 0.7),
@@ -794,7 +805,7 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
                   items: genderOptions.map((String gender) {
                     return DropdownMenuItem<String>(
                       value: gender,
-                      child: Text(gender),
+                      child: Text(currentLocalization[gender.toLowerCase()]??''),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -804,7 +815,7 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please select gender';
+                      return currentLocalization['please_select_gender'];
                     }
                     return null;
                   },
@@ -836,7 +847,7 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
                       // initialValue: '0',
                       controller: _birthDateController,
                       decoration: InputDecoration(
-                        labelText: 'Enter the Date of Birth',
+                        labelText: currentLocalization['enter_the_DOB'],
                         border: OutlineInputBorder(),
                         suffixIcon: Icon(Icons.calendar_today),
                         filled: true,
@@ -852,8 +863,8 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
                 child: TextFormField(
                   keyboardType: TextInputType.number,
                   controller: _weightTextController,
-                  decoration: const InputDecoration(
-                    labelText: 'Enter The Weight',
+                  decoration: InputDecoration(
+                    labelText: currentLocalization['enter_the_weight']??'',
                     border: OutlineInputBorder(),
                     filled: true,
                     fillColor: Color.fromRGBO(240, 255, 255, 0.7),
@@ -865,16 +876,16 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 26),
                 child: DropdownButtonFormField<String>(
                   value: _selectedSource,
-                  decoration: const InputDecoration(
-                    labelText: 'Source of Cattle*',
+                  decoration: InputDecoration(
+                    labelText: currentLocalization['source_of_cattle']??""'*',
                     border: OutlineInputBorder(),
                     filled: true,
                     fillColor: Color.fromRGBO(240, 255, 255, 0.7),
                   ),
-                  items: sourceOptions.map((String gender) {
+                  items: sourceOptions.map((String source) {
                     return DropdownMenuItem<String>(
-                      value: gender,
-                      child: Text(gender),
+                      value: source,
+                      child: Text(currentLocalization[source.toLowerCase()]??''),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -884,7 +895,7 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please select Source';
+                      return currentLocalization['please_select_source'];
                     }
                     return null;
                   },
@@ -895,15 +906,15 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 26),
                 child: TextFormField(
                   controller: _breedTextController,
-                  decoration: const InputDecoration(
-                    labelText: 'Enter The Breed*',
+                  decoration: InputDecoration(
+                    labelText: currentLocalization['enter_the_breed'],
                     border: OutlineInputBorder(),
                     filled: true,
                     fillColor: Color.fromRGBO(240, 255, 255, 0.7),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter Breed';
+                      return currentLocalization['please_enter_breed']??'';
                     }
                     return null;
                   },
@@ -914,16 +925,16 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 26),
                 child: DropdownButtonFormField<String>(
                   value: _selectedStage,
-                  decoration: const InputDecoration(
-                    labelText: 'Status',
+                  decoration:  InputDecoration(
+                    labelText: currentLocalization['status'],
                     border: OutlineInputBorder(),
                     filled: true,
                     fillColor: Color.fromRGBO(240, 255, 255, 0.7),
                   ),
-                  items: stageOptions.map((String gender) {
+                  items: stageOptions.map((String stage) {
                     return DropdownMenuItem<String>(
-                      value: gender,
-                      child: Text(gender),
+                      value: stage,
+                      child: Text(currentLocalization[stage]??''),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -944,9 +955,8 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
                         updateCattleButton(context);
 
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text(
-                                  'Cattle Details updated Successfully!!')),
+                           SnackBar(
+                              content: Text(currentLocalization['cattle_details_updated_successfully']??'')),
                         );
                       }
                     },
@@ -955,8 +965,8 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
                         const Color.fromRGBO(13, 166, 186, 1.0),
                       ),
                     ),
-                    child: const Text(
-                      'Submit',
+                    child: Text(
+                      currentLocalization['submit']??'',
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -1009,6 +1019,8 @@ class _AddEventPopupState extends State<AddEventPopup> {
   List<String> eventOptions = [];
   DateTime? selectedDate;
   late AlertNotifications alerts;
+  late Map<String, String> currentLocalization= {};
+  late String languageCode = 'en';
 
   @override
   void initState() {
@@ -1038,6 +1050,18 @@ class _AddEventPopupState extends State<AddEventPopup> {
 
   @override
   Widget build(BuildContext context) {
+    languageCode = Provider
+        .of<AppData>(context)
+        .persistentVariable;
+
+    if (languageCode == 'en') {
+      currentLocalization = LocalizationEn.translations;
+    } else if (languageCode == 'hi') {
+      currentLocalization = LocalizationHi.translations;
+    } else if (languageCode == 'pa') {
+      currentLocalization = LocalizationPun.translations;
+    }
+
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
@@ -1059,8 +1083,8 @@ class _AddEventPopupState extends State<AddEventPopup> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          const Text(
-            'Add Event',
+          Text(
+            currentLocalization['add_event']??'',
             style: TextStyle(
               fontSize: 22.0,
               fontWeight: FontWeight.w600,
@@ -1076,14 +1100,14 @@ class _AddEventPopupState extends State<AddEventPopup> {
                   selectedOption = newValue;
                 });
               },
-              decoration: const InputDecoration(
-                hintText: 'Event Name',
+              decoration: InputDecoration(
+                hintText: currentLocalization['event_name']??'',
                 border: OutlineInputBorder(),
               ),
               items: eventOptions.map((String option) {
                 return DropdownMenuItem<String>(
                   value: option,
-                  child: Text(option),
+                  child: Text(currentLocalization[option.toLowerCase()]??''),
                 );
               }).toList(),
             ),
@@ -1108,8 +1132,8 @@ class _AddEventPopupState extends State<AddEventPopup> {
                 });
               }
             },
-            decoration: const InputDecoration(
-              hintText: 'Event Date',
+            decoration: InputDecoration(
+              hintText: currentLocalization['event_date']??'',
               border: OutlineInputBorder(),
             ),
           ),
@@ -1135,8 +1159,8 @@ class _AddEventPopupState extends State<AddEventPopup> {
                             AnimalDetails(rfid: widget.cattle.rfid)));
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Please select an event and date.'),
+                  SnackBar(
+                    content: Text(currentLocalization['please_select_event_and_date']??''),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -1147,8 +1171,8 @@ class _AddEventPopupState extends State<AddEventPopup> {
                 const Color.fromRGBO(13, 166, 186, 0.6),
               ),
             ),
-            child: const Text(
-              'Submit',
+            child: Text(
+              currentLocalization['submit']??'',
               style: TextStyle(color: Colors.white),
             ),
           ),

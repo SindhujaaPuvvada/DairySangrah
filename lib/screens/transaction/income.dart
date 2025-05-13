@@ -47,7 +47,6 @@ class _AddIncomeState extends State<AddIncome> {
 
   final List<String> sourceOptions = ['Cattle Sale', 'Milk Sale', 'Other'];
   final List<String> milkOptions = ['Amul', 'Verka', 'Nestle', 'D to C'];
-
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -133,7 +132,7 @@ class _AddIncomeState extends State<AddIncome> {
               {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('No matching price found for Fat: $fat, SNF: $snf!'),
+                    content: Text("${currentLocalization['no_matching_price']} ${currentLocalization['fat']}: $fat, ${currentLocalization['snf']}: $snf!"),
                   ),
                 );
                 return 0.0;
@@ -143,14 +142,14 @@ class _AddIncomeState extends State<AddIncome> {
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('No matching price found for Fat: $fat, SNF: $snf!'),
+          content: Text("${currentLocalization['no_matching_price']} ${currentLocalization['fat']}: $fat, ${currentLocalization['snf']}: $snf!"),
         ),
       );
       return 0.0;
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error fetching price!'),
+          content: Text(currentLocalization['Error in Fetch']??''),
         ),
       );
       log.e("Error fetching price",time: DateTime.now(), error: e.toString());
@@ -177,12 +176,12 @@ class _AddIncomeState extends State<AddIncome> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Error"),
-          content: Text(message),
+          title: Text(currentLocalization["err_msg"]??'Error'),
+          content: Text(currentLocalization[message]??message),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("OK"),
+              child: Text(currentLocalization["OK"]??'OK'),
             ),
           ],
         );
@@ -191,26 +190,26 @@ class _AddIncomeState extends State<AddIncome> {
   }
   void _validateAndSubmit() async {
     if (_dateController.text.isEmpty) {
-      _showErrorDialog("Please select a date.");
+      _showErrorDialog("please_choose_date");
       return;
     }
     if (_selectedCategory == null) {
-      _showErrorDialog("Please select an income type.");
+      _showErrorDialog("please_sel_income_type");
       return;
     }
     if (_selectedCategory == 'Other' && _categoryTextController.text.isEmpty) {
-      _showErrorDialog("Please enter a category for 'Other' income type.");
+      _showErrorDialog('please_enter_category_other');
       return;
     }
     if (_selectedCategory == 'Milk Sale') {
       if (_selectedBuyer == null) {
-        _showErrorDialog("Please select a milk buyer.");
+        _showErrorDialog('please_sel_milk_buyer');
         return;
       }
       if(_selectedBuyer != 'D to C') {
         if (_fatController.text.isEmpty || _snfController.text.isEmpty ||
             _quantityController.text.isEmpty) {
-          _showErrorDialog("Please enter Fat, SNF, and Quantity values.");
+          _showErrorDialog('please_sel_fat_snf_qty');
           return;
         }
 
@@ -219,8 +218,7 @@ class _AddIncomeState extends State<AddIncome> {
         double quantity = double.tryParse(_quantityController.text) ?? 0.0;
 
         if (fat <= 0 || snf <= 0 || quantity <= 0) {
-          _showErrorDialog(
-              "Fat, SNF, and Quantity must be valid numbers greater than zero.");
+          _showErrorDialog('fat_snf_qty_val_chk');
           return;
         }
 
@@ -229,8 +227,7 @@ class _AddIncomeState extends State<AddIncome> {
         double totalPrice = pricePerLiter * quantity;
 
         if (totalPrice == 0.0) {
-          _showErrorDialog(
-              "Milk price data not found for the given Fat and SNF.");
+          _showErrorDialog('no_price_fat_snf');
           return;
         }
 
@@ -241,7 +238,7 @@ class _AddIncomeState extends State<AddIncome> {
     }
 
     if (_amountTextController.text.isEmpty) {
-      _showErrorDialog("Please enter the total income.");
+      _showErrorDialog('please_enter_tot_income');
       return;
     }
 
@@ -356,7 +353,7 @@ class _AddIncomeState extends State<AddIncome> {
                       items: milkOptions.map((String buyer) {
                         return DropdownMenuItem<String>(
                           value: buyer,
-                          child: Text(buyer),
+                          child: Text(currentLocalization[buyer.toLowerCase()]??buyer),
                         );
                       }).toList(),
                       onChanged: (value) {

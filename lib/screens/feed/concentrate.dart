@@ -31,6 +31,8 @@ class _ConcentratePageState extends State<ConcentratePage> {
   String _selectedType = 'Homemade'; // Default value
   String _selectedUnit = 'Kg';
   late Map<String, String> currentLocalization = {};
+  late Map<String, String> sourceMap;
+  late Map<String, String> unitMap;
   late String languageCode = 'en';
 
   // List of dropdown items
@@ -52,6 +54,8 @@ class _ConcentratePageState extends State<ConcentratePage> {
   ];
 
   List<String> _selectedIngredients = [];
+
+
 
   @override
   void initState() {
@@ -85,9 +89,15 @@ class _ConcentratePageState extends State<ConcentratePage> {
     } else if (languageCode == 'pa') {
       currentLocalization = LocalizationPun.translations;
     }
-    Map<String, String> sourceMap = {
-      'Purchased': currentLocalization['Purchased'] ?? 'Purchased',
-      'Homemade': currentLocalization['Homemade'] ?? 'Homemade',
+
+    sourceMap = {
+      'Purchased': currentLocalization['purchased'] ?? 'Purchased',
+      'Homemade': currentLocalization['homemade'] ?? 'Homemade',
+    };
+
+    unitMap = {
+      'Kg':currentLocalization['Kg']??'Kg',
+      'Quintal':currentLocalization['Quintal']??'Quintal'
     };
 
     return Scaffold(
@@ -115,15 +125,11 @@ class _ConcentratePageState extends State<ConcentratePage> {
               const SizedBox(height: 20),
               feedUtils.buildDropdown(
                 label: currentLocalization['Source'] ?? "Source",
-                value: currentLocalization[_selectedType]!,
-                items: [
-                  currentLocalization['Homemade'] ?? 'Homemade',
-                  currentLocalization['Purchased'] ?? 'Purchased'
-                ],
+                value: _selectedType,
+                items: sourceMap,
                 onChanged: (value) {
                   setState(() {
-                    _selectedType = _selectedType =
-                        sourceMap.entries.firstWhere((e) => e.value == value).key;
+                    _selectedType = value!;
                     // Reset specific type values based on the selected type
                     if (_selectedType == 'Homemade') {
                       _customPurchasedController
@@ -229,7 +235,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
                         label: currentLocalization['Unit']??"",
                         value:
                         _selectedUnit,
-                        items: ['Kg', 'Quintal'],
+                        items: unitMap,
                         onChanged: (newValue) {
                           setState(() {
                             _selectedUnit = newValue!;
@@ -275,7 +281,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
 
     if(type.isEmpty){
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Custom Type cannot be empty!')),
+        SnackBar(content: Text(currentLocalization['Custom Type cannot be empty!']??'')),
       );
       return;
     }

@@ -120,17 +120,6 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
       return '$localizedFirst ${middle.isNotEmpty ? middle + ' ' : ''}$localizedRemaining';
     }
 
-
-
-    // Helper to trim content to a fixed number of words
-    // String trimContent(String content, int wordCount) {
-    //   final words = content.split(" ");
-    //   if (words.length <= wordCount) {
-    //     return content;
-    //   }
-    //   return "${words.take(wordCount).join(" ")}...";
-    // }
-
     return Scaffold(
         appBar: AppBar(
             leading: BackButton(

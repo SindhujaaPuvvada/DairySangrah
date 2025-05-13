@@ -28,7 +28,6 @@ class _FeedState extends State<FeedPage> {
   late DatabaseServicesForFeed fdDB;
 
   late String selectedSection = 'Green Fodder'; // Default section
-  late String selectedSection1 = 'Green Fodder'; // Default section
 
 
   bool _showCheckboxes = false;
@@ -144,7 +143,7 @@ class _FeedState extends State<FeedPage> {
           return const Center(child: CircularProgressIndicator());
         }
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(child: Text('No items found.'));
+          return Center(child: Text(currentLocalization['list_is_empty']??''));
         }
         final items = snapshot.data!.docs;
 
@@ -163,17 +162,17 @@ class _FeedState extends State<FeedPage> {
                 padding: EdgeInsets.all(10.0),
                 child: ListTile(
                     title: Text(
-                      currentLocalization[item['feedType']] ?? currentLocalization['unknown_item'] ?? 'Unknown Item',
+                      currentLocalization[item['feedType']] ?? item['feedType'],
                       style: TextStyle(
                         color: const Color(0xFF0DA6BA),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     subtitle: Text(
-                        "${currentLocalization['quantity'] ?? 'Quantity'}: ${item['quantity'] ?? 0} Kg"
-                            " | ${currentLocalization['Rate'] ?? 'Rate'}: ₹${item['ratePerKg']} / Kg"
+                        "${currentLocalization['quantity'] ?? 'Quantity'}: ${item['quantity'] ?? 0} ${currentLocalization['Kg']}"
+                            " | ${currentLocalization['Rate'] ?? 'Rate'}: ₹${item['ratePerKg']} / ${currentLocalization['Kg']}"
                             " | ${currentLocalization['date'] ?? 'Date'}: $sFdDate"
-                            " | ${currentLocalization['Source'] ?? 'Source'}: ${currentLocalization[item['source']]}"
+                            " | ${currentLocalization['Source'] ?? 'Source'}: ${currentLocalization[item['source'].toLowerCase()]}"
                     ),
 
                     tileColor: Color.fromRGBO(177, 243, 238, 0.4),

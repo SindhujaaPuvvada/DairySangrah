@@ -1,9 +1,9 @@
 import 'package:farm_expense_mangement_app/screens/feed/feedpage.dart';
-import 'package:farm_expense_mangement_app/screens/home/cattle/animallist.dart';
+import 'package:farm_expense_mangement_app/screens/cattle/animallist.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
-import 'milk/milkavgpage.dart';
+import '../milk/milkavgpage.dart';
 import '../transaction/transactionpage.dart';
 import 'localisations_en.dart';
 import 'localisations_hindi.dart';
@@ -30,9 +30,9 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               Image.asset(
                 'asset/bg.png',
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: MediaQuery.of(context).size.height * 0.8,
+                fit: BoxFit.fill,
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
               ),
               Container(
                 decoration: BoxDecoration(
@@ -46,27 +46,9 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 ),
               ),
-              Positioned(
-                top: 40,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 80,
-                ),
-              ),
             ],
           ),
         ),
-        title: const Text(
-          '',
-          style: TextStyle(
-            color: Colors.white70,
-            fontWeight: FontWeight.w900,
-            fontStyle: FontStyle.italic,
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
       ),
     );
   }
@@ -237,79 +219,53 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        child: Stack(
+        child:
+        Column(
           children: [
-            ClipPath(
-              clipper: ArcClipper(),
-              child: Container(
-                color: containerColor,
-                width: double.infinity,
-                height: double.infinity,
-                padding: const EdgeInsets.only(bottom: 40, right: 20),
-              ),
-            ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: ClipRRect(
-                borderRadius: BorderRadius.zero, // No circular clip
-                child: Image.asset(
-                  imageUrl,
-                  width: MediaQuery.of(context).size.width * 0.45, // Increased image size
-                  height: MediaQuery.of(context).size.width * 0.38, // Increased image size
-                  fit: BoxFit.contain, // Ensures the image fits well without overflowing
+            Container(
+              width: MediaQuery.of(context).size.width,
+              margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+              padding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(0),
+                  bottomLeft: Radius.circular(0),
+                  bottomRight: Radius.circular(30),
                 ),
               ),
+              child: Text(
+                currentLocalization[value] ?? value,
+                maxLines: 1,
+                softWrap: true,
+                overflow: TextOverflow.visible,
+                style: const TextStyle(
+                    fontSize: 21,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.cyan),
+                textAlign: TextAlign.end,
+              ),
             ),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(0),
-                    bottomLeft: Radius.circular(0),
-                    bottomRight: Radius.circular(30),
+            Expanded(
+              child: Stack(
+                children: [
+                  Positioned(
+                    bottom: 0,
+                    child: Image.asset(
+                      imageUrl,
+                      height: MediaQuery.of(context).size.height * 0.16,
+                      width: MediaQuery.of(context).size.width * 0.45,
+                      fit: BoxFit.fill, // Ensures the image fits well without overflowing
+                    ),
                   ),
-                ),
-                child: Text(
-                  currentLocalization[value] ?? value,
-                  maxLines: 1,
-                  softWrap: true,
-                  overflow: TextOverflow.visible,
-                  style: const TextStyle(
-                      fontSize: 21,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.cyan),
-                  textAlign: TextAlign.end,
-                ),
+                ],
               ),
             ),
           ],
         ),
       ),
     );
-  }
-}
-
-class ArcClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    var path = Path();
-    path.moveTo(size.width, size.height * 0.8);
-    path.lineTo(size.width * 0.8, size.height);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
-    return false;
   }
 }

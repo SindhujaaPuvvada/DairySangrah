@@ -37,6 +37,7 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
   late String languageCode = 'en';
   late Map<String, String> typeMap;
   late Map<String, String> sourceMap;
+  late Map<String,String> unitMap;
 
 
   @override
@@ -80,8 +81,13 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
     };
 
     sourceMap = {
-      'Purchased': currentLocalization['Purchased'] ?? 'Purchased',
-      'Own Farm': currentLocalization['Own Farm'] ?? 'Own Farm',
+      'Purchased': currentLocalization['purchased'] ?? 'Purchased',
+      'Own Farm': currentLocalization['own farm'] ?? 'Own Farm',
+    };
+
+    unitMap = {
+      'Kg':currentLocalization['Kg']??'Kg',
+      'Quintal':currentLocalization['Quintal']??'Quintal'
     };
 
 
@@ -111,11 +117,11 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
 
               feedUtils.buildDropdown(
                 label: currentLocalization['Type'] ?? "Type",
-                value: typeMap[_selectedType]!,
-                items: typeMap.values.toList(),
+                value: _selectedType,
+                items: typeMap,
                 onChanged: (newValue) {
                   setState(() {
-                    _selectedType = typeMap.entries.firstWhere((entry) => entry.value == newValue).key;
+                    _selectedType = newValue!;
                     _isCustomType = _selectedType == 'Others';
                   });
                 },
@@ -135,11 +141,11 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
 
               feedUtils.buildDropdown(
                 label: currentLocalization['Source'] ?? "Source",
-                value: sourceMap[_selectedSource]!,
-                items: sourceMap.values.toList(),
+                value: _selectedSource,
+                items: sourceMap,
                 onChanged: (newValue) {
                   setState(() {
-                    _selectedSource = sourceMap.entries.firstWhere((entry) => entry.value == newValue).key;
+                    _selectedSource = newValue!;
                   });
                 },
               ),
@@ -157,7 +163,7 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
                     child: feedUtils.buildDropdown(
                         label: currentLocalization['Unit']??"",
                         value: _selectedUnit,
-                        items: ['Kg', 'Quintal'],
+                        items: unitMap,
                         onChanged: (newValue) {
                           setState(() {
                             _selectedUnit = newValue!;
@@ -230,7 +236,7 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
     );
   }
 
-  void _submitData() {
+  Future<void> _submitData() async {
     final type = _isCustomType ? _customTypeController.text : _selectedType;
     double quantity = double.parse(_quantityController.text);
     final source = _selectedSource;
@@ -239,7 +245,7 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
 
     if(type.isEmpty){
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Custom Type cannot be empty!')),
+        SnackBar(content: Text(currentLocalization['Custom Type cannot be empty!']??'')),
       );
       return;
     }
@@ -258,7 +264,7 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
       feedDate: DateTime.now(),
     );
 
-    feedUtils.saveFeedDetails(feed);
+    await feedUtils.saveFeedDetails(feed);
 
      Navigator.push(
         context,
@@ -296,6 +302,5 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
     });
 
   }
-
 
 }

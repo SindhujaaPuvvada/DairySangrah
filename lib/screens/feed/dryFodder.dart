@@ -30,9 +30,11 @@ class _DryFodderPageState extends State<DryFodderPage> {
   String _selectedType = 'Wheat Straw';
   String _selectedSource = 'Purchased';
   String _selectedUnit = 'Kg';
-  final List<String> _fodderTypes = ['Wheat Straw', 'Paddy Straw', 'Others'];
-  final List<String> _sourceTypes = ['Purchased', 'Own Farm'];
   late Map<String, String> currentLocalization = {};
+  late Map<String, String> typeMap;
+  late Map<String, String> sourceMap;
+  late Map<String, String> unitMap;
+
   late String languageCode = 'en';
 
   @override
@@ -57,16 +59,23 @@ class _DryFodderPageState extends State<DryFodderPage> {
     } else if (languageCode == 'pa') {
       currentLocalization = LocalizationPun.translations;
     }
-    Map<String, String> typeMap = {
+
+    typeMap = {
       'Wheat Straw': currentLocalization['Wheat Straw'] ?? 'Wheat Straw',
       'Paddy Straw': currentLocalization['Paddy Straw'] ?? 'Paddy Straw',
       'Others': currentLocalization['Others'] ?? 'Others',
     };
 
-    Map<String, String> sourceMap = {
-      'Purchased': currentLocalization['Purchased'] ?? 'Purchased',
-      'Own Farm': currentLocalization['Own Farm'] ?? 'Own Farm',
+    sourceMap = {
+      'Purchased': currentLocalization['purchased'] ?? 'Purchased',
+      'Own Farm': currentLocalization['own farm'] ?? 'Own Farm',
     };
+
+    unitMap = {
+      'Kg':currentLocalization['Kg']??'Kg',
+      'Quintal':currentLocalization['Quintal']??'Quintal'
+    };
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -90,12 +99,11 @@ class _DryFodderPageState extends State<DryFodderPage> {
               const SizedBox(height: 20),
               feedUtils.buildDropdown(
                 label: currentLocalization['Type'] ?? "Type",
-                value: typeMap[_selectedType]!,
-                items: typeMap.values.toList(),
+                value: _selectedType,
+                items: typeMap,
                 onChanged: (value) {
                   setState(() {
-                    _selectedType =
-                        typeMap.entries.firstWhere((e) => e.value == value).key;
+                    _selectedType = value!;
                   });
                 },
               ),
@@ -107,13 +115,11 @@ class _DryFodderPageState extends State<DryFodderPage> {
               const SizedBox(height: 20),
               feedUtils.buildDropdown(
                 label: currentLocalization['Source'] ?? "Source",
-                value: sourceMap[_selectedSource]!,
-                items: sourceMap.values.toList(),
+                value: _selectedSource,
+                items: sourceMap,
                 onChanged: (value) {
                   setState(() {
-                    _selectedSource = sourceMap.entries
-                        .firstWhere((e) => e.value == value)
-                        .key;
+                    _selectedSource = value!;
                   });
                 },
               ),
@@ -131,7 +137,7 @@ class _DryFodderPageState extends State<DryFodderPage> {
                     child: feedUtils.buildDropdown(
                         label: currentLocalization['Unit']??"",
                         value: _selectedUnit,
-                        items: ['Kg', 'Quintal'],
+                        items: unitMap,
                         onChanged: (newValue) {
                           setState(() {
                             _selectedUnit = newValue!;
@@ -175,7 +181,7 @@ class _DryFodderPageState extends State<DryFodderPage> {
 
     if(type.isEmpty){
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Custom Type cannot be empty!')),
+        SnackBar(content: Text(currentLocalization['Custom Type cannot be empty!']??'')),
       );
       return;
     }

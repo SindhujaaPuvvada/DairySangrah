@@ -1,12 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:farm_expense_mangement_app/logging.dart';
 import 'package:farm_expense_mangement_app/main.dart';
 import 'package:farm_expense_mangement_app/models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../services/database/userdatabase.dart';
 import '../authenticate/authUtils.dart';
 import '../wrappers/wrapperhome.dart';
+import 'localisations_en.dart';
+import 'localisations_hindi.dart';
+import 'localisations_punjabi.dart';
 
 class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
   ProfileAppBar({super.key});
@@ -16,6 +21,19 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    Map<String, String> currentLocalization= {};
+    String languageCode = 'en';
+
+    languageCode = Provider.of<AppData>(context).persistentVariable;
+
+    if (languageCode == 'en') {
+      currentLocalization = LocalizationEn.translations;
+    } else if (languageCode == 'hi') {
+      currentLocalization = LocalizationHi.translations;
+    } else if (languageCode == 'pa') {
+      currentLocalization = LocalizationPun.translations;
+    }
+
     return AppBar(
       leading: BackButton(
           onPressed: () =>
@@ -24,8 +42,8 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                   builder: (context) => const WrapperHomePage())
               )),
       centerTitle: true,
-      title: const Text(
-        'Profile',
+      title: Text(
+        currentLocalization['Profile']??'',
         style: TextStyle(color: Colors.white,
             fontWeight: FontWeight.bold),
       ),
@@ -33,8 +51,8 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         MenuBar(
           style: MenuStyle(backgroundColor: WidgetStatePropertyAll<Color>(
-              Color.fromRGBO(13, 166, 186, 0.9)),
-            elevation: WidgetStatePropertyAll<double>(0.0),
+              Color.fromRGBO(13, 166, 186, 1)),
+            elevation: WidgetStatePropertyAll<double>(1.0),
           ),
           children: [
             SubmenuButton(
@@ -47,22 +65,33 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                       MaterialPageRoute(builder: (context) => MyApp()),
                     );
                   },
-                  child: Text('Log out'),
+                  child: Text(currentLocalization['Log out']??''),
                 ),
                 SubmenuButton(
                   menuChildren:
                   [
                     MenuItemButton(
-                        child: Text('Delete Data'),
+                        child: Text(currentLocalization['Delete Data']??''),
                         onPressed: () {
                           showDialog(context: context,
                               builder: (context) {
                                 return AuthUtils
                                     .buildAlertDialog(
-                                    title: "Are you Sure?",
-                                    content: "This will delete all the farm data permanently but the farm still remains registered. Please choose YES to continue and CANCEL to go back!",
-                                    opt1: 'YES',
+                                    title: currentLocalization["Are you Sure?"]??'',
+                                    content: currentLocalization['Delete Data Content']??'',
+                                    opt1: currentLocalization['yes']??'',
                                     onPressedOpt1: () async {
+                                      try{
+                                        HttpsCallable callDeleteFarmData = FirebaseFunctions.instance.httpsCallable('deleteFarmData');
+                                        final resp = await callDeleteFarmData();
+                                        print(resp);
+                                      }
+                                      catch(error){
+                                        log.e('Encountered error',
+                                            time: DateTime.now(),
+                                            error: error.toString());
+                                      }
+
                                       Navigator
                                           .pushReplacement(
                                           context,
@@ -70,7 +99,7 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                                               builder: (context) =>
                                                   MyApp()));
                                     },
-                                    opt2: 'CANCEL',
+                                    opt2: currentLocalization['cancel']??'',
                                     onPressedOpt2: () {
                                       Navigator.pop(context);
                                     }
@@ -79,15 +108,15 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                         }
                     ),
                     MenuItemButton(
-                      child: Text('Delete Account'),
+                      child: Text(currentLocalization['Delete Account']??''),
                       onPressed: () {
                         showDialog(context: context,
                             builder: (context) {
                               return AuthUtils
                                   .buildAlertDialog(
-                                title: "Are you Sure?",
-                                content: "This will delete all the user and farm data permanently. Please choose DELETE to continue and CANCEL to go back!",
-                                opt1: 'DELETE',
+                                title: currentLocalization["Are you Sure?"]??'',
+                                content: currentLocalization['Delete Account Content']??'',
+                                opt1: currentLocalization['delete']??'',
                                 onPressedOpt1: () async {
                                   var user = FirebaseAuth.instance
                                       .currentUser!;
@@ -108,9 +137,9 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                                           builder: (context) {
                                             return AuthUtils
                                                 .buildAlertDialog(
-                                                title: 'This action requires recent login!',
-                                                content: 'Please choose Re-LOGIN and try again or choose CANCEL to go back!',
-                                                opt1: 'RE-LOGIN',
+                                                title: currentLocalization['requires recent login']??'',
+                                                content: currentLocalization['re_login content']??'',
+                                                opt1: currentLocalization['re-login']??'',
                                                 onPressedOpt1: () {
                                                   FirebaseAuth
                                                       .instance
@@ -121,7 +150,7 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                                                           builder: (context) =>
                                                               MyApp()));
                                                 },
-                                                opt2: 'CANCEL',
+                                                opt2: currentLocalization['cancel']??'',
                                                 onPressedOpt2: () {
                                                   Navigator.pop(context);
                                                   Navigator.pop(context);
@@ -136,14 +165,14 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                                     }
                                   });
                                 },
-                                opt2: 'CANCEL',
+                                opt2: currentLocalization['cancel']??'',
                                 onPressedOpt2: () => Navigator.pop(context),
                               );
                             });
                       },
                     )
                   ],
-                  child: Text('More Options'),
+                  child: Text(currentLocalization['More Options']??''),
                 )
               ],
               child: const Icon(Icons.settings,
@@ -169,6 +198,10 @@ class ProfilePage extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+
+  late Map<String, String> currentLocalization= {};
+  late String languageCode = 'en';
+
   final user = FirebaseAuth.instance.currentUser;
   final uid = FirebaseAuth.instance.currentUser!.uid;
   late final Future<DocumentSnapshot<Map<String, dynamic>>>? _futureController;
@@ -189,6 +222,17 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+
+    languageCode = Provider.of<AppData>(context).persistentVariable;
+
+    if (languageCode == 'en') {
+      currentLocalization = LocalizationEn.translations;
+    } else if (languageCode == 'hi') {
+      currentLocalization = LocalizationHi.translations;
+    } else if (languageCode == 'pa') {
+      currentLocalization = LocalizationPun.translations;
+    }
+
     return FutureBuilder(
       future: _futureController,
       builder: (context, snapshot) {
@@ -235,8 +279,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            " Farm Owner : ",
+                          Text(
+                            currentLocalization['Farm Owner']??'',
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 20,
@@ -266,26 +310,23 @@ class _ProfilePageState extends State<ProfilePage> {
                         children: [
                           Row(
                             children: [
-
-                              // Image.asset("asset/profile_dairy_logo.jpg",width: 40,height: 40),
                               const SizedBox(
                               child:Icon(Icons.home,color: Color.fromRGBO(13, 166, 186, 1),),
                               ),
                               const SizedBox(width: 16,),
-                              // Image.asset("asset/profile_dairy_logo.jpg",width: 40,height: 40),
-                              const SizedBox(
-                                width: 100,
+                              SizedBox(
+                                width: 120,
                                   child: Text(
-                                "Farm Name  ",style: TextStyle(fontSize: 18),)
+                                    currentLocalization["Farm Name"]??'',style: TextStyle(fontSize: 18),)
         ),
-                              const SizedBox(width: 60,),
+                              const SizedBox(width: 40,),
                               Text(farmUser.farmName,style: const TextStyle(fontSize: 18),),
                             ],
                           ),
                           // SizedBox(height: 20,),
 
                           const SizedBox(
-                            height: 20,
+                            height: 25,
                           ),
                           Row(
                             children: [
@@ -296,14 +337,14 @@ class _ProfilePageState extends State<ProfilePage> {
                               const SizedBox(
                                 width: 16,
                               ),
-                              const SizedBox(
-                                  width: 100,
+                              SizedBox(
+                                  width: 120,
                                   child: Text(
-                                    "Phone No.  ",
+                                    currentLocalization["Phone No."]??'',
                                     style: TextStyle(fontSize: 18),
                                   )),
                               const SizedBox(
-                                width: 60,
+                                width: 40,
                               ),
                               Expanded(
                                   child: Text(
@@ -324,11 +365,10 @@ class _ProfilePageState extends State<ProfilePage> {
                               const SizedBox(
                                 width: 16,
                               ),
-                              // Image.asset("asset/profile_dairy_logo.jpg",width: 40,height: 40),
-                              const SizedBox(
+                              SizedBox(
                                   width: 120,
                                   child: Text(
-                                    "Farm Address ",
+                                    currentLocalization["Farm Address"]??'',
                                     style: TextStyle(fontSize: 18),
                                   )),
                               const SizedBox(
@@ -366,14 +406,14 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     );
                   },
-                  child: const Text('Edit Profile'),
+                  child: Text(currentLocalization['Edit Profile']??''),
                 ),
               ],
             ),
           );
         } else {
-          return const Center(
-            child: Text('Error in Fetch'),
+          return Center(
+            child: Text(currentLocalization['Error in Fetch']??''),
           );
         }
       },
@@ -393,6 +433,9 @@ class ProfileEditPage extends StatefulWidget {
 class _ProfileEditPageState extends State<ProfileEditPage> {
   final user = FirebaseAuth.instance.currentUser;
   final uid = FirebaseAuth.instance.currentUser!.uid;
+
+  late Map<String, String> currentLocalization= {};
+  late String languageCode = 'en';
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _controllerName = TextEditingController();
@@ -418,11 +461,22 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    languageCode = Provider.of<AppData>(context).persistentVariable;
+
+    if (languageCode == 'en') {
+      currentLocalization = LocalizationEn.translations;
+    } else if (languageCode == 'hi') {
+      currentLocalization = LocalizationHi.translations;
+    } else if (languageCode == 'pa') {
+      currentLocalization = LocalizationPun.translations;
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(13, 166, 186, 0.9),
-        title: const Text(
-          'Edit Profile',
+        title: Text(
+          currentLocalization['Edit Profile']??'',
           style: TextStyle(
               fontWeight: FontWeight.bold
           ),
@@ -441,7 +495,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  labelText: 'Owner Name',
+                  labelText: currentLocalization['Owner Name']??'',
                 ),
               ),
               const SizedBox(height: 25),
@@ -451,7 +505,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  labelText: 'Farm Name',
+                  labelText: currentLocalization['Farm Name']??'',
                 ),
               ),
               const SizedBox(height: 25),
@@ -462,7 +516,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  labelText: 'Phone No.',
+                  labelText: currentLocalization['Phone No.']??'',
                 ),
               ),
               const SizedBox(height: 25),
@@ -472,7 +526,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  labelText: 'Farm Address',
+                  labelText: currentLocalization['Farm Address']??'',
                 ),
               ),
               const SizedBox(height: 25),
@@ -494,8 +548,8 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                       context, MaterialPageRoute(
                       builder: (context) => const WrapperHomePage()));
                 },
-                child: const Text(
-                  'Save Changes',
+                child: Text(
+                  currentLocalization['Save Changes']??'',
                   style: TextStyle(fontSize: 17,
                       color: Colors.black),)
                 ),
