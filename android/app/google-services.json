@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:856392093031:android:edbd56a8d78133bf33b3c2",
+        "mobilesdk_app_id": "1:856392093031:android:80d8942dcdf878ed33b3c2",
         "android_client_info": {
-          "package_name": "com.example.farm_expense_mangement_app"
+          "package_name": "com.awadh.farm_expense_management_app"
         }
       },
       "oauth_client": [],

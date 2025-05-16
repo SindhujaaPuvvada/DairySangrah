@@ -89,11 +89,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
+            VALUE "CompanyName", "com.awadh" "\0"
             VALUE "FileDescription", "farm_expense_mangement_app" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "farm_expense_mangement_app" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2024 com.awadh. All rights reserved." "\0"
             VALUE "OriginalFilename", "farm_expense_mangement_app.exe" "\0"
             VALUE "ProductName", "farm_expense_mangement_app" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"

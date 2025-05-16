@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
     appId: '1:856392093031:web:0de39960e0aeb7dc33b3c2',
     messagingSenderId: '856392093031',
     projectId: 'farm-expense-management-cp',
-    authDomain: 'farm-expense-management-cp.firebaseapp.com',
+    authDomain: 'dairySangrah.app',
     storageBucket: 'farm-expense-management-cp.appspot.com',
     measurementId: 'G-4CMTQM9SE3',
   );
@@ -61,6 +61,7 @@ class DefaultFirebaseOptions {
     appId: '1:856392093031:android:edbd56a8d78133bf33b3c2',
     messagingSenderId: '856392093031',
     projectId: 'farm-expense-management-cp',
+    authDomain: 'dairySangrah.app',
     storageBucket: 'farm-expense-management-cp.appspot.com',
   );
 
@@ -69,8 +70,9 @@ class DefaultFirebaseOptions {
     appId: '1:856392093031:ios:b3ec6d3c92f45aa533b3c2',
     messagingSenderId: '856392093031',
     projectId: 'farm-expense-management-cp',
+    authDomain: 'dairySangrah.app',
     storageBucket: 'farm-expense-management-cp.appspot.com',
-    iosBundleId: 'com.example.farmExpenseMangementApp',
+    iosBundleId: 'com.awadh.farmExpenseMangementApp',
   );
 
   static FirebaseOptions macos = FirebaseOptions(
@@ -78,7 +80,8 @@ class DefaultFirebaseOptions {
     appId: '1:856392093031:ios:537a36e9dcad893433b3c2',
     messagingSenderId: '856392093031',
     projectId: 'farm-expense-management-cp',
+    authDomain: 'dairySangrah.app',
     storageBucket: 'farm-expense-management-cp.appspot.com',
-    iosBundleId: 'com.example.farmExpenseMangementApp.RunnerTests',
+    iosBundleId: 'com.awadh.farmExpenseMangementApp.RunnerTests',
   );
 }

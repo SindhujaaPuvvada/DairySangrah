@@ -10,7 +10,7 @@ plugins {
 
 
 android {
-    namespace = "com.example.farm_expense_mangement_app"
+    namespace = "com.awadh.farm_expense_mangement_app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -25,7 +25,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.farm_expense_mangement_app"
+        applicationId = "com.awadh.farm_expense_management_app"
         minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
