@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../models/cattle.dart';
 import '../../../models/milk.dart';
@@ -336,6 +337,7 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
                       labelStyle: const TextStyle(color: Colors.black),
                       border: InputBorder.none,
                     ),
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[0-9.]"))],
                   ),
                 ),
                 const SizedBox(height: 20.0),
@@ -356,6 +358,7 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
                       labelStyle: const TextStyle(color: Colors.black),
                       border: InputBorder.none,
                     ),
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[0-9.]"))],
                   ),
                 ),
                 const SizedBox(height: 20.0),

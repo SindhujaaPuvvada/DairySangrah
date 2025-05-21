@@ -166,7 +166,7 @@ class _EditTransactionState extends State<EditTransaction> {
                   enabled: false,
                   style:  TextStyle(fontSize: 20, color: Colors.black),
                   // controller: _categoryTransaction,
-                    initialValue:(widget.showIncome) ? '${currentLocalization[widget.sale?.name]}' : '${currentLocalization[widget.expense?.name]}',
+                    initialValue:(widget.showIncome) ? '${currentLocalization[widget.sale?.name]??widget.sale?.name}' : '${currentLocalization[widget.expense?.name]??widget.expense?.name}',
                   decoration: InputDecoration(
                       labelText: (widget.showIncome) ? '${currentLocalization['income_category']}' : '${currentLocalization['expense_category']}',
                       labelStyle: const TextStyle(fontSize: 20, color: Colors.black)),
