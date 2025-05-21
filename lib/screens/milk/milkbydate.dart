@@ -1,6 +1,7 @@
 import 'package:farm_expense_mangement_app/screens/milk/milkavgpage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../main.dart';
 import '../../../models/milk.dart';
@@ -297,7 +298,7 @@ class _MilkDataRowState extends State<MilkDataRow> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  "${currentLocalization["rf_id"]??""}: ${widget.data.rfid}",
+                  "${currentLocalization["RF ID"]??""}: ${widget.data.rfid}",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -482,7 +483,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "${currentLocalization['rf_id']} : ${widget.data.rfid}",
+                    "${currentLocalization['RF ID']} : ${widget.data.rfid}",
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.bold),
                   ),
@@ -563,7 +564,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
     return TextFormField(
       initialValue: initialValue,
       onChanged: onChanged,
-      keyboardType: TextInputType.number,
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[0-9.]"))],
       decoration: InputDecoration(
         labelText: labelText,
         border: const OutlineInputBorder(),

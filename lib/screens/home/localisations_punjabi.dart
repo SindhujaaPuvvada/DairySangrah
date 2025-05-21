@@ -64,8 +64,8 @@ class LocalizationPun {
     "litre": "ਲੀ.",
     "add_milk_data": "ਦੁੱਧ ਦਾ ਡਾਟਾ ਸ਼ਾਮਲ ਕਰੋ",
     "select_rfid": " ਆਰਐਫ ਆਈਡੀ ਚੁਣੋ",
-    "morning_milk": "ਸਵੇਰ ਦਾ ਦੁੱਧ",
-    "evening_milk": "ਸ਼ਾਮ ਦਾ ਦੁੱਧ",
+    "morning_milk": "ਸਵੇਰ ਦਾ ਦੁੱਧ (ਲਿਟਰ)",
+    "evening_milk": "ਸ਼ਾਮ ਦਾ ਦੁੱਧ (ਲਿਟਰ)",
     "milking_date": "ਦੁੱਧ ਨਿਕਾਲਣ ਦੀ ਮਿਤੀ",
     "add": " ਸ਼ਾਮਲ ਕਰੋ",
     "please_select_rfid": " ਕਿਰਪਾ ਕਰਕੇ ਆਰਐਫ ਆਈਡੀ ਚੁਣੋ",
@@ -292,6 +292,7 @@ class LocalizationPun {
     "d to c": "ਸਿੱਧਾ ਗਾਹਕ ਤੱਕ",
     'start': 'ਆਰੰਭ',
     'end': 'ਅੰਤ',
-
+    'data_del_msg': 'ਕਿਰਪਾ ਕਰਕੇ ਉਡੀਕ ਕਰੋ, ਡਾਟਾ ਮਿਟਾਇਆ ਜਾ ਰਿਹਾ ਹੈ!',
+    "Land Area (in acres)": "ਜ਼ਮੀਨ ਦਾ ਖੇਤਰਫਲ (ਏਕੜ ਵਿੱਚ)",
   };
 }

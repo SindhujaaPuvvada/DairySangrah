@@ -83,7 +83,17 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                                     onPressedOpt1: () async {
                                       try{
                                         HttpsCallable callDeleteFarmData = FirebaseFunctions.instance.httpsCallable('deleteFarmData');
+                                        bool isDeleting = true;
+                                        if(isDeleting){
+                                          final snackBar = SnackBar(
+                                            backgroundColor: Colors.redAccent,
+                                            content: Text(currentLocalization['data_del_msg']??'Please wait!'),
+                                          );
+
+                                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                        }
                                         final resp = await callDeleteFarmData();
+                                        isDeleting = false;
                                         print(resp);
                                       }
                                       catch(error){

@@ -120,8 +120,8 @@ class LocalizationHi {
     "Litres": "लीटर",
     "add_milk_data": "दूध का डेटा जोड़ें",
     "select_rfid": "आरएफआईडी का चयन करें",
-    "morning_milk": "सुबह का दूध",
-    "evening_milk": "शाम का दूध",
+    "morning_milk": "सुबह का दूध (लीटर)",
+    "evening_milk": "शाम का दूध (लीटर)",
     "milking_date": " दूध निकालने की तारीख",
     "add": "जोड़ें",
     "please_select_rfid": "कृपया आरएफआईडी का चयन करें",
@@ -286,6 +286,7 @@ class LocalizationHi {
     'out_of_stock': 'स्टॉक समाप्त, कृपया पुनः भरें!',
     'enter_qty_consumed_kg': 'उपयोग की गई मात्रा (किलो में) दर्ज करें',
     'cannot_be_more_than_existing': 'मौजूदा मात्रा से अधिक नहीं हो सकती!',
+    'Unit': 'इकाई',
     'Kg': 'किलो',
     'Quintal': 'क्विंटल',
     "amul": "अमूल",
@@ -294,5 +295,7 @@ class LocalizationHi {
     "d to c": "सीधे ग्राहक तक",
     'start': 'प्रारंभ',
     'end': 'अंत',
+    'data_del_msg': 'कृपया प्रतीक्षा करें, डेटा हटाया जा रहा है!',
+    "Land Area (in acres)": "भूमि क्षेत्रफल (एकड़ में)",
   };
 }
