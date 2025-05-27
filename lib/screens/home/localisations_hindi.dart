@@ -297,5 +297,6 @@ class LocalizationHi {
     'end': 'अंत',
     'data_del_msg': 'कृपया प्रतीक्षा करें, डेटा हटाया जा रहा है!',
     "Land Area (in acres)": "भूमि क्षेत्रफल (एकड़ में)",
+    "app_version": "ऐप संस्करण",
   };
 }

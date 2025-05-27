@@ -255,5 +255,6 @@ class LocalizationEn {
     "Labor Cost": "Labor Cost",
     "Diesel Cost": "Diesel Cost",
     "Total Production Cost": "Total Production Cost",
+    "app_version": "App Version",
   };
 }

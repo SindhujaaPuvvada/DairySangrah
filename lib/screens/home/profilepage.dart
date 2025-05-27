@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:farm_expense_mangement_app/logging.dart';
@@ -5,6 +7,7 @@ import 'package:farm_expense_mangement_app/main.dart';
 import 'package:farm_expense_mangement_app/models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import '../../services/database/userdatabase.dart';
 import '../authenticate/authUtils.dart';
@@ -211,6 +214,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   late Map<String, String> currentLocalization= {};
   late String languageCode = 'en';
+  late String appVersion;
+  late String appBuildNumber;
 
   final user = FirebaseAuth.instance.currentUser;
   final uid = FirebaseAuth.instance.currentUser!.uid;
@@ -219,13 +224,20 @@ class _ProfilePageState extends State<ProfilePage> {
   late FarmUser farmUser;
   late DatabaseServicesForUser userDb;
 
+  Future<void> _fetchPkgInfo() async {
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  setState(() {
+    appVersion = packageInfo.version;
+    appBuildNumber = packageInfo.buildNumber;
+  });
+  }
+
   @override
   void initState() {
     super.initState();
     userDb = DatabaseServicesForUser(uid);
-
     setState(() {
-
+      _fetchPkgInfo();
       _futureController = userDb.infoFromServer(uid);
     });
   }
@@ -309,7 +321,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
 
-                const SizedBox(height: 50),
+                const SizedBox(height: 25),
+                Center(child: Text("${currentLocalization['app_version']??''}: $appVersion ($appBuildNumber)")),
+                const SizedBox(height: 25),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12.0, 0, 12, 0),
                   child: Container(
