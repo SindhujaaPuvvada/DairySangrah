@@ -294,5 +294,6 @@ class LocalizationPun {
     'end': 'ਅੰਤ',
     'data_del_msg': 'ਕਿਰਪਾ ਕਰਕੇ ਉਡੀਕ ਕਰੋ, ਡਾਟਾ ਮਿਟਾਇਆ ਜਾ ਰਿਹਾ ਹੈ!',
     "Land Area (in acres)": "ਜ਼ਮੀਨ ਦਾ ਖੇਤਰਫਲ (ਏਕੜ ਵਿੱਚ)",
+    "app_version": "ਐਪ ਸੰસ્કਰਨ",
   };
 }

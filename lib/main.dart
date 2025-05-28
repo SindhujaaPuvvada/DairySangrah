@@ -48,7 +48,19 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: UpgradeAlert(child: StreamBuilder<User?>(
+      home: UpgradeAlert(
+          showIgnore: false,
+          showLater: true,
+          upgrader: Upgrader(
+            countryCode: 'in',
+            languageCode: 'en',
+            //For testing
+            /*debugDisplayAlways: true,
+            debugDisplayOnce: false,
+            minAppVersion: '1.0.0(9)', // Simulated minimum version
+            debugLogging: true,*/
+          ),
+          child: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           final user = snapshot.data;

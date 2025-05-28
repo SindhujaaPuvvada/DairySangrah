@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import '../../../models/cattle.dart';
 import '../../../models/milk.dart';
@@ -41,9 +42,9 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
           .toList();
       _allMilkByDate = _originalMilkByDate;
       if(_allMilkByDate.isNotEmpty) {
-        totalMilkAcrossAllDates = _originalMilkByDate
+        totalMilkAcrossAllDates = (_originalMilkByDate
             .map((milk) => milk.totalMilk)
-            .reduce((a, b) => a + b);
+            .reduce((a, b) => a + b)).toPrecision(2);
       }// Calculate the total milk across all dates
       _isLoading = false;
     });
@@ -219,7 +220,8 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
     setState(() {
       allCattle =
           snapshot.docs.map((doc) => Cattle.fromFireStore(doc, null)).toList();
-      allRfid = allCattle.map((cattle) => cattle.rfid).toList();
+      var milkedRfid = allCattle.where((cattle) => cattle.state == 'Milked').toList();
+      allRfid = milkedRfid.map((cattle) => cattle.rfid).toList();
     });
   }
 
@@ -248,7 +250,7 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
       milkByDate = MilkByDate(dateOfMilk: data.dateOfMilk);
       await dbByDate.infoToServerMilk(milkByDate);
     }
-    final double totalMilk = milkByDate.totalMilk + data.morning + data.evening;
+    final double totalMilk = (milkByDate.totalMilk + data.morning + data.evening).toPrecision(2);
     await dbByDate.infoToServerMilk(
         MilkByDate(dateOfMilk: data.dateOfMilk, totalMilk: totalMilk));
   }
@@ -413,8 +415,8 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
                       if (formKey.currentState!.validate()) {
                         final Milk newMilkData = Milk(
                           rfid: selectedRfid!,
-                          morning: milkInMorning!,
-                          evening: milkInEvening!,
+                          morning: milkInMorning!.toPrecision(2),
+                          evening: milkInEvening!.toPrecision(2),
                           dateOfMilk: milkingDate,
                         );
 

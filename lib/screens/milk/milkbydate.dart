@@ -2,6 +2,7 @@ import 'package:farm_expense_mangement_app/screens/milk/milkavgpage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import '../../../main.dart';
 import '../../../models/milk.dart';
@@ -275,7 +276,7 @@ class _MilkDataRowState extends State<MilkDataRow> {
     } else if (languageCode == 'pa') {
       currentLocalization = LocalizationPun.translations;
     }
-    final double totalMilk = widget.data.evening + widget.data.morning;
+    final double totalMilk = (widget.data.evening + widget.data.morning).toPrecision(2);
 
     return Card(
       margin: const EdgeInsets.fromLTRB(8, 5, 8, 5),
@@ -434,11 +435,11 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
       milkByDate = MilkByDate(dateOfMilk: milk.dateOfMilk);
       await dbByDate.infoToServerMilk(milkByDate);
     }
-    final double totalMilk = milkByDate.totalMilk +
+    final double totalMilk = (milkByDate.totalMilk +
         milk.morning +
         milk.evening -
         widget.data.evening -
-        widget.data.morning;
+        widget.data.morning).toPrecision(2);
     await dbByDate.infoToServerMilk(
         MilkByDate(dateOfMilk: milk.dateOfMilk, totalMilk: totalMilk));
   }
@@ -526,8 +527,8 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
                     if (milkInMorning != null && milkInEvening != null) {
                       Milk newMilkData = Milk(
                         rfid: widget.data.rfid,
-                        morning: milkInMorning!,
-                        evening: milkInEvening!,
+                        morning: milkInMorning!.toPrecision(2),
+                        evening: milkInEvening!.toPrecision(2),
                         dateOfMilk: widget.data.dateOfMilk,
                       );
                       _editMilkDetail(newMilkData);
