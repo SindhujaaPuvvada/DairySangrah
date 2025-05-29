@@ -7,7 +7,6 @@ import 'package:farm_expense_mangement_app/screens/home/homepage.dart';
 import 'package:farm_expense_mangement_app/screens/home/profilepage.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
-import '../../shared/constants.dart';
 import '../home/localisations_en.dart';
 import '../home/localisations_hindi.dart';
 import '../home/localisations_punjabi.dart';
