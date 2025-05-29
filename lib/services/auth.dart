@@ -42,7 +42,8 @@ class AuthService {
           ownerName: ownerName,
           farmName: farmName,
           location: location,
-          phoneNo: phoneNo);
+          phoneNo: phoneNo,
+          chosenLanguage: "en");
       await DatabaseServicesForUser(user!.uid).infoToServer(user.uid, farmUser);
 
       return _userFromFirebaseUser(user);

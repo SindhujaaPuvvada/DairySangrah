@@ -25,3 +25,5 @@ const textInputDecorationReg = InputDecoration(
 );
 
 const fdCategoryId = ['GreenFodder','DryFodder','Concentrate'];
+
+const langCodeMap = {'en': 'English','hi': 'Hindi', 'pa': 'Punjabi'};

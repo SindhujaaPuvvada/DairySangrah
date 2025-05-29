@@ -113,7 +113,8 @@ class _RegisterFarmState extends State<RegisterFarm> {
                                         ownerName: ownerName,
                                         farmName: farmName,
                                         location: location,
-                                        phoneNo: phoneNo);
+                                        phoneNo: phoneNo,
+                                        chosenLanguage: languageCode);
 
                                     await DatabaseServicesForUser(user!.uid)
                                         .infoToServer(user!.uid, farmUser);

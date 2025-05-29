@@ -256,5 +256,10 @@ class LocalizationEn {
     "Diesel Cost": "Diesel Cost",
     "Total Production Cost": "Total Production Cost",
     "app_version": "App Version",
+    "Select Language": "Select Language",
+    "English": "English",
+    "Hindi": "Hindi",
+    "Punjabi": "Punjabi",
+    "Preferred Language": "Preferred Language",
   };
 }

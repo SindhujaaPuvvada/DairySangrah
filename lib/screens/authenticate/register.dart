@@ -161,7 +161,8 @@ class _RegisterState extends State<Register> {
                                                   farmName: farmName,
                                                   ownerName: ownerName,
                                                   phoneNo: phoneNo,
-                                                  location: location),
+                                                  location: location,
+                                                  chosenLanguage: "en"),
                                               toggleView: widget.toggleView)));
                                 }
                               },

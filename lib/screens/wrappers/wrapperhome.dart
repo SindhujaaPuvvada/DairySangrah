@@ -1,9 +1,16 @@
+import 'package:farm_expense_mangement_app/models/user.dart';
+import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:farm_expense_mangement_app/screens/home/homepage.dart';
 import 'package:farm_expense_mangement_app/screens/home/profilepage.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
+import '../../shared/constants.dart';
+import '../home/localisations_en.dart';
+import '../home/localisations_hindi.dart';
+import '../home/localisations_punjabi.dart';
 import '../notification/alertnotificationpage.dart';
 
 class WrapperHomePage extends StatefulWidget {
@@ -15,17 +22,28 @@ class WrapperHomePage extends StatefulWidget {
 
 class LanguagePopup {
   static void showLanguageOptions(BuildContext context) {
+    var languageCode = Provider.of<AppData>(context,listen: false).persistentVariable;
+    Map<String, String> currentLocalization= {};
+
+    if (languageCode == 'en') {
+      currentLocalization = LocalizationEn.translations;
+    } else if (languageCode == 'hi') {
+      currentLocalization = LocalizationHi.translations;
+    } else if (languageCode == 'pa') {
+      currentLocalization = LocalizationPun.translations;
+    }
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Select Language'),
+          title: Text(currentLocalization['Select Language']??'Select Language'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildLanguageOption(context, 'English', 'en'),
-              _buildLanguageOption(context, 'Hindi', 'hi'),
-              _buildLanguageOption(context, 'Punjabi', 'pa'),
+              _buildLanguageOption(context, currentLocalization['English']??'English', 'en'),
+              _buildLanguageOption(context, currentLocalization['Hindi']??'Hindi', 'hi'),
+              _buildLanguageOption(context, currentLocalization['Punjabi']??'Punjabi', 'pa'),
             ],
           ),
         );
@@ -72,6 +90,17 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
     _streamControllerScreen.add(_screenFromNumber);
     _appBar = const HomeAppBar();
     _bodyScreen = const HomePage();
+    _setLanguage();
+  }
+
+  Future<void> _setLanguage() async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    DatabaseServicesForUser userDB = DatabaseServicesForUser(uid);
+    var snapshot =  await userDB.infoFromServer(uid);
+    if(snapshot.exists){
+      FarmUser farmUser = FarmUser.fromFireStore(snapshot, null);
+      Provider.of<AppData>(context, listen: false).persistentVariable = farmUser.chosenLanguage;
+    }
   }
 
   void _updateIndex(int index) {
@@ -193,4 +222,5 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
       ),
     );
   }
+
 }
