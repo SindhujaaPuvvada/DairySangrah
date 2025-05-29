@@ -5,9 +5,10 @@ import '../../models/feed.dart';
 import '../../services/database/feeddatabase.dart';
 
 class feedUtils{
-  static Widget buildTextField(TextEditingController controller, String label,) {
+  static Widget buildTextField(TextEditingController controller, String label, [bool? isReadOnly]) {
     return TextField(
       controller: controller,
+      readOnly: isReadOnly ?? false,
       //onTap: () => controller.text = '',
       //onTapOutside: (val) => controller.text = (controller.text.isEmpty) ? '0.0' : controller.text,
       decoration: InputDecoration(

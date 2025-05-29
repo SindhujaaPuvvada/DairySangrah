@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 
 class TransUtils{
 
-  static Widget buildTextField(TextEditingController controller, String label,) {
+  static Widget buildTextField(TextEditingController controller, String label,[bool? isReadOnly]) {
     return TextField(
         controller: controller,
+        readOnly: isReadOnly ?? false,
         decoration: InputDecoration(
           labelText: label,
           border: OutlineInputBorder(),

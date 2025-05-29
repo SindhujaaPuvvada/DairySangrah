@@ -208,9 +208,9 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
                     const SizedBox(height: 20),
                     feedUtils.buildTextField(_dieselCostController, currentLocalization['Diesel Cost']??""),
                     const SizedBox(height: 20),
-                    feedUtils.buildTextField(_priceController, currentLocalization['Total Production Cost']??""),
+                    feedUtils.buildTextField(_priceController, currentLocalization['Total Production Cost']??"", true),
                     const SizedBox(height: 20),
-                    feedUtils.buildTextField(_rateController, currentLocalization['Rate per Unit']??""),
+                    feedUtils.buildTextField(_rateController, currentLocalization['Rate per Unit']??"", true),
                 ]
                   ),
               ),

@@ -246,9 +246,9 @@ class _ConcentratePageState extends State<ConcentratePage> {
                 ],
               ),
               const SizedBox(height: 20),
-              feedUtils.buildTextField(_rateController, currentLocalization['Rate per Unit']??""),
+              feedUtils.buildTextField(_rateController, currentLocalization['Rate per Unit']??"", _selectedType == 'Homemade'? true: false),
               const SizedBox(height: 20),
-              feedUtils.buildTextField(_priceController, currentLocalization['Total Price']??""),
+              feedUtils.buildTextField(_priceController, currentLocalization['Total Price']??"", _selectedType == 'Homemade'? true: false),
               const SizedBox(height: 40),
               Center(
                 child: Row(
