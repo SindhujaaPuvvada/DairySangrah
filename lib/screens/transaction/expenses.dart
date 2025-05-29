@@ -42,19 +42,8 @@ class _AddExpensesState extends State<AddExpenses> {
   final Map<String, TextEditingController> _qtyControllers = {};
   String? _selectedCategory;
 
-  final List<String> sourceOptions = [
-    'Feed',
-    'Veterinary',
-    'Labor Costs',
-    'Equipment and Machinery',
-    'Other'
-  ];
-
   List<Feed> _feedTypes = [];
   final List<Feed> _selectedFeed = [];
-
-
-
 
   void _getFeedData() {
     fdCategoryId.forEach((fdType) async {
@@ -64,6 +53,11 @@ class _AddExpensesState extends State<AddExpenses> {
         List<Feed> feeds = snapshot.docs.map((doc) =>
             Feed.fromFireStore(doc,fdType)).toList();
         _feedTypes = _feedTypes + feeds;
+
+        for (var fd in _feedTypes) {
+          TextEditingController txtCntrlr = TextEditingController();
+          _qtyControllers[fd.feedId ?? ""] = txtCntrlr;
+        }
       });
     });
 
@@ -131,15 +125,12 @@ class _AddExpensesState extends State<AddExpenses> {
       currentLocalization = LocalizationPun.translations;
     }
 
-    for (var fd in _feedTypes) {
-      TextEditingController txtCntrlr = TextEditingController();
-      _qtyControllers[fd.feedId ?? ""] = txtCntrlr;
-    }
     Map<String, String> categoryMap = {
       'Feed': currentLocalization['feed']!,
       'Veterinary': currentLocalization['Veterinary']!,
       'Labor Costs': currentLocalization['Labor Costs']!,
       'Equipment and Machinery':currentLocalization['Equipment and Machinery']!,
+      'Other': currentLocalization['other']!,
     };
 
     return Scaffold(
@@ -200,8 +191,6 @@ class _AddExpensesState extends State<AddExpenses> {
                       ),
                     ),
                     // SizedBox(height: 10),
-
-
                     Padding(
                       padding: const EdgeInsets.fromLTRB(1, 0, 1, 20),
                       child: TransUtils.buildDropdown(
@@ -354,7 +343,7 @@ class _AddExpensesState extends State<AddExpenses> {
                     Padding(
                         padding: const EdgeInsets.fromLTRB(1, 0, 1, 20),
                         child: TransUtils.buildTextField(_amountTextController,
-                            "${currentLocalization['how_much_did_you_spend']}")
+                            "${currentLocalization['how_much_did_you_spend']}",_selectedCategory == 'Feed' ? true : false)
                     ),
 
                     Container(
