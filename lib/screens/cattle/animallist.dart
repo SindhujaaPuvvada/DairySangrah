@@ -9,6 +9,7 @@ import '../home/localisations_hindi.dart';
 import 'package:provider/provider.dart';
 import '../home/localisations_punjabi.dart';
 import '../../../main.dart';
+import '../wrappers/wrapperhome.dart';
 
 class AnimalList1 extends StatefulWidget {
   const AnimalList1({super.key});
@@ -67,6 +68,13 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
     }
     return Scaffold(
       appBar: AppBar(
+        leading: BackButton(
+            onPressed: () =>
+                Navigator.push(
+                    context, MaterialPageRoute(
+                    builder: (context) => const WrapperHomePage())
+                )),
+        iconTheme: const IconThemeData(color: Colors.black),
         title: Text(
           currentLocalization['Animals'] ?? 'Animals',
           style: TextStyle(
@@ -102,6 +110,7 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
         ),
       ),
       body: TabBarView(
+        physics: const NeverScrollableScrollPhysics(),
         controller: _tabController,
         children: [
           _buildCattleSection('Cow'),

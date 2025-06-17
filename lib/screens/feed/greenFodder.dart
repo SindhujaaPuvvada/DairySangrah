@@ -75,7 +75,7 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
       'Rye Grass': currentLocalization['Rye Grass'] ?? 'Rye Grass',
       'Bajra': currentLocalization['Bajra'] ?? 'Bajra',
       'Sorghum': currentLocalization['Sorghum'] ?? 'Sorghum',
-      'Barseem': currentLocalization['Barseem'] ?? 'Barseem',
+      'Berseem': currentLocalization['Berseem'] ?? 'Berseem',
       'Oats': currentLocalization['Oats'] ?? 'Oats',
       'Others': currentLocalization['Others'] ?? 'Others',
     };

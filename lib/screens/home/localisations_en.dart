@@ -101,7 +101,7 @@ class LocalizationEn {
     "Rye Grass": "Rye Grass",
     "Bajra": "Bajra",
     "Sorghum": "Sorghum",
-    "Barseem": "Barseem",
+    "Berseem": "Berseem",
     "Oats": "Oats",
     "Others": "Others",
     "Feed": "Feed",

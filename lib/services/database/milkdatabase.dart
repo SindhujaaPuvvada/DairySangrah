@@ -34,12 +34,24 @@ class DatabaseForMilk {
   Future<void> deleteAllMilkRecords(DateTime dateOfMilk) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
-    return await db
+    // Reference to the milk document for a specific date
+    final DocumentReference milkDocRefForDate = db
         .collection('User')
         .doc(uid)
         .collection('Milk')
-        .doc('D${dateOfMilk.day}M${dateOfMilk.month}Y${dateOfMilk.year}')
-        .delete();
+        .doc('D${dateOfMilk.day}M${dateOfMilk.month}Y${dateOfMilk.year}');
+
+    // Delete all documents in the 'Store' sub collection
+    final QuerySnapshot cattleMilkDocs = await milkDocRefForDate
+        .collection('Store')
+        .get();
+
+    for (QueryDocumentSnapshot doc in cattleMilkDocs.docs) {
+      await doc.reference.delete();
+    }
+
+    // Now delete the main milk document for a specific date
+    await milkDocRefForDate.delete();
   }
 }
 

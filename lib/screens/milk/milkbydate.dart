@@ -38,8 +38,8 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
     _fetchAllMilk();
   }
 
-  void _deleteAllMilkOnDate() {
-    db.deleteAllMilkRecords(widget.dateOfMilk!);
+  void _deleteAllMilkOnDate() async{
+    await db.deleteAllMilkRecords(widget.dateOfMilk!);
 
     Navigator.pop(context);
     Navigator.pushReplacement(

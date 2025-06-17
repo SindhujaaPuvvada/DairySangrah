@@ -97,6 +97,11 @@ class _AnimalDetailsState extends State<AnimalDetails> {
     Navigator.pop(context);
     Navigator.pop(context);
     Navigator.pop(context);
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                AnimalList1()));
 
   }
 
@@ -153,7 +158,12 @@ class _AnimalDetailsState extends State<AnimalDetails> {
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
         leading: IconButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AnimalList1(),
+                ),
+              );
             },
             icon: const Icon(
               Icons.arrow_back,

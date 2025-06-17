@@ -319,6 +319,8 @@ class _ConcentratePageState extends State<ConcentratePage> {
         rate = lt[1];
       }
       else{
+        rate=0.0;
+        price=0.0;
         for (String item in _selectedIngredients) {
           price = price + double.parse(_ingControllers[item]!.text);
         }
