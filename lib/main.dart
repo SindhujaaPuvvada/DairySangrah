@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/language.dart';
 import 'package:upgrader/upgrader.dart';
+import 'firebase_options.dart';
 import 'logging.dart';
 
 
@@ -28,7 +29,9 @@ class AppData with ChangeNotifier {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await FirebaseApi().initNotifications();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 

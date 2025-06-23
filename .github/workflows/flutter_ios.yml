@@ -2,9 +2,9 @@ name: Flutter iOS CI
 
 on:
   push:
-    branches: [main]
+    branches: [ci-test-ios]
   pull_request:
-    branches: [main]
+    branches: [ci-test-ios]
 
 jobs:
   build:
