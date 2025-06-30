@@ -28,7 +28,7 @@ jobs:
 
     - name: Set iOS Deployment Target to 13.0
       run: |
-        sed -i '' 's/^platform :ios.*/platform :ios, '\''13.0'\''/' ios/Podfile || echo "platform :ios, '13.0'" >> ios/Podfile
+        sed -i '' 's/^platform :ios.*/platform :ios, '\''14.0'\''/' ios/Podfile || echo "platform :ios, '13.0'" >> ios/Podfile
 
     - name: Install Pods
       run: |
