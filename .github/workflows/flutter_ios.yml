@@ -18,6 +18,11 @@ jobs:
       with:
         flutter-version: '3.32.4'  # use your Flutter version
 
+    - name: Clean previous build
+      run: |
+        flutter clean
+        rm -rf ios/Pods ios/Podfile.lock
+
     - name: Install dependencies
       run: flutter pub get
 
@@ -25,11 +30,8 @@ jobs:
       run: |
         sed -i '' 's/^platform :ios.*/platform :ios, '\''13.0'\''/' ios/Podfile || echo "platform :ios, '13.0'" >> ios/Podfile
 
-    - name: Clean and install Pods
+    - name: Install Pods
       run: |
-        flutter clean
-        rm -rf ios/Pods ios/Podfile.lock
-        flutter pub get
         cd ios
         pod install --repo-update
 
