@@ -18,16 +18,22 @@ jobs:
       with:
         flutter-version: '3.32.4'  # use your Flutter version
 
+    - name: Set iOS Deployment Target to 13.0
+      run: |
+        sed -i '' 's/^platform :ios.*/platform :ios, '\''13.0'\''/' ios/Podfile || echo "platform :ios, '13.0'" >> ios/Podfile
+
+
     - name: Install dependencies
       run: flutter pub get
 
-    - name: Update iOS deployment target in Podfile
+    - name: Clean and install Pods
       run: |
-        sed -i '' 's/platform :ios, .*/platform :ios, '\''13.0'\''/' ios/Podfile || echo "platform :ios, '13.0'" >> ios/Podfile
+        flutter clean
+        rm -rf ios/Pods ios/Podfile.lock
+        flutter pub get
+        cd ios
+        pod install --repo-update
 
-    - name: Install pods
-      working-directory: ios
-      run: pod install
 
     #- name: Run tests
     #  run: flutter test
