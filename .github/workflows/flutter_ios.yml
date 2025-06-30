@@ -21,9 +21,9 @@ jobs:
     - name: Install dependencies
       run: flutter pub get
 
-    - name: Set iOS Deployment Target
+    - name: Update iOS deployment target in Podfile
       run: |
-            sed -i '' 's/platform :ios, .*/platform :ios, '\''13.0'\''/' ios/Podfile
+        sed -i '' 's/platform :ios, .*/platform :ios, '\''13.0'\''/' ios/Podfile || echo "platform :ios, '13.0'" >> ios/Podfile
 
     - name: Install pods
       working-directory: ios
