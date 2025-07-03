@@ -3,14 +3,10 @@ import 'package:farm_expense_mangement_app/screens/authenticate/phoneno.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../logging.dart';
 import '../../main.dart';
 import '../../services/database/userdatabase.dart';
 import '../../shared/constants.dart';
-import '../home/localisations_en.dart';
-import '../home/localisations_hindi.dart';
-import '../home/localisations_punjabi.dart';
 import '../wrappers/wrapperhome.dart';
 
 class RegisterFarm extends StatefulWidget{
@@ -41,13 +37,7 @@ class _RegisterFarmState extends State<RegisterFarm> {
 
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
 
 
     return MaterialApp(

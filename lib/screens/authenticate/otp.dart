@@ -1,6 +1,7 @@
 import 'package:farm_expense_mangement_app/screens/authenticate/authUtils.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/registerNewFarm.dart';
 import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
+import 'package:farm_expense_mangement_app/shared/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:farm_expense_mangement_app/services/auth.dart';
@@ -8,9 +9,6 @@ import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/phoneno.dart';
 import '../../logging.dart';
 import '../../main.dart';
-import '../home/localisations_en.dart';
-import '../home/localisations_hindi.dart';
-import '../home/localisations_punjabi.dart';
 import 'package:provider/provider.dart';
 class OtpVerificationPage extends StatefulWidget {
   const OtpVerificationPage({super.key});
@@ -60,13 +58,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
    languageCode = Provider.of<AppData>(context).persistentVariable;
    //print(languageCode);
 
-   if (languageCode == 'en') {
-     currentLocalization = LocalizationEn.translations;
-   } else if (languageCode == 'hi') {
-     currentLocalization = LocalizationHi.translations;
-   } else if (languageCode == 'pa') {
-     currentLocalization = LocalizationPun.translations;
-   }
+   currentLocalization = langFileMap[languageCode]!;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -275,7 +267,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         borderRadius: BorderRadius.circular(8), // Slightly rounded corners
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withValues(alpha: 0.3),
             spreadRadius: 0,
             blurRadius: 6,
             offset: Offset(0, 4), // Shadow only on the bottom side

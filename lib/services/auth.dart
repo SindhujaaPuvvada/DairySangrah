@@ -48,7 +48,7 @@ class AuthService {
 
       return _userFromFirebaseUser(user);
     } catch (error) {
-      print(error.toString());
+      log.e('Encountered error',time:DateTime.now(), error: error.toString());
       return null;
     }
   }
@@ -94,7 +94,7 @@ this.verificationId.value = verificationId ;
   }
 
   Future<bool> verifyOTP(String otp) async {
-    print("verify2${verificationId.value}");
+    //print("verify2${verificationId.value}");
     try {
       // Use await to wait for the sign-in process to complete
       var credentials = await _auth.signInWithCredential(

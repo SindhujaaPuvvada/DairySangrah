@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Import provider package for state management
-import '../home/localisations_en.dart';
-import '../home/localisations_hindi.dart';
-import '../home/localisations_punjabi.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/base.dart';
-import 'dart:async';
 import 'package:farm_expense_mangement_app/main.dart';
 
 
@@ -61,6 +57,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     languageOption('ENGLISH', 'en', 'ENGLISH'),
                     languageOption('हिन्दी', 'hi', 'हिन्दी'),
                     languageOption('ਪੰਜਾਬੀ', 'pa', 'ਪੰਜਾਬੀ'),
+                    languageOption('తెలుగు', 'te', 'తెలుగు'),
                   ],
                 ),
               ),
@@ -122,7 +119,7 @@ class _SignUpPageState extends State<SignUpPage> {
           border: Border.all(color: Colors.grey.shade300, width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
+              color: Colors.grey.withValues(alpha: 0.3),
               spreadRadius: 2,
               blurRadius: 5,
               offset: Offset(0, 3),

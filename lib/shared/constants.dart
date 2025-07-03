@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import '../screens/home/localisations_en.dart';
+import '../screens/home/localisations_hindi.dart';
+import '../screens/home/localisations_punjabi.dart';
+import '../screens/home/localisations_telugu.dart';
 
 const textInputDecoration = InputDecoration(
   fillColor: Colors.white,
@@ -26,4 +30,11 @@ const textInputDecorationReg = InputDecoration(
 
 const fdCategoryId = ['GreenFodder','DryFodder','Concentrate'];
 
-const langCodeMap = {'en': 'English','hi': 'Hindi', 'pa': 'Punjabi'};
+const langCodeMap = {'en': 'English','hi': 'Hindi', 'pa': 'Punjabi','te': 'Telugu'};
+
+const langFileMap = {
+  'en': LocalizationEn.translations,
+  'hi': LocalizationHi.translations,
+  'pa': LocalizationPun.translations,
+  'te': LocalizationTe.translations
+};

@@ -43,7 +43,7 @@ class _SignInState extends State<SignIn> {
                   ),
 
                   Container(
-                      color: Colors.black.withOpacity(0.5),
+                      color: Colors.black.withValues(alpha: 0.5),
                       // Set opacity level here
 
                       child: ListView(
@@ -100,8 +100,8 @@ class _SignInState extends State<SignIn> {
                                     width: 300,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(10),
-                                      color: Colors.black.withOpacity(
-                                          0.4), // Set container color with opacity
+                                      color: Colors.black.withValues(
+                                          alpha: 0.4), // Set container color with opacity
                                     ),
                                     child: Padding(
                                         padding: const EdgeInsets.all(10.0),

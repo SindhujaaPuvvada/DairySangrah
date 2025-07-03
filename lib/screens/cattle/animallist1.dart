@@ -3,10 +3,8 @@ import 'package:farm_expense_mangement_app/screens/cattle/animaldetails.dart';
 import 'package:farm_expense_mangement_app/services/database/cattledatabase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../home/localisations_en.dart';
-import '../home/localisations_hindi.dart';
+import 'package:farm_expense_mangement_app/shared/constants.dart';
 import 'package:provider/provider.dart';
-import '../home/localisations_punjabi.dart';
 import '../../../main.dart';
 
 class AnimalList2 extends StatefulWidget {
@@ -106,13 +104,7 @@ class _AnimalList2State extends State<AnimalList2> {
         .of<AppData>(context)
         .persistentVariable;
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

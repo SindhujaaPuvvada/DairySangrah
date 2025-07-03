@@ -4,17 +4,12 @@ import 'package:farm_expense_mangement_app/screens/transaction/transUtils.dart';
 import 'package:farm_expense_mangement_app/screens/transaction/transactionpage.dart';
 import 'package:farm_expense_mangement_app/services/database/feeddatabase.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-
 import '../../services/database/transactiondatabase.dart';
 import '../../main.dart';
-import '../home/localisations_en.dart';
-import '../home/localisations_hindi.dart';
-import '../home/localisations_punjabi.dart';
 
 class AddExpenses extends StatefulWidget {
   final Function onSubmit;
@@ -117,13 +112,7 @@ class _AddExpensesState extends State<AddExpenses> {
         .of<AppData>(context)
         .persistentVariable;
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
 
     Map<String, String> categoryMap = {
       'Feed': currentLocalization['feed']!,
