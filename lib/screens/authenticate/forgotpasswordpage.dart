@@ -49,7 +49,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             ),
           ),
           Container(
-            color: Colors.black.withOpacity(0.5), // Set opacity level here
+            color: Colors.black.withValues(alpha: 0.5), // Set opacity level here
 
             child: ListView(
               children: [
@@ -82,7 +82,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       color: Colors.black
-                          .withOpacity(0.4), // Set container color with opacity
+                          .withValues(alpha: 0.4), // Set container color with opacity
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),

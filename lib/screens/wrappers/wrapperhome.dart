@@ -1,5 +1,6 @@
 import 'package:farm_expense_mangement_app/models/user.dart';
 import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
+import 'package:farm_expense_mangement_app/shared/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -7,9 +8,6 @@ import 'package:farm_expense_mangement_app/screens/home/homepage.dart';
 import 'package:farm_expense_mangement_app/screens/home/profilepage.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
-import '../home/localisations_en.dart';
-import '../home/localisations_hindi.dart';
-import '../home/localisations_punjabi.dart';
 import '../notification/alertnotificationpage.dart';
 
 class WrapperHomePage extends StatefulWidget {
@@ -24,13 +22,7 @@ class LanguagePopup {
     var languageCode = Provider.of<AppData>(context,listen: false).persistentVariable;
     Map<String, String> currentLocalization= {};
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
 
     showDialog(
       context: context,
@@ -43,6 +35,7 @@ class LanguagePopup {
               _buildLanguageOption(context, currentLocalization['English']??'English', 'en'),
               _buildLanguageOption(context, currentLocalization['Hindi']??'Hindi', 'hi'),
               _buildLanguageOption(context, currentLocalization['Punjabi']??'Punjabi', 'pa'),
+              _buildLanguageOption(context, currentLocalization['Telugu']??'Telugu', 'te')
             ],
           ),
         );

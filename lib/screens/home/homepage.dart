@@ -1,13 +1,11 @@
 import 'package:farm_expense_mangement_app/screens/feed/feedpage.dart';
 import 'package:farm_expense_mangement_app/screens/cattle/animallist.dart';
+import 'package:farm_expense_mangement_app/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
 import '../milk/milkavgpage.dart';
 import '../transaction/transactionpage.dart';
-import 'localisations_en.dart';
-import 'localisations_hindi.dart';
-import 'localisations_punjabi.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   const HomeAppBar({super.key});
@@ -75,7 +73,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     setState(() {
-      currentLocalization = LocalizationEn.translations;
+      currentLocalization = langFileMap['en']!;
     });
   }
 
@@ -83,13 +81,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
     print(languageCode);
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
     Color totalCowsColor = const Color.fromRGBO(224, 191, 184, 1.0); // Green color
     Color milkingCowsColor = const Color.fromRGBO(252, 222, 172, 1.0); // Red color
     Color dryCowsColor = const Color.fromRGBO(88, 148, 120, 1.0); // Blue color

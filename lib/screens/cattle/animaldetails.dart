@@ -9,9 +9,7 @@ import 'package:farm_expense_mangement_app/models/history.dart';
 import 'package:farm_expense_mangement_app/services/database/cattlehistorydatabase.dart';
 import '../../../main.dart';
 import '../notification/alertnotifications.dart';
-import '../home/localisations_en.dart';
-import '../home/localisations_hindi.dart';
-import '../home/localisations_punjabi.dart';
+import 'package:farm_expense_mangement_app/shared/constants.dart';
 
 class AnimalDetails extends StatefulWidget {
   final String rfid;
@@ -112,13 +110,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
         .of<AppData>(context)
         .persistentVariable;
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
     Widget buildWidget(CattleHistory event) {
       // String eventName = (event['name'] as String).toLowerCase();
       if (event.name == currentLocalization['abortion']) {
@@ -766,13 +758,7 @@ late String languageCode = 'en';
         .of<AppData>(context)
         .persistentVariable;
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1.0),
@@ -1064,13 +1050,7 @@ class _AddEventPopupState extends State<AddEventPopup> {
         .of<AppData>(context)
         .persistentVariable;
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
 
     return Dialog(
       shape: RoundedRectangleBorder(

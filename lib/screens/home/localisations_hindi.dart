@@ -1,7 +1,7 @@
 class LocalizationHi {
   static const Map<String, String> translations = {
     'cattles': 'पशु',
-    'Register a New Farm': 'एक नया फार्म पंजीकृत करें',
+    'Register a New Farm': 'नया फार्म पंजीकृत करें',
     'feed': 'चारा',
     'Cow': 'गाय',
     'Buffalo': 'भैंस',
@@ -69,9 +69,6 @@ class LocalizationHi {
     "Rate": "दर",
     "date": "तारीख",
     "Source": "स्रोत",
-    //"green_fodder": "हरा चारा",
-    //"dry_fodder": "सूखा चारा",
-    //"concentrate": "संघनित चारा",
     'own farm': "स्वयं का फार्म",
     'Quantity/Yield': "उत्पादन / मात्रा",
     "Rate per Unit": "प्रति इकाई दर",
@@ -172,7 +169,7 @@ class LocalizationHi {
     "Brucellosis Vax Alert": "ब्रूसलोसिस टीका अलर्ट",
     "Modified Theileriosis Vax Alert": "संशोधित थिलेरियोसिस टीका अलर्ट",
     "Dairy Sangrah Registration": "डेरी संग्रह पंजीकरण",
-    "Join an Existing Farm": "किसी मौजूदा फार्म से जुड़ें",
+    "Get into Existing Farm": "मौजूदा फार्म में प्रवेश करें",
     "Get started with your farm management journey": "अपने फार्म प्रबंधन यात्रा की शुरुआत करें",
     "Confirm": "पुष्टि करें",
     "Sign Up": "रजिस्टर करें",
@@ -184,25 +181,15 @@ class LocalizationHi {
     "Continue": "जारी रखें",
     "Enter OTP": "ओटीपी दर्ज करें",
     "provide nutritional feed with high protein and fibre content": "उच्च प्रोटीन और फाइबर सामग्री वाला पोषक चारा प्रदान करें",
-    // Nutritional alert
     "is expected to go dry": "सूखा होने की संभावना है",
-    // Dry alert
     "Heat alert": "गर्मी का अलर्ट",
-    // Heat alert for cattle
     "is due for pregnancy test": "गर्भावस्था परीक्षण के लिए समय आ गया है",
-    // Pregnancy Test alert
     "is due for calving": "बच्चे के जन्म का समय आ गया है",
-    // Calving alert
     "is ready for milking": "दूध दुहाई के लिए तैयार है",
-    // Milking alert after calving
     "is due for Insemination": "कृत्रिम गर्भाधान के लिए समय आ गया है",
-    // Artificial Insemination alert for Heifers
     "is due for deworming vaccination": "कीड़े मारने के टीके का समय आ गया है",
-    // Deworming vaccination alert
     "is due for brucellosis vaccination": "ब्रूसलोसिस के टीके का समय आ गया है",
-    // Brucellosis vaccination alert
     "is due for modified theileriosis vaccination": "संशोधित थिलेरियोसिस के टीके का समय आ गया है",
-    // Modified Theileriosis vaccination alert
     'Fat Percentage': 'वसा प्रतिशत',
     'SNF Percentage': 'एसएनएफ प्रतिशत',
     'Quantity (Liters)': 'मात्रा (लीटर में)',
@@ -302,6 +289,7 @@ class LocalizationHi {
     "English": "अंग्रेज़ी",
     "Hindi": "हिंदी",
     "Punjabi": "पंजाबी",
+    "Telugu": "तेलुगु",
     "Preferred Language": "पसंदीदा भाषा",
   };
 }

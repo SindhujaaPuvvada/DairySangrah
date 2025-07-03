@@ -2,9 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:farm_expense_mangement_app/services/auth.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/otp.dart';
-import '../home/localisations_en.dart';
-import '../home/localisations_hindi.dart';
-import '../home/localisations_punjabi.dart';
+import 'package:farm_expense_mangement_app/shared/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:farm_expense_mangement_app/main.dart';
 class SignUpPage extends StatelessWidget {
@@ -24,13 +22,7 @@ class SignUpPage extends StatelessWidget {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -82,7 +74,7 @@ class SignUpPage extends StatelessWidget {
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
+                      color: Colors.grey.withValues(alpha: 0.5),
                       spreadRadius: 0,
                       blurRadius: 5,
                       offset: Offset(0, 4), // Shadow only on the bottom

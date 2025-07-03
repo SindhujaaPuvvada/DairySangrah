@@ -77,9 +77,6 @@ class LocalizationEn {
     "evening_milk": "Evening Milk (Litres)",
     "milking_date": "Milking Date",
     "Source": "Source",
-    //"green_fodder": "Green Fodder",
-    //"dry_fodder": "Dry Fodder",
-    //"concentrate": "Concentrate",
     "add": "Add",
     "please_select_rfid": "Please select RFID",
     "please_enter_value": "Please enter a value",
@@ -130,7 +127,7 @@ class LocalizationEn {
     "Get started with your farm management journey": "Get started with your farm management journey",
     "date_of_income": "Date of Income",
     "Dairy Sangrah Registration": "Dairy Sangrah Registration",
-    "Join an Existing Farm": "Join an Existing Farm",
+    "Get into Existing Farm": "Get into Existing Farm",
     'Confirm': 'Confirm',
     "how_much_did_you_earn": "How much did you earn (in ₹)",
     "select_income_type": "Select Income type",
@@ -260,6 +257,7 @@ class LocalizationEn {
     "English": "English",
     "Hindi": "Hindi",
     "Punjabi": "Punjabi",
+    "Telugu": "Telugu",
     "Preferred Language": "Preferred Language",
   };
 }

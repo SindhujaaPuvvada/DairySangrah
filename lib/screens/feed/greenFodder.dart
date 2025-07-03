@@ -5,9 +5,7 @@ import 'feedUtils.dart';
 import 'feedpage.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
-import '../home/localisations_en.dart';
-import '../home/localisations_hindi.dart';
-import '../home/localisations_punjabi.dart';
+import 'package:farm_expense_mangement_app/shared/constants.dart';
 
 class GreenFodderPage extends StatefulWidget {
   const GreenFodderPage({super.key});
@@ -61,13 +59,7 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
         .of<AppData>(context)
         .persistentVariable;
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
     typeMap = {
       'Maize': currentLocalization['Maize'] ?? 'Maize',
       'Barley': currentLocalization['Barley'] ?? 'Barley',

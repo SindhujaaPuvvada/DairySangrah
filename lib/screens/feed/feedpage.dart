@@ -1,12 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:farm_expense_mangement_app/services/database/feeddatabase.dart';
+import 'package:farm_expense_mangement_app/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
-import '../home/localisations_en.dart';
-import '../home/localisations_hindi.dart';
-import '../home/localisations_punjabi.dart';
 import '../wrappers/wrapperhome.dart';
 import 'dryFodder.dart';
 import 'greenFodder.dart';
@@ -46,14 +44,7 @@ class _FeedState extends State<FeedPage> {
         .of<AppData>(context)
         .persistentVariable;
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
-
+  currentLocalization = langFileMap[languageCode]!;
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),

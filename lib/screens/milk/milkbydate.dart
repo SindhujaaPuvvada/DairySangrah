@@ -7,9 +7,7 @@ import 'package:provider/provider.dart';
 import '../../../main.dart';
 import '../../../models/milk.dart';
 import '../../../services/database/milkdatabase.dart';
-import '../home/localisations_en.dart';
-import '../home/localisations_hindi.dart';
-import '../home/localisations_punjabi.dart';
+import 'package:farm_expense_mangement_app/shared/constants.dart';
 
 class MilkByDatePage extends StatefulWidget {
   final DateTime? dateOfMilk;
@@ -73,13 +71,7 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
@@ -269,13 +261,7 @@ class _MilkDataRowState extends State<MilkDataRow> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
     final double totalMilk = (widget.data.evening + widget.data.morning).toPrecision(2);
 
     return Card(
@@ -451,13 +437,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
         .of<AppData>(context)
         .persistentVariable;
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),

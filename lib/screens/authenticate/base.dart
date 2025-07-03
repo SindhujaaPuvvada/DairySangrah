@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/phoneno.dart';
-import '../home/localisations_en.dart';
-import '../home/localisations_hindi.dart';
-import '../home/localisations_punjabi.dart';
+import 'package:farm_expense_mangement_app/shared/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:farm_expense_mangement_app/main.dart';
 class DairyMitraRegistrationPage extends StatefulWidget {
@@ -25,13 +23,7 @@ class _DairyMitraRegistrationPageState
     languageCode = Provider.of<AppData>(context).persistentVariable;
     //print(languageCode);
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
     //print(currentLocalization["Register a new farm"]);
     return Scaffold(
       appBar: AppBar(
@@ -95,7 +87,7 @@ class _DairyMitraRegistrationPageState
                   border: Border.all(color: Colors.grey.shade300, width: 1.5),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
+                      color: Colors.grey.withValues(alpha: 0.3),
                       spreadRadius: 2,
                       blurRadius: 5,
                       offset: Offset(0, 3), // Slight shadow
@@ -132,25 +124,25 @@ class _DairyMitraRegistrationPageState
               ),
             ),
 
-            // "Join an Existing Farm" button
+            // "Get into Existing Farm" button
             GestureDetector(
               onTap: () {
                 setState(() {
-                  selectedOption = 'Join an Existing Farm';
+                  selectedOption = 'Get into Existing Farm';
                 });
               },
               child: Container(
                 width: double.infinity, // Full width
                 padding: EdgeInsets.symmetric(vertical: 16.0),
                 decoration: BoxDecoration(
-                  color: selectedOption == 'Join an Existing Farm'
+                  color: selectedOption == 'Get into Existing Farm'
                       ? Colors.grey.shade200
                       : Colors.white,
                   borderRadius: BorderRadius.circular(12), // Curved edges
                   border: Border.all(color: Colors.grey.shade300, width: 1.5),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
+                      color: Colors.grey.withValues(alpha: 0.3),
                       spreadRadius: 2,
                       blurRadius: 5,
                       offset: Offset(0, 3), // Slight shadow
@@ -161,14 +153,14 @@ class _DairyMitraRegistrationPageState
                   children: [
                     SizedBox(width: 16),
                     Text(
-                      currentLocalization['Join an Existing Farm']??"",
+                      currentLocalization['Get into Existing Farm']??"",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     Spacer(),
-                    if (selectedOption == 'Join an Existing Farm')
+                    if (selectedOption == 'Get into Existing Farm')
                       Container(
                         padding: EdgeInsets.all(4),
                         decoration: BoxDecoration(
@@ -202,7 +194,7 @@ class _DairyMitraRegistrationPageState
                     ),
                     onPressed: () {
                       // Handle confirm action
-                      bool isNewFarm=(selectedOption == 'Join an Existing Farm')?false:true;
+                      bool isNewFarm=(selectedOption == 'Get into Existing Farm')?false:true;
                       SignUpPage.newFarmReg=isNewFarm;
                       Navigator.push(
                         context,

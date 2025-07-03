@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:farm_expense_mangement_app/logging.dart';
@@ -13,9 +11,7 @@ import 'package:provider/provider.dart';
 import '../../services/database/userdatabase.dart';
 import '../authenticate/authUtils.dart';
 import '../wrappers/wrapperhome.dart';
-import 'localisations_en.dart';
-import 'localisations_hindi.dart';
-import 'localisations_punjabi.dart';
+
 
 class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
   ProfileAppBar({super.key});
@@ -30,13 +26,7 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
 
     return AppBar(
       leading: BackButton(
@@ -248,13 +238,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
 
     return FutureBuilder(
       future: _futureController,
@@ -519,13 +503,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
         .of<AppData>(context)
         .persistentVariable;
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
 
     return Scaffold(
         appBar: AppBar(

@@ -6,9 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
 import '../../services/database/notificationdatabase.dart';
-import '../home/localisations_en.dart';
-import '../home/localisations_hindi.dart';
-import '../home/localisations_punjabi.dart';
+import 'package:farm_expense_mangement_app/shared/constants.dart';
 
 
 class AlertNotificationsPage extends StatefulWidget {
@@ -83,13 +81,7 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
 
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
 
     String localizeSentence(String sentence) {
       List<String> parts = sentence.split(' ');
@@ -117,7 +109,7 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
 
       String localizedRemaining = currentLocalization[remaining] ?? remaining;
 
-      return '$localizedFirst ${middle.isNotEmpty ? middle + ' ' : ''}$localizedRemaining';
+      return '$localizedFirst ${middle.isNotEmpty ? '$middle ' : ''}$localizedRemaining';
     }
 
     return Scaffold(

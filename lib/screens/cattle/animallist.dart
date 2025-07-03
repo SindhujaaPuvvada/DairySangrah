@@ -4,12 +4,10 @@ import 'package:farm_expense_mangement_app/services/database/cattledatabase.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:farm_expense_mangement_app/models/cattle.dart';
 import 'package:farm_expense_mangement_app/screens/cattle/newcattle.dart';
-import '../home/localisations_en.dart';
-import '../home/localisations_hindi.dart';
 import 'package:provider/provider.dart';
-import '../home/localisations_punjabi.dart';
 import '../../../main.dart';
 import '../wrappers/wrapperhome.dart';
+import 'package:farm_expense_mangement_app/shared/constants.dart';
 
 class AnimalList1 extends StatefulWidget {
   const AnimalList1({super.key});
@@ -59,13 +57,7 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
         .of<AppData>(context)
         .persistentVariable;
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(

@@ -6,9 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../services/database/cattledatabase.dart';
 import '../../../main.dart';
-import '../home/localisations_en.dart';
-import '../home/localisations_hindi.dart';
-import '../home/localisations_punjabi.dart';
+import 'package:farm_expense_mangement_app/shared/constants.dart';
 
 class AddNewCattle extends StatefulWidget {
   const AddNewCattle({super.key});
@@ -129,13 +127,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
         .of<AppData>(context)
         .persistentVariable;
 
-    if (languageCode == 'en') {
-      currentLocalization = LocalizationEn.translations;
-    } else if (languageCode == 'hi') {
-      currentLocalization = LocalizationHi.translations;
-    } else if (languageCode == 'pa') {
-      currentLocalization = LocalizationPun.translations;
-    }
+    currentLocalization = langFileMap[languageCode]!;
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
       appBar: AppBar(

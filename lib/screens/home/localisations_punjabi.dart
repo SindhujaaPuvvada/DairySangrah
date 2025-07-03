@@ -138,25 +138,15 @@ class LocalizationPun {
     "new_cattle_added_successfully": "ਨਵੀਂ ਪਸ਼ੂ ਸਫਲਤਾਪੂਰਵਕ ਜੋੜਿਆ ਗਿਆ ਹੈ",
     'notifications': "ਸੂਚਨਾਵਾਂ",
     "provide nutritional feed with high protein and fibre content": "ਉੱਚ ਪ੍ਰੋਟੀਨ ਅਤੇ ਫਾਈਬਰ ਸਮੱਗਰੀ ਵਾਲਾ ਪੋਸ਼ਣ ਚਾਰਾ ਪ੍ਰਦਾਨ ਕਰੋ",
-    // Nutritional alert
     "is expected to go dry": "ਸੂਕਾ ਹੋਣ ਦੀ ਸੰਭਾਵਨਾ ਹੈ",
-    // Dry alert
     "Heat alert": "ਗਰਮੀ ਦੀ ਚੇਤਾਵਨੀ",
-    // Heat alert for cattle
     "is due for pregnancy test": "ਗਰਭਧਾਰਣ ਟੈਸਟ ਲਈ ਸਮਾਂ ਹੋ ਗਿਆ ਹੈ",
-    // Pregnancy Test alert
     "is due for calving": "ਬੱਛੇ ਦੇ ਜਨਮ ਦਾ ਸਮਾਂ ਹੋ ਗਿਆ ਹੈ",
-    // Calving alert
     "is ready for milking": "ਦੁੱਧ ਦੁਹਾਈ ਲਈ ਤਿਆਰ ਹੈ",
-    // Milking alert after calving
     "is due for Insemination": "ਕ੍ਰਿਤਰਿਮ ਗਰਭਧਾਰਣ ਲਈ ਸਮਾਂ ਹੋ ਗਿਆ ਹੈ",
-    // Artificial Insemination alert for Heifers
     "is due for deworming vaccination": "ਕੀੜੇ ਮਾਰ ਟੀਕੇ ਲਈ ਸਮਾਂ ਹੋ ਗਿਆ ਹੈ",
-    // Deworming vaccination alert
     "is due for brucellosis vaccination": "ਬਰੂਸੈਲੋਸਿਸ ਟੀਕੇ ਲਈ ਸਮਾਂ ਹੋ ਗਿਆ ਹੈ",
-    // Brucellosis vaccination alert
     "is due for modified theileriosis vaccination": "ਸੋਧਿਤ ਥਾਈਲਰੀਓਸਿਸ ਟੀਕੇ ਲਈ ਸਮਾਂ ਹੋ ਗਿਆ ਹੈ",
-    // Modified Theileriosis vaccination alert,
     "Dry Alert": "ਸੂਖਾ ਚੱਕਰ ਚੇਤਾਵਨੀ",
     "Heat Alert": "ਗਰਮੀ ਦੀ ਚੇਤਾਵਨੀ",
     "Pregnancy Test Alert": "ਗਰਭਧਾਰਣ ਟੈਸਟ ਚੇਤਾਵਨੀ",
@@ -174,9 +164,6 @@ class LocalizationPun {
     "unknown_item": "ਅਣਜਾਣ ਆਈਟਮ",
     "Rate": "ਦਰ",
     "Source": "ਸਰੋਤ",
-    //"green_fodder": "ਹਰਾ ਚਾਰਾ",
-    //"dry_fodder": "ਸੁੱਕਾ ਚਾਰਾ",
-    //"concentrate": "ਘਣੀ ਚਾਰਾ",
     "own farm": "ਖੁਦ ਦਾ ਫਾਰਮ",
     'Enter custom type': 'ਕਸਟਮ ਕਿਸਮ ਦਰਜ ਕਰੋ',
     'Quantity': 'ਮਾਤਰਾ',
@@ -219,7 +206,7 @@ class LocalizationPun {
     'Total Income': 'ਕੁੱਲ ਆਮਦਨ',
     "Search Cattle": "ਪਸ਼ੂ ਖੋਜੋ",
     "Dairy Sangrah Registration": "ਡੇਅਰੀ ਸੰਗ੍ਰਹਿ ਰਜਿਸਟ੍ਰੇਸ਼ਨ",
-    "Join an Existing Farm": "ਮੌਜੂਦਾ ਫਾਰਮ ਨਾਲ ਜੁੜੋ",
+    "Get into Existing Farm": "ਮੌਜੂਦਾ ਫਾਰਮ ਵਿੱਚ ਪ੍ਰਵੇਸ਼ ਕਰੋ",
     "Get started with your farm management journey": "ਆਪਣੀ ਫਾਰਮ ਪ੍ਰਬੰਧਨ ਯਾਤਰਾ ਦੀ ਸ਼ੁਰੂਆਤ ਕਰੋ",
     "Confirm": "ਪੁਸ਼ਟੀ ਕਰੋ",
     "Sign Up": "ਰਜਿਸਟਰ ਕਰੋ",
@@ -299,6 +286,7 @@ class LocalizationPun {
     "English": "ਅੰਗਰੇਜ਼ੀ",
     "Hindi": "ਹਿੰਦੀ",
     "Punjabi": "ਪੰਜਾਬੀ",
+    "Telugu": "ਤੈਲੁਗੂ",
     "Preferred Language": "ਪਸੰਦ ਦੀ ਭਾਸ਼ਾ",
   };
 }
