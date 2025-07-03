@@ -38,8 +38,8 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      myColor.withOpacity(0.3),
-                      myColor.withOpacity(0.1),
+                      myColor.withValues(alpha: 0.3),
+                      myColor.withValues(alpha: 0.1),
                     ],
                   ),
                 ),
@@ -80,7 +80,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
-    print(languageCode);
+    //print(languageCode);
     currentLocalization = langFileMap[languageCode]!;
     Color totalCowsColor = const Color.fromRGBO(224, 191, 184, 1.0); // Green color
     Color milkingCowsColor = const Color.fromRGBO(252, 222, 172, 1.0); // Red color
@@ -204,7 +204,7 @@ class _HomePageState extends State<HomePage> {
           ),
           boxShadow: [
             BoxShadow(
-              color: containerColor.withOpacity(0.5),
+              color: containerColor.withValues(alpha: 0.5),
               spreadRadius: 4,
               blurRadius: 4,
               offset: const Offset(0, 3),
