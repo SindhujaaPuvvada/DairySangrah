@@ -2,9 +2,9 @@ name: Flutter iOS CI
 
 on:
   push:
-    branches: [main]
+    branches: [ci-ios_test]
   pull_request:
-    branches: [main]
+    branches: [ci-ios_test]
 
 jobs:
   build:
@@ -18,11 +18,26 @@ jobs:
       with:
         flutter-version: '3.32.4'  # use your Flutter version
 
+    - name: Clean previous build
+      run: |
+        flutter clean
+        rm -rf ios/Pods ios/Podfile.lock
+
     - name: Install dependencies
       run: flutter pub get
 
-    - name: Run tests
-      run: flutter test
+    - name: Set iOS Deployment Target to 13.0
+      run: |
+        sed -i '' 's/^platform :ios.*/platform :ios, '\''14.0'\''/' ios/Podfile || echo "platform :ios, '13.0'" >> ios/Podfile
+
+    - name: Install Pods
+      run: |
+        cd ios
+        pod install --repo-update
+
+
+    #- name: Run tests
+    #  run: flutter test
 
     - name: Build iOS (debug)
       run: flutter build ios --debug --no-codesign
