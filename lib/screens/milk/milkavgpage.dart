@@ -1,3 +1,6 @@
+import 'package:farm_expense_mangement_app/models/cattlegroups.dart';
+import 'package:farm_expense_mangement_app/screens/milk/milkUtils.dart';
+import 'package:farm_expense_mangement_app/services/database/cattlegroupsdatabase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -199,25 +202,41 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
   final user = FirebaseAuth.instance.currentUser;
   final uid = FirebaseAuth.instance.currentUser!.uid;
   final formKey = GlobalKey<FormState>();
+  late String appMode;
 
   late DatabaseForMilk db;
   late DatabaseForMilkByDate dbByDate;
   late DatabaseServicesForCattle cattleDb;
+  late DatabaseServicesForCattleGroups cgrpDb;
 
-  List<Cattle> allCattle = [];
-  List<String> allRfid = [];
+  List<CattleGroup> milkedCattleGrps = [];
+  List<Cattle> milkedCattle = [];
+  Map<String, String> milkEntryOptsMap = {};
+  Map<String, String> milkedIdsMap ={};
+
 
   Future<void> _fetchCattle() async {
     final snapshot = await cattleDb.infoFromServerAllCattle(uid);
     setState(() {
-      allCattle =
+      var allCattle =
           snapshot.docs.map((doc) => Cattle.fromFireStore(doc, null)).toList();
-      var milkedRfid = allCattle.where((cattle) => cattle.state == 'Milked').toList();
-      allRfid = milkedRfid.map((cattle) => cattle.rfid).toList();
+      milkedCattle = allCattle.where((cattle) => cattle.state == 'Milked').toList();
+      //allMilkedRfIds = milkedRfid.map((cattle) => cattle.rfid).toList();
     });
   }
 
-  String? selectedRfid;
+  Future<void> _fetchCattleGroup() async {
+    final snapshot = await cgrpDb.infoFromServerAllCattleGrps(uid);
+    setState(() {
+      var allCattleGrps =
+          snapshot.docs.map((doc) => CattleGroup.fromFireStore(doc, null)).toList();
+      milkedCattleGrps = allCattleGrps.where((cattleGrp) => cattleGrp.state == 'Milked').toList();
+      //allMilkedGrpIds = milkedGrpId.map((cattleGrp) => cattleGrp.grpId).toList();
+    });
+  }
+
+  String selectedEntryType='whole farm';
+  String? selectedId;
   double? milkInMorning;
   double? milkInEvening;
   DateTime? milkingDate;
@@ -228,6 +247,8 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
     db = DatabaseForMilk(uid);
     dbByDate = DatabaseForMilkByDate(uid);
     cattleDb = DatabaseServicesForCattle(uid);
+    cgrpDb = DatabaseServicesForCattleGroups(uid);
+    _fetchCattleGroup();
     _fetchCattle();
   }
 
@@ -249,15 +270,39 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
 
   @override
   Widget build(BuildContext context) {
-    languageCode = Provider.of<AppData>(context).persistentVariable;
-
+    languageCode = Provider
+        .of<AppData>(context)
+        .persistentVariable;
     currentLocalization = langFileMap[languageCode]!;
+    appMode = Provider
+        .of<AppData>(context)
+        .appMode;
+
+    if (appMode == 'CGM') {
+      for (CattleGroup cgrp in milkedCattleGrps) {
+        milkedIdsMap[cgrp.grpId] = "${currentLocalization[cgrp.state] ??
+            cgrp.state}-${currentLocalization[cgrp.breed] ?? cgrp.breed}";
+      }
+      for (var entryType in milkEntryForCGM) {
+        milkEntryOptsMap[entryType] =
+            currentLocalization[entryType] ?? entryType;
+      }
+    }
+    else {
+      for (Cattle cattle in milkedCattle) {
+        milkedIdsMap[cattle.rfid] = cattle.rfid;
+      }
+      for (var entryType in milkEntryForCIM) {
+        milkEntryOptsMap[entryType] =
+            currentLocalization[entryType] ?? entryType;
+      }
+    }
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
       appBar: AppBar(
-        title:  Text(
-          currentLocalization['add_milk_data']??"",
+        title: Text(
+          currentLocalization['add_milk_data'] ?? "",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
@@ -277,36 +322,35 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                DropdownButtonFormField<String>(
-                  value: selectedRfid,
-                  decoration:  InputDecoration(
-                    labelText: currentLocalization['select_rfid']??"",
-                    labelStyle: const TextStyle(color: Colors.black),
-                    errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
-                    border: OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
-                    filled: true,
-                    fillColor: Color.fromRGBO(240, 255, 255, 0.7),
-                  ),
-                  items: allRfid.map((String rfid) {
-                    return DropdownMenuItem<String>(
-                      value: rfid,
-                      child: Text(rfid),
-                    );
-                  }).toList(),
+                const SizedBox(height: 10.0),
+                MilkUtils.buildDropdown(
+                  label: currentLocalization['milk_entry_type'] ?? "",
+                  value: selectedEntryType,
+                  items: milkEntryOptsMap,
+                  valMsg: "",
                   onChanged: (value) {
                     setState(() {
-                      selectedRfid = value;
+                      selectedEntryType = value!;
                     });
                   },
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return currentLocalization['please_select_rfid']??"";
-                    }
-                    return null;
-                  },
-                  dropdownColor: const Color.fromRGBO(240, 255, 255, 1),
                 ),
+                const SizedBox(height: 20.0),
+                (selectedEntryType != "whole farm") ?
+                MilkUtils.buildDropdown(
+                  label: (appMode == 'CGM')
+                      ? currentLocalization['select_grpid'] ?? ""
+                      : currentLocalization['select_rfid'] ?? "",
+                  value: selectedId,
+                  valMsg: (appMode == 'CGM')
+                      ? currentLocalization['please_select_grp_id'] ?? ""
+                      : currentLocalization['please_select_rfid'] ?? "",
+                  items: milkedIdsMap,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedId = value;
+                    });
+                  },
+                ) : Container(),
                 const SizedBox(height: 20.0),
                 _buildInputBox(
                   child: TextFormField(
@@ -316,37 +360,41 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return currentLocalization['please_enter_value']??"";
+                        return currentLocalization['please_enter_value'] ?? "";
                       }
                       return null;
                     },
                     decoration: InputDecoration(
-                      labelText: currentLocalization['morning_milk']??"",
+                      labelText: currentLocalization['morning_milk'] ?? "",
                       labelStyle: const TextStyle(color: Colors.black),
                       border: InputBorder.none,
                     ),
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[0-9.]"))],
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r"[0-9.]"))
+                    ],
                   ),
                 ),
                 const SizedBox(height: 20.0),
                 _buildInputBox(
                   child: TextFormField(
                     onChanged: (value) {
-                      milkInEvening =  double.tryParse(value);
+                      milkInEvening = double.tryParse(value);
                     },
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return currentLocalization['please_enter_value']??"";
+                        return currentLocalization['please_enter_value'] ?? "";
                       }
                       return null;
                     },
-                    decoration:InputDecoration(
-                      labelText: currentLocalization['evening_milk']??"",
+                    decoration: InputDecoration(
+                      labelText: currentLocalization['evening_milk'] ?? "",
                       labelStyle: const TextStyle(color: Colors.black),
                       border: InputBorder.none,
                     ),
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[0-9.]"))],
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r"[0-9.]"))
+                    ],
                   ),
                 ),
                 const SizedBox(height: 20.0),
@@ -370,22 +418,25 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
                         readOnly: true,
                         controller: TextEditingController(
                           text: milkingDate != null
-                              ? '${milkingDate!.year}-${milkingDate!.month}-${milkingDate!.day}'
+                              ? '${milkingDate!.year}-${milkingDate!
+                              .month}-${milkingDate!.day}'
                               : '',
                         ),
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return currentLocalization['please_choose_date']??"";
+                            return currentLocalization['please_choose_date'] ??
+                                "";
                           } else {
                             return null;
                           }
                         },
-                        decoration:  InputDecoration(
-                          labelText: currentLocalization['milking_date']??"",
-                          labelStyle: const TextStyle(color: Colors.black),
-                          suffixIcon: Icon(Icons.calendar_today),
-                          border: InputBorder.none
+                        decoration: InputDecoration(
+                            labelText: currentLocalization['milking_date'] ??
+                                "",
+                            labelStyle: const TextStyle(color: Colors.black),
+                            suffixIcon: Icon(Icons.calendar_today),
+                            border: InputBorder.none
                         ),
                       ),
                     ),
@@ -399,8 +450,15 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
                     ),
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
+                        String idVal;
+                        if(selectedEntryType == 'whole farm'){
+                          idVal = "WholeFarm";
+                        }
+                        else{
+                          idVal = (appMode == 'CGM') ? "GPID${selectedId!}" : "RFID${selectedId!}";
+                        }
                         final Milk newMilkData = Milk(
-                          rfid: selectedRfid!,
+                          id: idVal,
                           morning: milkInMorning!.toPrecision(2),
                           evening: milkInEvening!.toPrecision(2),
                           dateOfMilk: milkingDate,
@@ -416,10 +474,10 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
                         //Navigator.pop(context);
                       }
                     },
-                    child:  Padding(
+                    child: Padding(
                       padding: EdgeInsets.all(4.0),
                       child: Text(
-                          currentLocalization['add']??"",
+                          currentLocalization['add'] ?? "",
                           style: TextStyle(
                               fontSize: 15,
                               color: Colors.black,

@@ -12,13 +12,15 @@ class FarmUser {
   final String location;
   final int phoneNo;
   final String chosenLanguage;
+  String appMode;
 
   FarmUser(
       {required this.ownerName,
       required this.farmName,
       required this.location,
       required this.phoneNo,
-      required this.chosenLanguage,});
+      required this.chosenLanguage,
+      this.appMode = 'CGM',});
 
   factory FarmUser.fromFireStore(
       DocumentSnapshot<Map<String, dynamic>> snapshot,
@@ -29,7 +31,9 @@ class FarmUser {
         farmName: data?['farmName'],
         location: data?['location'],
         phoneNo: data?['phoneNo'],
-        chosenLanguage: data?['chosenLanguage']??'en');
+        chosenLanguage: data?['chosenLanguage']??'en',
+        appMode: data?['appMode']??'CGM',
+    );
   }
 
   Map<String, dynamic> toFireStore() {
@@ -39,6 +43,7 @@ class FarmUser {
       'location': location,
       'phoneNo': phoneNo,
       'chosenLanguage': chosenLanguage,
+      'appMode': appMode,
     };
   }
 }

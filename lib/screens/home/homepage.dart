@@ -1,9 +1,10 @@
 import 'package:farm_expense_mangement_app/screens/feed/feedpage.dart';
-import 'package:farm_expense_mangement_app/screens/cattle/animallist.dart';
+import 'package:farm_expense_mangement_app/screens/cattle/animallist1.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
+import '../cattle/grouplist.dart';
 import '../milk/milkavgpage.dart';
 import '../transaction/transactionpage.dart';
 
@@ -80,8 +81,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
-    //print(languageCode);
     currentLocalization = langFileMap[languageCode]!;
+    String appMode = Provider.of<AppData>(context).appMode;
     Color totalCowsColor = const Color.fromRGBO(224, 191, 184, 1.0); // Green color
     Color milkingCowsColor = const Color.fromRGBO(252, 222, 172, 1.0); // Red color
     Color dryCowsColor = const Color.fromRGBO(88, 148, 120, 1.0); // Blue color
@@ -117,7 +118,15 @@ class _HomePageState extends State<HomePage> {
                           () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const AnimalList1()),
+                            builder: (context) {
+                              if(appMode == 'CGM') {
+                                return const GroupList();
+                              }
+                              else
+                                {
+                                  return const AnimalList1();
+                                }
+                              })
                       ),
                     ),
                   ),

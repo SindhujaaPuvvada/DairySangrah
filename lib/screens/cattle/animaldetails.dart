@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:farm_expense_mangement_app/screens/cattle/animallist.dart';
+import 'package:farm_expense_mangement_app/screens/cattle/animallist1.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -673,16 +673,17 @@ class _EditAnimalDetailState extends State<EditAnimalDetail>{
 late Map<String, String> currentLocalization= {};
 late String languageCode = 'en';
   final _formKey = GlobalKey<FormState>();
-  // final TextEditingController _rfidTextController = TextEditingController();
+  final TextEditingController _nameTextController = TextEditingController();
   final TextEditingController _weightTextController = TextEditingController();
-  final TextEditingController _breedTextController = TextEditingController();
+  //final TextEditingController _breedTextController = TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
 
   // final TextEditingController _tagNumberController3 = TextEditingController();
 
   String? _selectedGender; // Variable to store selected gender
   String? _selectedSource;
-  String? _selectedStage;
+  String? _selectedBreed;
+  //String? _selectedStage;
   DateTime? _birthDate;
 
   // Variable to store selected gender
@@ -706,29 +707,26 @@ late String languageCode = 'en';
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     cattleDb = DatabaseServicesForCattle(uid);
-    _breedTextController.text = widget.cattle.breed;
+    _selectedBreed = widget.cattle.breed;
     _weightTextController.text = widget.cattle.weight.toString();
     _selectedSource = widget.cattle.source;
-    _selectedStage = widget.cattle.state;
+    //_selectedStage = widget.cattle.state;
     _selectedGender = widget.cattle.sex;
     _birthDateController.text =
-    '${widget.cattle.dateOfBirth.year}-${widget.cattle.dateOfBirth
-        .month}-${widget.cattle.dateOfBirth
-        .day}';
+    '${widget.cattle.dateOfBirth?.year}-${widget.cattle.dateOfBirth?.month}-${widget.cattle.dateOfBirth?.day}';
   }
 
   void updateCattleButton(BuildContext context) {
     final cattle = Cattle(
         rfid: widget.cattle.rfid,
-        //age: int.parse(_ageTextController.text),
-        breed: _breedTextController.text,
+        nickname: _nameTextController.text,
+        breed: _selectedBreed.toString(),
         sex: _selectedGender.toString(),
         weight: int.parse(_weightTextController.text),
-        state: _selectedStage.toString(),
+        state: widget.cattle.state,
         source: _selectedSource.toString(),
         type: widget.cattle.type,
         isPregnant: widget.cattle.isPregnant,
@@ -736,7 +734,7 @@ late String languageCode = 'en';
     );
 
     cattleDb.infoToServerSingleCattle(cattle);
-    if(cattle.state == "Calf" && cattle.sex == "Female" && cattle.state != widget.cattle.state) {
+    if(cattle.state == "Calf" && cattle.sex == "Female" && cattle.dateOfBirth != null && widget.cattle.dateOfBirth == null) {
       AlertNotifications alert = AlertNotifications();
       alert.createCalfNotifications(cattle);
     }
@@ -760,7 +758,9 @@ late String languageCode = 'en';
 
     currentLocalization = langFileMap[languageCode]!;
 
-    return Scaffold(
+    var breedList = (widget.cattle.type == 'Cow') ? cowBreed : buffaloBreed;
+
+     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1.0),
       appBar: AppBar(
         title: Text(
@@ -900,24 +900,34 @@ late String languageCode = 'en';
               // SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 26),
-                child: TextFormField(
-                  controller: _breedTextController,
+                child: DropdownButtonFormField<String>(
+                  value: _selectedBreed,
                   decoration: InputDecoration(
-                    labelText: currentLocalization['enter_the_breed'],
+                    labelText: currentLocalization['select_the_breed']??""'*',
                     border: OutlineInputBorder(),
                     filled: true,
                     fillColor: Color.fromRGBO(240, 255, 255, 0.7),
                   ),
+                  items: breedList.map((String breed) {
+                    return DropdownMenuItem<String>(
+                      value: breed,
+                      child: Text(currentLocalization[breed]??'breed'),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedBreed = value;
+                    });
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return currentLocalization['please_enter_breed']??'';
+                      return currentLocalization['please_select_breed'];
                     }
                     return null;
                   },
                 ),
               ),
-
-              Padding(
+              /*Padding(
                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 26),
                 child: DropdownButtonFormField<String>(
                   value: _selectedStage,
@@ -939,7 +949,7 @@ late String languageCode = 'en';
                     });
                   },
                 ),
-              ),
+              ),*/
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
                 child: Center(

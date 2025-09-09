@@ -7,6 +7,8 @@ import '../../logging.dart';
 import '../../main.dart';
 import '../../services/database/userdatabase.dart';
 import '../../shared/constants.dart';
+import '../onboarding/onboard.dart';
+import '../onboarding/onboardUtils.dart';
 import '../wrappers/wrapperhome.dart';
 
 class RegisterFarm extends StatefulWidget{
@@ -109,11 +111,17 @@ class _RegisterFarmState extends State<RegisterFarm> {
                                     await DatabaseServicesForUser(user!.uid)
                                         .infoToServer(user!.uid, farmUser);
 
+                                    bool showOnboarding = await checkForFirstLaunch();
+
                                     Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
                                             builder: (
-                                                context) => const WrapperHomePage()));
+                                                context){
+                                              return showOnboarding
+                                                  ? OnBoardingScreens()
+                                                  : const WrapperHomePage();
+                                            }));
                                   } catch (error) {
                                     log.e('Encountered error',time:DateTime.now(), error: error.toString());
                                   }
@@ -131,5 +139,10 @@ class _RegisterFarmState extends State<RegisterFarm> {
           )
     ),
     );
+  }
+
+  Future<bool> checkForFirstLaunch() async {
+    bool showOnBoard = await OnboardUtils.checkFirstLaunch();
+    return showOnBoard;
   }
 }

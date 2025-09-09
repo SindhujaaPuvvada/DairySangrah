@@ -137,36 +137,38 @@ class AlertNotifications {
     Map<String, String> altTitle = AlertsConstants.alertTitle;
     Map<String, String> altDesc = AlertsConstants.alertDesc;
     DateTime nDate;
-    int age = DateTime
-        .now()
-        .difference(cattle.dateOfBirth)
-        .inDays;
+    if(cattle.dateOfBirth != null) {
+      int age = DateTime
+          .now()
+          .difference(cattle.dateOfBirth!)
+          .inDays;
 
-    // Creating DWV if age is less than 180 days
-    if (age <= 180) {
-      nDate = cattle.dateOfBirth.add(const Duration(days: 90));
-      _createNTF(cattle, altTitle['DWV']!, altDesc['DWV']!, nDate);
-    }
+      // Creating DWV if age is less than 180 days
+      if (age <= 180) {
+        nDate = cattle.dateOfBirth!.add(const Duration(days: 90));
+        _createNTF(cattle, altTitle['DWV']!, altDesc['DWV']!, nDate);
+      }
 
-    // Creating BRV if age is less than 365 days
-    if(age <= 365) {
-      nDate = cattle.dateOfBirth.add(const Duration(days: 240));
-      _createNTF(cattle, altTitle['BRV']!, altDesc['BRV']!, nDate);
-    }
+      // Creating BRV if age is less than 365 days
+      if (age <= 365) {
+        nDate = cattle.dateOfBirth!.add(const Duration(days: 240));
+        _createNTF(cattle, altTitle['BRV']!, altDesc['BRV']!, nDate);
+      }
 
-    //creating AI notification when it is ready to be a Heifer
-    switch(cattle.type) {
-      case 'Cow':
-      // 13 months
-        nDate = cattle.dateOfBirth.add(const Duration(days: 390));
-        _createNTF(cattle, altTitle['AIA']!, altDesc['AIA']!, nDate);
-        break;
-      case 'Buffalo':
-      //28 months
-        nDate = cattle.dateOfBirth.add(const Duration(days: 840));
-        _createNTF(cattle, altTitle['AIA']!, altDesc['AIA']!, nDate);
+      //creating AI notification when it is ready to be a Heifer
+      switch (cattle.type) {
+        case 'Cow':
+        // 13 months
+          nDate = cattle.dateOfBirth!.add(const Duration(days: 390));
+          _createNTF(cattle, altTitle['AIA']!, altDesc['AIA']!, nDate);
+          break;
+        case 'Buffalo':
+        //28 months
+          nDate = cattle.dateOfBirth!.add(const Duration(days: 840));
+          _createNTF(cattle, altTitle['AIA']!, altDesc['AIA']!, nDate);
 
-        break;
+          break;
+      }
     }
   }
 

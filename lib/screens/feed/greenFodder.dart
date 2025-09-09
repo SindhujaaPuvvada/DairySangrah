@@ -107,7 +107,7 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
             children: [
               const SizedBox(height: 20),
 
-              feedUtils.buildDropdown(
+              FeedUtils.buildDropdown(
                 label: currentLocalization['Type'] ?? "Type",
                 value: _selectedType,
                 items: typeMap,
@@ -126,12 +126,12 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
               (_isCustomType)?
                   Column(
                     children: [
-                feedUtils.buildTextField(_customTypeController, currentLocalization['Enter custom type']??""),
+                FeedUtils.buildTextField(_customTypeController, currentLocalization['Enter custom type']??""),
                 const SizedBox(height: 20),
                 ])
                 : Column(),
 
-              feedUtils.buildDropdown(
+              FeedUtils.buildDropdown(
                 label: currentLocalization['Source'] ?? "Source",
                 value: _selectedSource,
                 items: sourceMap,
@@ -147,12 +147,12 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
                 children: [
                   Expanded(
                     flex: 2,
-                    child: feedUtils.buildTextField(_quantityController, currentLocalization['Quantity/Yield']??""),
+                    child: FeedUtils.buildTextField(_quantityController, currentLocalization['Quantity/Yield']??""),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     flex: 1,
-                    child: feedUtils.buildDropdown(
+                    child: FeedUtils.buildDropdown(
                         label: currentLocalization['Unit']??"",
                         value: _selectedUnit,
                         items: unitMap,
@@ -177,32 +177,32 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
                     child:
               Column(
                   children: [
-                    feedUtils.buildTextField(_rateController, currentLocalization['Rate per Unit']??""),
+                    FeedUtils.buildTextField(_rateController, currentLocalization['Rate per Unit']??""),
                     const SizedBox(height: 20),
-                    feedUtils.buildTextField(_priceController, currentLocalization['Total Price']??""),
+                    FeedUtils.buildTextField(_priceController, currentLocalization['Total Price']??""),
                   ])
                   )
                   :
               Container(
                 child: Column(
                   children: [
-                    feedUtils.buildTextField(_areaController, currentLocalization['Land Area(in acres)']??""),
+                    FeedUtils.buildTextField(_areaController, currentLocalization['Land Area(in acres)']??""),
                     const SizedBox(height: 20),
-                    feedUtils.buildTextField(_seedCostController, currentLocalization['Seed Cost']??""),
+                    FeedUtils.buildTextField(_seedCostController, currentLocalization['Seed Cost']??""),
                     const SizedBox(height: 20),
-                    feedUtils.buildTextField(
+                    FeedUtils.buildTextField(
                         _fertilizerCostController, currentLocalization['Fertilizers Cost']??""),
                     const SizedBox(height: 20),
-                    feedUtils.buildTextField(
+                    FeedUtils.buildTextField(
                         _inoculantsCostController, currentLocalization['Inoculants Cost']??""),
                     const SizedBox(height: 20),
-                    feedUtils.buildTextField(_laborCostController, currentLocalization['Labor Cost']??""),
+                    FeedUtils.buildTextField(_laborCostController, currentLocalization['Labor Cost']??""),
                     const SizedBox(height: 20),
-                    feedUtils.buildTextField(_dieselCostController, currentLocalization['Diesel Cost']??""),
+                    FeedUtils.buildTextField(_dieselCostController, currentLocalization['Diesel Cost']??""),
                     const SizedBox(height: 20),
-                    feedUtils.buildTextField(_priceController, currentLocalization['Total Production Cost']??"", true),
+                    FeedUtils.buildTextField(_priceController, currentLocalization['Total Production Cost']??"", true),
                     const SizedBox(height: 20),
-                    feedUtils.buildTextField(_rateController, currentLocalization['Rate per Unit']??"", true),
+                    FeedUtils.buildTextField(_rateController, currentLocalization['Rate per Unit']??"", true),
                 ]
                   ),
               ),
@@ -213,9 +213,9 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    feedUtils.buildElevatedButton(currentLocalization['Calculate']??"",
+                    FeedUtils.buildElevatedButton(currentLocalization['Calculate']??"",
                         onPressed:() => _calculatePrice()),
-                    feedUtils.buildElevatedButton(currentLocalization['Save']??"",
+                    FeedUtils.buildElevatedButton(currentLocalization['Save']??"",
                         onPressed:() => _submitData()),
                   ],
                 ),
@@ -256,7 +256,7 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
       feedDate: DateTime.now(),
     );
 
-    await feedUtils.saveFeedDetails(feed);
+    await FeedUtils.saveFeedDetails(feed);
 
      Navigator.push(
         context,
@@ -271,7 +271,7 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
 
     setState(() {
       if (_selectedSource == 'Purchased') {
-        var lt = feedUtils.calRateOrPrice(price, rate, quantity);
+        var lt = FeedUtils.calRateOrPrice(price, rate, quantity);
         price = lt[0];
         rate = lt[1];
       }

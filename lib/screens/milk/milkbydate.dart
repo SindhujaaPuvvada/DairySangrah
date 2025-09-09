@@ -60,7 +60,7 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
         _filteredMilk = _allMilkInDate;
       } else {
         _filteredMilk =
-            _allMilkInDate.where((milk) => milk.rfid.contains(query)).toList();
+            _allMilkInDate.where((milk) => milk.id.contains(query)).toList();
       }
     });
   }
@@ -222,7 +222,7 @@ class MilkSearchDelegate extends SearchDelegate<String> {
   Widget _buildSearchResults() {
     final List<Milk> searchResults = query.isEmpty
         ? allMilk
-        : allMilk.where((milk) => milk.rfid.contains(query)).toList();
+        : allMilk.where((milk) => milk.id.contains(query)).toList();
 
     return Container(
       color: const Color.fromRGBO(
@@ -285,10 +285,10 @@ class _MilkDataRowState extends State<MilkDataRow> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  "${currentLocalization["RF ID"]??""}: ${widget.data.rfid}",
+                  "${currentLocalization["ID"]??""}: ${widget.data.id}",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 14,
                   ),
                 ),
                 // const SizedBox(height: 5),
@@ -464,7 +464,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "${currentLocalization['RF ID']} : ${widget.data.rfid}",
+                    "${currentLocalization['RF ID']} : ${widget.data.id}",
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.bold),
                   ),
@@ -506,7 +506,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
                   onPressed: () {
                     if (milkInMorning != null && milkInEvening != null) {
                       Milk newMilkData = Milk(
-                        rfid: widget.data.rfid,
+                        id: widget.data.id,
                         morning: milkInMorning!.toPrecision(2),
                         evening: milkInEvening!.toPrecision(2),
                         dateOfMilk: widget.data.dateOfMilk,

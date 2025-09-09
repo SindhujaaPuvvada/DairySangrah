@@ -10,6 +10,9 @@ import 'package:farm_expense_mangement_app/screens/authenticate/phoneno.dart';
 import '../../logging.dart';
 import '../../main.dart';
 import 'package:provider/provider.dart';
+
+import '../onboarding/onboard.dart';
+import '../onboarding/onboardUtils.dart';
 class OtpVerificationPage extends StatefulWidget {
   const OtpVerificationPage({super.key});
 
@@ -158,9 +161,16 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     else {
                       if (snapshot.exists) {
                         //print("in wrapper block");
-                        Navigator.pushReplacement(
-                            context, MaterialPageRoute(
-                            builder: (context) => const WrapperHomePage()));
+                        checkForFirstLaunch().then((bool value) {
+                          bool showOnboarding = value;
+                          Navigator.pushReplacement(
+                              context, MaterialPageRoute(
+                              builder: (BuildContext context) {
+                                return showOnboarding
+                                    ? OnBoardingScreens()
+                                    : const WrapperHomePage();
+                              }));
+                        });
                       }
                       else {
                         showDialog(context: context,
@@ -295,5 +305,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         },
       ),
     );
+  }
+
+  Future<bool> checkForFirstLaunch() async {
+    bool showOnBoard = await OnboardUtils.checkFirstLaunch();
+    return showOnBoard;
   }
 }

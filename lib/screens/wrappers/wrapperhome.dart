@@ -82,16 +82,17 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
     _streamControllerScreen.add(_screenFromNumber);
     _appBar = const HomeAppBar();
     _bodyScreen = const HomePage();
-    _setLanguage();
+    _LoadData();
   }
 
-  Future<void> _setLanguage() async {
+  Future<void> _LoadData() async {
     String uid = FirebaseAuth.instance.currentUser!.uid;
     DatabaseServicesForUser userDB = DatabaseServicesForUser(uid);
     var snapshot =  await userDB.infoFromServer(uid);
     if(snapshot.exists){
       FarmUser farmUser = FarmUser.fromFireStore(snapshot, null);
       Provider.of<AppData>(context, listen: false).persistentVariable = farmUser.chosenLanguage;
+      Provider.of<AppData>(context, listen: false).appMode = farmUser.appMode;
     }
   }
 

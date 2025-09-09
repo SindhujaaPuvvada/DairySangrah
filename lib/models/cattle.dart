@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Cattle {
   final String rfid;
+  String? nickname;
   final String sex;
   //final int age;
   final String breed;
@@ -12,9 +13,10 @@ class Cattle {
   final String source;
   final String type;
   bool isPregnant;
-  final DateTime dateOfBirth;
+  DateTime? dateOfBirth;
 
   Cattle({required this.rfid,
+    this.nickname,
     required this.sex,
     required this.breed,
     this.weight = 0,
@@ -22,7 +24,7 @@ class Cattle {
     this.source = 'Born on Farm',
     required this.type,
     this.isPregnant = false,
-    required this.dateOfBirth
+    this.dateOfBirth
   });
 
   factory Cattle.fromFireStore(DocumentSnapshot<Map<String, dynamic>> snapshot,
@@ -30,8 +32,8 @@ class Cattle {
     final data = snapshot.data();
     return Cattle(
         rfid: data?['rfid'],
+        nickname: data?['nickname'],
         sex: data?['sex'],
-        //age: data?['age'],
         breed: data?['breed'],
         weight: data?['weight'],
         state: data?['state'],
@@ -45,8 +47,8 @@ class Cattle {
   Map<String, dynamic> toFireStore() {
     return {
       'rfid': rfid,
+      'nickname': nickname,
       'sex': sex,
-      //'age': age,
       'breed': breed,
       'weight': weight,
       'state': state,

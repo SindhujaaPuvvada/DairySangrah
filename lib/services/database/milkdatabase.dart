@@ -27,7 +27,7 @@ class DatabaseForMilk {
         .doc(
             'D${milk.dateOfMilk?.day}M${milk.dateOfMilk?.month}Y${milk.dateOfMilk?.year}')
         .collection('Store')
-        .doc(milk.rfid)
+        .doc(milk.id)
         .set(milk.toFireStore());
   }
 

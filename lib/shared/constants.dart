@@ -28,9 +28,14 @@ const textInputDecorationReg = InputDecoration(
   ),
 );
 
-const fdCategoryId = ['GreenFodder','DryFodder','Concentrate'];
+const fdCategoryId = ['GreenFodder', 'DryFodder', 'Concentrate'];
 
-const langCodeMap = {'en': 'English','hi': 'Hindi', 'pa': 'Punjabi','te': 'Telugu'};
+const langCodeMap = {
+  'en': 'English',
+  'hi': 'Hindi',
+  'pa': 'Punjabi',
+  'te': 'Telugu'
+};
 
 const langFileMap = {
   'en': LocalizationEn.translations,
@@ -38,3 +43,43 @@ const langFileMap = {
   'pa': LocalizationPun.translations,
   'te': LocalizationTe.translations
 };
+
+const cowBreed = [
+  'None',
+  'jersey',
+  'holstein',
+  'crossbred jersey',
+  'crossbred HF',
+  'sahiwal',
+  'amritmahal',
+  'hariana',
+  'ongole',
+  'tharparkar',
+  'red sindhi',
+  'red kandhari',
+  'rathi',
+  'kankrej',
+  'krishna valley',
+  'nagori',
+  'gir',
+];
+
+const buffaloBreed = [
+  'None',
+  'murrah',
+  'nili ravi',
+  'bhadawari',
+  'surti',
+  'jaffarabadi',
+  'mehsana',
+  'pandharpuri',
+  'banni',
+];
+
+const appModes = [
+  'CGM', //Group mode
+  'CIM'  //Individual mode
+];
+
+const milkEntryForCGM = ['whole farm', 'group wise'];
+const milkEntryForCIM = ['whole farm', 'cattle wise'];

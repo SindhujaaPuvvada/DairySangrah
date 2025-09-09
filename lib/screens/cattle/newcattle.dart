@@ -1,5 +1,5 @@
 import 'package:farm_expense_mangement_app/models/cattle.dart';
-import 'package:farm_expense_mangement_app/screens/cattle/animallist.dart';
+import 'package:farm_expense_mangement_app/screens/cattle/animallist1.dart';
 import 'package:farm_expense_mangement_app/screens/notification/alertnotifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -22,13 +22,13 @@ class _AddNewCattleState extends State<AddNewCattle> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _rfidTextController = TextEditingController();
   final TextEditingController _weightTextController = TextEditingController();
-  final TextEditingController _breedTextController = TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
 
   // final TextEditingController _tagNumberController3 = TextEditingController();
 
   String? _selectedGender; // Variable to store selected gender
   String? _selectedSource;
+  String? _selectedBreed;
   String? _selectedState;
   String? _selectedType;
   String? _selectedIsPregnant;
@@ -52,6 +52,12 @@ class _AddNewCattleState extends State<AddNewCattle> {
     'Dry',
   ];
 
+  final List<String> stateOptionsMale = [
+    'Calf',
+    'Male',
+  ];
+
+  late List<String> stateOptionsHolder;
   final user = FirebaseAuth.instance.currentUser;
   final uid = FirebaseAuth.instance.currentUser!.uid;
 
@@ -60,7 +66,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
   void addNewCattleButton(BuildContext context) async {
     final cattle = Cattle(
         rfid: _rfidTextController.text,
-        breed: _breedTextController.text,
+        breed: _selectedBreed!,
         sex: _selectedGender != null ? _selectedGender! : '',
         weight: _weightTextController.text.isNotEmpty
             ? int.parse(_weightTextController.text)
@@ -84,7 +90,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
 
     // print(_selectedType);
     await cattleDb.infoToServerSingleCattle(cattle);
-    if (cattle.state == "Calf" && cattle.sex == "Female") {
+    if (cattle.state == "Calf" && cattle.sex == "Female" && cattle.dateOfBirth != null) {
       AlertNotifications alert = AlertNotifications();
       alert.createCalfNotifications(cattle);
     }
@@ -105,11 +111,12 @@ class _AddNewCattleState extends State<AddNewCattle> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     cattleDb = DatabaseServicesForCattle(uid);
-    setState(() {});
+    setState(() {
+      stateOptionsHolder = stateOptions;
+    });
   }
 
   @override
@@ -117,7 +124,6 @@ class _AddNewCattleState extends State<AddNewCattle> {
     _rfidTextController.dispose();
     _birthDateController.dispose();
     _weightTextController.dispose();
-    _breedTextController.dispose();
     super.dispose();
   }
 
@@ -191,6 +197,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
                   onChanged: (value) {
                     setState(() {
                       _selectedType = value;
+                      _selectedBreed=null;
                     });
                   },
                   validator: (value) {
@@ -222,6 +229,8 @@ class _AddNewCattleState extends State<AddNewCattle> {
                   onChanged: (value) {
                     setState(() {
                       _selectedGender = value;
+                      _selectedState=null;
+                      stateOptionsHolder = (_selectedGender == 'Female') ? stateOptions : stateOptionsMale;
                     });
                   },
                   validator: (value) {
@@ -322,25 +331,40 @@ class _AddNewCattleState extends State<AddNewCattle> {
               ),
               // SizedBox(height: 10),
               Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
-                child: TextFormField(
-                  controller: _breedTextController,
+                padding: const EdgeInsets.fromLTRB(5, 0, 5, 26),
+                child: DropdownButtonFormField<String>(
+                  value: _selectedBreed,
                   decoration: InputDecoration(
-                    labelText: '${currentLocalization['enter_the_breed'] ??
-                        ""}*',
+                    labelText: currentLocalization['select_the_breed']??""'*',
                     border: OutlineInputBorder(),
                     filled: true,
                     fillColor: Color.fromRGBO(240, 255, 255, 0.7),
                   ),
+                  items: (_selectedType == 'Cow') ? cowBreed.map((String breed) {
+                    return DropdownMenuItem<String>(
+                      value: breed,
+                      child: Text(currentLocalization[breed]??'breed'),
+                    );
+                  }).toList()
+                  :  buffaloBreed.map((String breed) {
+                    return DropdownMenuItem<String>(
+                      value: breed,
+                      child: Text(currentLocalization[breed]??'breed'),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedBreed = value;
+                    });
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return currentLocalization['please_enter_breed']??'';
+                      return currentLocalization['please_select_breed'];
                     }
                     return null;
                   },
                 ),
               ),
-
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
                 child: DropdownButtonFormField<String>(
@@ -351,7 +375,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
                     filled: true,
                     fillColor: Color.fromRGBO(240, 255, 255, 0.7),
                   ),
-                  items: stateOptions.map((String stage) {
+                  items: stateOptionsHolder.map((String stage) {
                     return DropdownMenuItem<String>(
                       value: stage,
                       child: Text(

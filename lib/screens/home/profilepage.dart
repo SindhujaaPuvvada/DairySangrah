@@ -88,7 +88,7 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                                         }
                                         final resp = await callDeleteFarmData();
                                         isDeleting = false;
-                                        print(resp);
+                                        log.i(resp, time: DateTime.now(),);
                                       }
                                       catch(error){
                                         log.e('Encountered error',
@@ -179,7 +179,7 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                   child: Text(currentLocalization['More Options']??''),
                 )
               ],
-              child: const Icon(Icons.settings,
+              child: const Icon(Icons.logout,
                 color: Colors.white,),
             )
           ],),
@@ -413,7 +413,35 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                               Expanded(
                                   child: Text(
-                                    currentLocalization[langCodeMap[farmUser.chosenLanguage??'en']!]!,
+                                    currentLocalization[langCodeMap[farmUser.chosenLanguage]]!,
+                                    style: const TextStyle(fontSize: 18),
+                                  )),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 25,
+                          ),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.star,
+                                color: Color.fromRGBO(13, 166, 186, 1),
+                              ),
+                              const SizedBox(
+                                width: 16,
+                              ),
+                              SizedBox(
+                                  width: 120,
+                                  child: Text(
+                                    currentLocalization["App Mode"]??'App Mode',
+                                    style: TextStyle(fontSize: 18),
+                                  )),
+                              const SizedBox(
+                                width: 40,
+                              ),
+                              Expanded(
+                                  child: Text(
+                                    currentLocalization[farmUser.appMode] ?? farmUser.appMode,
                                     style: const TextStyle(fontSize: 18),
                                   )),
                             ],
@@ -480,6 +508,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   final _controllerPhone = TextEditingController();
   final _controllerAddress = TextEditingController();
   late String _selectedLanguage;
+  late String _selectedAppMode;
 
   @override
   void initState() {
@@ -488,7 +517,8 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     _controllerOwnerName.text = widget.farmUser.ownerName;
     _controllerPhone.text = widget.farmUser.phoneNo.toString();
     _controllerAddress.text = widget.farmUser.location;
-    _selectedLanguage = widget.farmUser.chosenLanguage ?? 'en';
+    _selectedLanguage = widget.farmUser.chosenLanguage;
+    _selectedAppMode = widget.farmUser.appMode;
   }
 
   Future updateUser(FarmUser user) async {
@@ -584,6 +614,28 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                         onChanged: (val) => (_selectedLanguage = val!),
                       ),
                       const SizedBox(height: 25),
+                      DropdownButtonFormField<String>(
+                        value: _selectedAppMode,
+                        decoration: InputDecoration(
+                          labelText: currentLocalization["App Mode"] ?? 'App Mode',
+                          labelStyle: const TextStyle(
+                              color: Colors.black54, fontSize: 14.0),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 10.0, horizontal: 12.0),
+                        ),
+                        items: appModes.map((item) {
+                          return DropdownMenuItem<String>(
+                            value: item,
+                            child: Text(currentLocalization[item]??item),
+                          );
+                        }).toList(),
+                        onChanged: (val) => (_selectedAppMode = val!),
+                      ),
+
+                      const SizedBox(height: 25),
                       ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color.fromRGBO(
@@ -597,6 +649,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                               location: _controllerAddress.text,
                               phoneNo: int.parse(_controllerPhone.text),
                               chosenLanguage: _selectedLanguage,
+                              appMode: _selectedAppMode,
                             );
                             updateUser(farmUser);
                             Navigator.pop(context);

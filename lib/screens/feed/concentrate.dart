@@ -115,7 +115,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              feedUtils.buildDropdown(
+              FeedUtils.buildDropdown(
                 label: currentLocalization['Source'] ?? "Source",
                 value: _selectedType,
                 items: sourceMap,
@@ -136,7 +136,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
               ),
               const SizedBox(height: 20),
               if (_selectedType == 'Homemade') ...[
-                feedUtils.buildTextField(
+                FeedUtils.buildTextField(
                     _customHomemadeController,
                     currentLocalization['Enter Custom Homemade Type']??""),
                 const SizedBox(height: 20),
@@ -205,7 +205,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
                 ),
               ] else
                 if (_selectedType == 'Purchased') ...[
-                  feedUtils.buildTextField(
+                  FeedUtils.buildTextField(
                       _customPurchasedController,
                       currentLocalization['Enter Custom Purchased Type']??""),
                 ],
@@ -217,13 +217,13 @@ class _ConcentratePageState extends State<ConcentratePage> {
                 children: [
                   Expanded(
                     flex: 2,
-                    child: feedUtils.buildTextField(
+                    child: FeedUtils.buildTextField(
                         _quantityController, currentLocalization['Quantity']??""),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     flex: 1,
-                    child: feedUtils.buildDropdown(
+                    child: FeedUtils.buildDropdown(
                         label: currentLocalization['Unit']??"",
                         value:
                         _selectedUnit,
@@ -238,17 +238,17 @@ class _ConcentratePageState extends State<ConcentratePage> {
                 ],
               ),
               const SizedBox(height: 20),
-              feedUtils.buildTextField(_rateController, currentLocalization['Rate per Unit']??"", _selectedType == 'Homemade'? true: false),
+              FeedUtils.buildTextField(_rateController, currentLocalization['Rate per Unit']??"", _selectedType == 'Homemade'? true: false),
               const SizedBox(height: 20),
-              feedUtils.buildTextField(_priceController, currentLocalization['Total Price']??"", _selectedType == 'Homemade'? true: false),
+              FeedUtils.buildTextField(_priceController, currentLocalization['Total Price']??"", _selectedType == 'Homemade'? true: false),
               const SizedBox(height: 40),
               Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    feedUtils.buildElevatedButton(currentLocalization['Calculate']??"",
+                    FeedUtils.buildElevatedButton(currentLocalization['Calculate']??"",
                         onPressed: () => _calculatePrice()),
-                    feedUtils.buildElevatedButton(currentLocalization['Save']??"",
+                    FeedUtils.buildElevatedButton(currentLocalization['Save']??"",
                         onPressed: () => _submitData()),
                   ],
                 ),
@@ -292,7 +292,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
       feedDate: DateTime.now(),
     );
 
-    feedUtils.saveFeedDetails(feed);
+    FeedUtils.saveFeedDetails(feed);
 
     Navigator.push(
         context,
@@ -306,7 +306,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
 
     setState(() {
       if (_selectedType == 'Purchased') {
-        var lt = feedUtils.calRateOrPrice(price, rate, quantity);
+        var lt = FeedUtils.calRateOrPrice(price, rate, quantity);
         price = lt[0];
         rate = lt[1];
       }
@@ -316,7 +316,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
         for (String item in _selectedIngredients) {
           price = price + double.parse(_ingControllers[item]!.text);
         }
-        var lt = feedUtils.calRateOrPrice(price, rate, quantity);
+        var lt = FeedUtils.calRateOrPrice(price, rate, quantity);
         price = lt[0];
         rate = lt[1];
       }

@@ -4,9 +4,9 @@ class Milk {
   double morning;
   double evening;
   DateTime? dateOfMilk;
-  String rfid;
+  String id;
   Milk(
-      {required this.rfid,
+      {required this.id,
       this.morning = 0,
       this.evening = 0,
       required this.dateOfMilk});
@@ -19,7 +19,7 @@ class Milk {
         evening: data?['evening'],
         dateOfMilk:
             (data?['dateOfMilk'] != null) ? data!['dateOfMilk'].toDate() : null,
-        rfid: data?['rfid']);
+        id: data?['id']);
   }
 
   Map<String, dynamic> toFireStore() {
@@ -28,7 +28,7 @@ class Milk {
       'evening': evening,
       'dateOfMilk':
           (dateOfMilk != null) ? Timestamp.fromDate(dateOfMilk!) : null,
-      'rfid': rfid
+      'id': id
     };
   }
 }

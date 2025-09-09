@@ -89,7 +89,7 @@ class _DryFodderPageState extends State<DryFodderPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              feedUtils.buildDropdown(
+              FeedUtils.buildDropdown(
                 label: currentLocalization['Type'] ?? "Type",
                 value: _selectedType,
                 items: typeMap,
@@ -102,10 +102,10 @@ class _DryFodderPageState extends State<DryFodderPage> {
 
               if (_selectedType == 'Others') ...[
                 const SizedBox(height: 20),
-                feedUtils.buildTextField(_customTypeController, currentLocalization['Enter custom type']??""),
+                FeedUtils.buildTextField(_customTypeController, currentLocalization['Enter custom type']??""),
               ],
               const SizedBox(height: 20),
-              feedUtils.buildDropdown(
+              FeedUtils.buildDropdown(
                 label: currentLocalization['Source'] ?? "Source",
                 value: _selectedSource,
                 items: sourceMap,
@@ -120,13 +120,13 @@ class _DryFodderPageState extends State<DryFodderPage> {
                 children: [
                   Expanded(
                     flex: 2,
-                    child: feedUtils.buildTextField(
+                    child: FeedUtils.buildTextField(
                         _quantityController, currentLocalization['Quantity']??""),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     flex: 1,
-                    child: feedUtils.buildDropdown(
+                    child: FeedUtils.buildDropdown(
                         label: currentLocalization['Unit']??"",
                         value: _selectedUnit,
                         items: unitMap,
@@ -140,17 +140,17 @@ class _DryFodderPageState extends State<DryFodderPage> {
                 ],
               ),
               const SizedBox(height: 20),
-              feedUtils.buildTextField(_rateController, currentLocalization['Rate per Unit']??""),
+              FeedUtils.buildTextField(_rateController, currentLocalization['Rate per Unit']??""),
               const SizedBox(height: 20),
-              feedUtils.buildTextField(_priceController, currentLocalization['Total Price']??""),
+              FeedUtils.buildTextField(_priceController, currentLocalization['Total Price']??""),
               const SizedBox(height: 40),
               Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    feedUtils.buildElevatedButton(currentLocalization['Calculate']??"",
+                    FeedUtils.buildElevatedButton(currentLocalization['Calculate']??"",
                         onPressed: () => _calculatePrice()),
-                    feedUtils.buildElevatedButton(currentLocalization['Save']??"",
+                    FeedUtils.buildElevatedButton(currentLocalization['Save']??"",
                         onPressed: () => _submitData()),
                   ],
                 ),
@@ -193,7 +193,7 @@ class _DryFodderPageState extends State<DryFodderPage> {
       feedDate: DateTime.now(),
     );
 
-    feedUtils.saveFeedDetails(feed);
+    FeedUtils.saveFeedDetails(feed);
 
     Navigator.push(
         context,
@@ -205,7 +205,7 @@ class _DryFodderPageState extends State<DryFodderPage> {
     double rate = (_rateController.text.isNotEmpty) ? double.parse(_rateController.text):0.0;
     double price = (_priceController.text.isNotEmpty) ? double.parse(_priceController.text):0.0;
 
-    var lt = feedUtils.calRateOrPrice(price, rate, quantity);
+    var lt = FeedUtils.calRateOrPrice(price, rate, quantity);
 
     _priceController.text = (lt[0].toPrecision(2)).toString();
     _rateController.text = (lt[1].toPrecision(2)).toString();

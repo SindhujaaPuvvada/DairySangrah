@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../../models/feed.dart';
 import '../../services/database/feeddatabase.dart';
 
-class feedUtils{
+class FeedUtils{
   static Widget buildTextField(TextEditingController controller, String label, [bool? isReadOnly]) {
     return TextField(
       controller: controller,
