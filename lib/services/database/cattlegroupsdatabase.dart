@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/cattlegroups.dart';
 
 class DatabaseServicesForCattleGroups {
-
   final String uid;
 
   DatabaseServicesForCattleGroups(this.uid);
@@ -56,11 +55,8 @@ class DatabaseServicesForCattleGroups {
     final FirebaseFirestore db = FirebaseFirestore.instance;
 
     // Reference to the specific group document
-    final DocumentReference cattleGrpDocRef = db
-        .collection('User')
-        .doc(uid)
-        .collection('CattleGroups')
-        .doc(grpId);
+    final DocumentReference cattleGrpDocRef =
+        db.collection('User').doc(uid).collection('CattleGroups').doc(grpId);
 
     // Now delete the group document
     await cattleGrpDocRef.delete();
@@ -73,18 +69,20 @@ class DatabaseServicesForCattleGroups {
         .collection('User')
         .doc(uid)
         .collection('CattleGroups')
-        .orderBy("grpId", descending: true).limit(1).get();
+        .orderBy("grpId", descending: true)
+        .limit(1)
+        .get();
 
     if (cattleGrpDoc.docs.isNotEmpty) {
       var cattleGrp = CattleGroup.fromFireStore(cattleGrpDoc.docs[0], null);
       return cattleGrp.grpId;
-    }
-    else {
+    } else {
       return '0';
     }
   }
 
-  Future<bool> grpCriteriaExists(String cattleType, String breed, String status) async {
+  Future<bool> grpCriteriaExists(
+      String cattleType, String? breed, String status) async {
     final FirebaseFirestore db = FirebaseFirestore.instance;
 
     final QuerySnapshot<Map<String, dynamic>> cattleGrpDoc = await db
@@ -99,8 +97,7 @@ class DatabaseServicesForCattleGroups {
 
     if (cattleGrpDoc.docs.isNotEmpty) {
       return true;
-    }
-    else {
+    } else {
       return false;
     }
   }

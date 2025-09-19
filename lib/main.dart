@@ -12,28 +12,25 @@ import 'package:farm_expense_mangement_app/screens/authenticate/language.dart';
 import 'package:upgrader/upgrader.dart';
 import 'logging.dart';
 
-
-final navigatorKey=GlobalKey<NavigatorState>();
-
+final navigatorKey = GlobalKey<NavigatorState>();
 
 class AppData with ChangeNotifier {
   static String _persistentVariable = "en";
-  static String _appMode = 'CGM';
+  //static String _appMode = 'CGM';
 
   String get persistentVariable => _persistentVariable;
-  String get appMode => _appMode;
+  //String get appMode => _appMode;
 
   set persistentVariable(String value) {
     _persistentVariable = value;
     notifyListeners(); // Notify listeners of the change
   }
 
-  set appMode(String value) {
+  /*set appMode(String value) {
     _appMode = value;
     notifyListeners(); // Notify listeners of the change
-  }
+  }*/
 }
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,19 +38,16 @@ void main() async {
   await FirebaseApi().initNotifications();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => AppData(),
-      child:  MyApp(),
-    )
-  );
+  runApp(ChangeNotifierProvider(
+    create: (context) => AppData(),
+    child: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
 
   final log = logger(MyApp);
-
 
   @override
   Widget build(BuildContext context) {
@@ -77,28 +71,28 @@ class MyApp extends StatelessWidget {
                 if (user == null) {
                   return SignUpPage();
                   //Authenticate();
-
                 } else {
                   log.i('Already logged in!!!');
-                  return FutureBuilder(future: checkForFirstLaunch(),
+                  return FutureBuilder(
+                      future: checkForFirstLaunch(),
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           bool showOnboarding = snapshot.data!;
-                          return showOnboarding ? OnBoardingScreens() : const WrapperHomePage();
-                        }
-                        else{
+                          return showOnboarding
+                              ? OnBoardingScreens()
+                              : const WrapperHomePage();
+                        } else {
                           return CircularProgressIndicator();
                         }
                       });
                 }
-              }
-          )
-      ),
+              })),
     );
   }
 
   Future<bool> checkForFirstLaunch() async {
-    bool showOnBoard = await OnboardUtils.checkFirstLaunch();
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    bool showOnBoard = await OnboardUtils.checkFirstLaunch(uid);
     return showOnBoard;
   }
 }

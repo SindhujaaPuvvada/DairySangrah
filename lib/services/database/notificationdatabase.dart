@@ -28,7 +28,8 @@ class DatabaseServicesForNotification {
         .get();
   }
 
-  Future<QuerySnapshot<Map<String, dynamic>>> infoFromServerAllNotifications() async {
+  Future<QuerySnapshot<Map<String, dynamic>>>
+      infoFromServerAllNotifications() async {
     FirebaseFirestore db = FirebaseFirestore.instance;
     return await db
         .collection('User')
@@ -45,7 +46,7 @@ class DatabaseServicesForNotification {
         .collection('User')
         .doc(uid)
         .collection('Notification')
-        .where('ntDetails', isGreaterThanOrEqualTo:  phrase)
+        .where('ntDetails', isGreaterThanOrEqualTo: phrase)
         .where('ntDetails', isLessThanOrEqualTo: '$phrase\uf8ff')
         .get();
 
@@ -64,10 +65,8 @@ class DatabaseServicesForNotification {
         .where('ntId', isEqualTo: ntId)
         .get();
 
-
     for (QueryDocumentSnapshot doc in querySnapshot.docs) {
       await doc.reference.update({'ntClosed': true});
     }
   }
-
 }

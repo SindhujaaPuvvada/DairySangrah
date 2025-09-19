@@ -1,5 +1,5 @@
 import 'package:farm_expense_mangement_app/screens/feed/feedpage.dart';
-import 'package:farm_expense_mangement_app/screens/cattle/animallist1.dart';
+//import 'package:farm_expense_mangement_app/screens/cattle/animallist1.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -82,11 +82,14 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
     currentLocalization = langFileMap[languageCode]!;
-    String appMode = Provider.of<AppData>(context).appMode;
-    Color totalCowsColor = const Color.fromRGBO(224, 191, 184, 1.0); // Green color
-    Color milkingCowsColor = const Color.fromRGBO(252, 222, 172, 1.0); // Red color
+    //String appMode = Provider.of<AppData>(context).appMode;
+    Color totalCowsColor =
+        const Color.fromRGBO(224, 191, 184, 1.0); // Green color
+    Color milkingCowsColor =
+        const Color.fromRGBO(252, 222, 172, 1.0); // Red color
     Color dryCowsColor = const Color.fromRGBO(88, 148, 120, 1.0); // Blue color
-    Color avgMilkPerCowColor = const Color.fromRGBO(202, 217, 173, 1.0); // Yellow color
+    Color avgMilkPerCowColor =
+        const Color.fromRGBO(202, 217, 173, 1.0); // Yellow color
     return Placeholder(
       strokeWidth: 0,
       color: Colors.white70,
@@ -101,10 +104,12 @@ class _HomePageState extends State<HomePage> {
               style: TextStyle(
                 fontSize: 35, // Adjust the size as needed
                 fontWeight: FontWeight.bold,
-                color: Colors.black87, // You can choose a color that fits your theme
+                color: Colors
+                    .black87, // You can choose a color that fits your theme
               ),
             ),
-            const SizedBox(height: 10), // Space between the text and the content
+            const SizedBox(
+                height: 10), // Space between the text and the content
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -112,22 +117,17 @@ class _HomePageState extends State<HomePage> {
                   Expanded(
                     child: buildClickableContainer(
                       context,
-                      'cattles',
+                      'cattle',
                       'asset/cat.png',
                       totalCowsColor,
-                          () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) {
-                              if(appMode == 'CGM') {
-                                return const GroupList();
-                              }
-                              else
-                                {
-                                  return const AnimalList1();
-                                }
-                              })
-                      ),
+                      () => Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        //if (appMode == 'CGM') {
+                        return const GroupList();
+                        /*} else {
+                          return const AnimalList1();
+                        }*/
+                      })),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -137,12 +137,12 @@ class _HomePageState extends State<HomePage> {
                       'Inventory',
                       'asset/inventory.png',
                       milkingCowsColor,
-                          () => Navigator.push(
+                      () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const FeedPage()),
+                        MaterialPageRoute(
+                            builder: (context) => const FeedPage()),
                       ),
                     ),
-
                   ),
                 ],
               ),
@@ -158,10 +158,12 @@ class _HomePageState extends State<HomePage> {
                       'transaction',
                       'asset/transact_1.png',
                       dryCowsColor,
-                          () => Navigator.push(
+                      () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const TransactionPage(showIncome: true,)),
+                            builder: (context) => const TransactionPage(
+                                  showIncome: true,
+                                )),
                       ),
                     ),
                   ),
@@ -172,7 +174,7 @@ class _HomePageState extends State<HomePage> {
                       'Milk Details',
                       'asset/milk.png',
                       avgMilkPerCowColor,
-                          () => Navigator.push(
+                      () => Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => const AvgMilkPage()),
@@ -189,16 +191,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   GestureDetector buildClickableContainer(
-      BuildContext context,
-      String value,
-      String imageUrl,
-      Color containerColor,
-      Function() onTap,
-      ) {
+    BuildContext context,
+    String value,
+    String imageUrl,
+    Color containerColor,
+    Function() onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.25, // Keep container size the same
+        height: MediaQuery.of(context).size.height *
+            0.25, // Keep container size the same
         decoration: BoxDecoration(
           color: const Color.fromRGBO(4, 142, 161, 1.0),
           border: Border.all(
@@ -220,14 +223,12 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        child:
-        Column(
+        child: Column(
           children: [
             Container(
               width: MediaQuery.of(context).size.width,
               margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-              padding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: const BorderRadius.only(
@@ -258,7 +259,8 @@ class _HomePageState extends State<HomePage> {
                       imageUrl,
                       height: MediaQuery.of(context).size.height * 0.16,
                       width: MediaQuery.of(context).size.width * 0.45,
-                      fit: BoxFit.fill, // Ensures the image fits well without overflowing
+                      fit: BoxFit
+                          .fill, // Ensures the image fits well without overflowing
                     ),
                   ),
                 ],

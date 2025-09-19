@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class MilkUtils {
@@ -15,7 +14,8 @@ class MilkUtils {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(color: Colors.black),
-        errorBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+        errorBorder:
+            OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
         border: OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
         filled: true,
         fillColor: Color.fromRGBO(240, 255, 255, 0.7),

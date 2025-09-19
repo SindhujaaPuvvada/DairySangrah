@@ -1,11 +1,11 @@
 class LocalizationPun {
   static const Map<String, String> translations = {
-    'cattles': 'ਪਸ਼ੂ',
+    'cattle': 'ਪਸ਼ੂ',
     'feed': 'ਫੀਡ',
     'transaction': 'ਲੇਣ-ਦੇਣ',
     'avg_milk': 'ਔਸਤ ਦੁੱਧ',
     'dry_cows': 'ਸੂਕੀ ਗਾ',
-    'RF ID': "ਆਰਐਫ ਆਈਡੀ",
+    'RF ID': "ਪਸ਼ੂ ਆਈਡੀ",
     'Heifer': 'ਵੇਹੜ੍ਹ ',
     "Total Count": "ਕੁੱਲ ਗਿਣਤੀ",
     "semen sale": "ਵੀਰਜ ਦੀ ਵਿਕਰੀ",
@@ -137,7 +137,8 @@ class LocalizationPun {
     "stock": "ਸਟਾਕ",
     "new_cattle_added_successfully": "ਨਵੀਂ ਪਸ਼ੂ ਸਫਲਤਾਪੂਰਵਕ ਜੋੜਿਆ ਗਿਆ ਹੈ",
     'notifications': "ਸੂਚਨਾਵਾਂ",
-    "provide nutritional feed with high protein and fibre content": "ਉੱਚ ਪ੍ਰੋਟੀਨ ਅਤੇ ਫਾਈਬਰ ਸਮੱਗਰੀ ਵਾਲਾ ਪੋਸ਼ਣ ਚਾਰਾ ਪ੍ਰਦਾਨ ਕਰੋ",
+    "provide nutritional feed with high protein and fibre content":
+        "ਉੱਚ ਪ੍ਰੋਟੀਨ ਅਤੇ ਫਾਈਬਰ ਸਮੱਗਰੀ ਵਾਲਾ ਪੋਸ਼ਣ ਚਾਰਾ ਪ੍ਰਦਾਨ ਕਰੋ",
     "is expected to go dry": "ਸੂਕਾ ਹੋਣ ਦੀ ਸੰਭਾਵਨਾ ਹੈ",
     "Heat alert": "ਗਰਮੀ ਦੀ ਚੇਤਾਵਨੀ",
     "is due for pregnancy test": "ਗਰਭਧਾਰਣ ਟੈਸਟ ਲਈ ਸਮਾਂ ਹੋ ਗਿਆ ਹੈ",
@@ -146,7 +147,8 @@ class LocalizationPun {
     "is due for Insemination": "ਕ੍ਰਿਤਰਿਮ ਗਰਭਧਾਰਣ ਲਈ ਸਮਾਂ ਹੋ ਗਿਆ ਹੈ",
     "is due for deworming vaccination": "ਕੀੜੇ ਮਾਰ ਟੀਕੇ ਲਈ ਸਮਾਂ ਹੋ ਗਿਆ ਹੈ",
     "is due for brucellosis vaccination": "ਬਰੂਸੈਲੋਸਿਸ ਟੀਕੇ ਲਈ ਸਮਾਂ ਹੋ ਗਿਆ ਹੈ",
-    "is due for modified theileriosis vaccination": "ਸੋਧਿਤ ਥਾਈਲਰੀਓਸਿਸ ਟੀਕੇ ਲਈ ਸਮਾਂ ਹੋ ਗਿਆ ਹੈ",
+    "is due for modified theileriosis vaccination":
+        "ਸੋਧਿਤ ਥਾਈਲਰੀਓਸਿਸ ਟੀਕੇ ਲਈ ਸਮਾਂ ਹੋ ਗਿਆ ਹੈ",
     "Dry Alert": "ਸੂਖਾ ਚੱਕਰ ਚੇਤਾਵਨੀ",
     "Heat Alert": "ਗਰਮੀ ਦੀ ਚੇਤਾਵਨੀ",
     "Pregnancy Test Alert": "ਗਰਭਧਾਰਣ ਟੈਸਟ ਚੇਤਾਵਨੀ",
@@ -207,7 +209,8 @@ class LocalizationPun {
     "Search Cattle": "ਪਸ਼ੂ ਖੋਜੋ",
     "Dairy Sangrah Registration": "ਡੇਅਰੀ ਸੰਗ੍ਰਹਿ ਰਜਿਸਟ੍ਰੇਸ਼ਨ",
     "Get into Existing Farm": "ਮੌਜੂਦਾ ਫਾਰਮ ਵਿੱਚ ਪ੍ਰਵੇਸ਼ ਕਰੋ",
-    "Get started with your farm management journey": "ਆਪਣੀ ਫਾਰਮ ਪ੍ਰਬੰਧਨ ਯਾਤਰਾ ਦੀ ਸ਼ੁਰੂਆਤ ਕਰੋ",
+    "Get started with your farm management journey":
+        "ਆਪਣੀ ਫਾਰਮ ਪ੍ਰਬੰਧਨ ਯਾਤਰਾ ਦੀ ਸ਼ੁਰੂਆਤ ਕਰੋ",
     "Confirm": "ਪੁਸ਼ਟੀ ਕਰੋ",
     "Sign Up": "ਰਜਿਸਟਰ ਕਰੋ",
     "Enter Your Phone Number": "ਆਪਣਾ ਫ਼ੋਨ ਨੰਬਰ ਦਰਜ ਕਰੋ",
@@ -219,7 +222,8 @@ class LocalizationPun {
     "Enter OTP": "ਓਟੀਪੀ ਦਰਜ ਕਰੋ",
     "Register a New Farm": "ਨਵਾਂ ਫਾਰਮ ਰਜਿਸਟਰ ਕਰੋ",
     'No existing Farm!': 'ਕੋਈ ਮੌਜੂਦਾ ਫਾਰਮ ਨਹੀਂ ਹੈ!',
-    'Not Registered Content': "ਇਸ ਨੰਬਰ ਨਾਲ ਕੋਈ ਫਾਰਮ ਰਜਿਸਟਰ ਨਹੀਂ ਹੈ। ਨਵਾਂ ਫਾਰਮ ਰਜਿਸਟਰ ਕਰਨ ਲਈ ਕਿਰਪਾ ਕਰਕੇ 'ਰਜਿਸਟਰ' ਚੁਣੋ ਜਾਂ ਵਾਪਸ ਜਾਣ ਲਈ 'ਰੱਦ ਕਰੋ' ਚੁਣੋ!",
+    'Not Registered Content':
+        "ਇਸ ਨੰਬਰ ਨਾਲ ਕੋਈ ਫਾਰਮ ਰਜਿਸਟਰ ਨਹੀਂ ਹੈ। ਨਵਾਂ ਫਾਰਮ ਰਜਿਸਟਰ ਕਰਨ ਲਈ ਕਿਰਪਾ ਕਰਕੇ 'ਰਜਿਸਟਰ' ਚੁਣੋ ਜਾਂ ਵਾਪਸ ਜਾਣ ਲਈ 'ਰੱਦ ਕਰੋ' ਚੁਣੋ!",
     'register': 'ਰਜਿਸਟਰ',
     'cancel': 'ਰੱਦ ਕਰੋ',
     'Owner Name': 'ਮਾਲਕ ਦਾ ਨਾਮ',
@@ -230,12 +234,15 @@ class LocalizationPun {
     'Log out': 'ਲਾਗ ਆਉਟ ਕਰੋ',
     'Delete Data': 'ਡਾਟਾ ਹਟਾਓ',
     "Are you Sure?": 'ਕੀ ਤੁਸੀਂ ਨਿਸ਼ਚਿਤ ਹੋ?',
-    'Delete Data Content': "ਇਹ ਕਾਰਵਾਈ ਸਾਰੇ ਫਾਰਮ ਡਾਟੇ ਨੂੰ ਹਮੇਸ਼ਾਂ ਲਈ ਹਟਾ ਦੇਵੇਗੀ, ਪਰ ਫਾਰਮ ਫਿਰ ਵੀ ਰਜਿਸਟਰ ਰਹੇਗਾ। ਅੱਗੇ ਵੱਧਣ ਲਈ 'ਹਾਂ' ਚੁਣੋ ਜਾਂ ਵਾਪਸ ਜਾਣ ਲਈ 'ਰੱਦ ਕਰੋ' ਚੁਣੋ!",
+    'Delete Data Content':
+        "ਇਹ ਕਾਰਵਾਈ ਸਾਰੇ ਫਾਰਮ ਡਾਟੇ ਨੂੰ ਹਮੇਸ਼ਾਂ ਲਈ ਹਟਾ ਦੇਵੇਗੀ, ਪਰ ਫਾਰਮ ਫਿਰ ਵੀ ਰਜਿਸਟਰ ਰਹੇਗਾ। ਅੱਗੇ ਵੱਧਣ ਲਈ 'ਹਾਂ' ਚੁਣੋ ਜਾਂ ਵਾਪਸ ਜਾਣ ਲਈ 'ਰੱਦ ਕਰੋ' ਚੁਣੋ!",
     'Delete Account': 'ਖਾਤਾ ਹਟਾਓ',
-    'Delete Account Content': "ਇਹ ਕਾਰਵਾਈ ਸਾਰੇ ਯੂਜ਼ਰ ਅਤੇ ਫਾਰਮ ਡਾਟੇ ਨੂੰ ਹਮੇਸ਼ਾਂ ਲਈ ਹਟਾ ਦੇਵੇਗੀ। ਕਿਰਪਾ ਕਰਕੇ ਅੱਗੇ ਵੱਧਣ ਲਈ 'ਹਟਾਓ' ਚੁਣੋ ਜਾਂ ਵਾਪਸ ਜਾਣ ਲਈ 'ਰੱਦ ਕਰੋ' ਚੁਣੋ!",
+    'Delete Account Content':
+        "ਇਹ ਕਾਰਵਾਈ ਸਾਰੇ ਯੂਜ਼ਰ ਅਤੇ ਫਾਰਮ ਡਾਟੇ ਨੂੰ ਹਮੇਸ਼ਾਂ ਲਈ ਹਟਾ ਦੇਵੇਗੀ। ਕਿਰਪਾ ਕਰਕੇ ਅੱਗੇ ਵੱਧਣ ਲਈ 'ਹਟਾਓ' ਚੁਣੋ ਜਾਂ ਵਾਪਸ ਜਾਣ ਲਈ 'ਰੱਦ ਕਰੋ' ਚੁਣੋ!",
     're-login': 'ਦੁਬਾਰਾ ਲਾਗਇਨ ਕਰੋ',
     'requires recent login': 'ਹਾਲ ਹੀ ਵਿੱਚ ਲਾਗਇਨ ਕਰਨਾ ਜ਼ਰੂਰੀ ਹੈ!',
-    're_login content': "ਕਿਰਪਾ ਕਰਕੇ 'ਦੁਬਾਰਾ ਲਾਗਇਨ ਕਰੋ' ਚੁਣੋ ਅਤੇ ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ, ਜਾਂ 'ਰੱਦ ਕਰੋ' ਚੁਣੋ ਵਾਪਸ ਜਾਣ ਲਈ!",
+    're_login content':
+        "ਕਿਰਪਾ ਕਰਕੇ 'ਦੁਬਾਰਾ ਲਾਗਇਨ ਕਰੋ' ਚੁਣੋ ਅਤੇ ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ, ਜਾਂ 'ਰੱਦ ਕਰੋ' ਚੁਣੋ ਵਾਪਸ ਜਾਣ ਲਈ!",
     'More Options': 'ਹੋਰ ਵਿਕਲਪ',
     'Edit Profile': 'ਪ੍ਰੋਫਾਈਲ ਸੋਧੋ',
     'Error in Fetch': 'ਡਾਟਾ ਪ੍ਰਾਪਤੀ ਵਿੱਚ ਗਲਤੀ',
@@ -263,11 +270,15 @@ class LocalizationPun {
     'err_msg': 'ਗਲਤੀ ਸੰਦੇਸ਼',
     'OK': 'ਠੀਕ ਹੈ',
     'please_sel_income_type': 'ਕਿਰਪਾ ਕਰਕੇ ਇੱਕ ਆਯ ਕੌਣ ਚੁਣੋ',
-    'please_enter_category_other': "ਕਿਰਪਾ ਕਰਕੇ 'ਹੋਰ' ਆਯ ਕੌਣ ਲਈ ਇੱਕ ਸ਼੍ਰੇਣੀ ਦਰਜ ਕਰੋ",
+    'please_enter_category_other':
+        "ਕਿਰਪਾ ਕਰਕੇ 'ਹੋਰ' ਆਯ ਕੌਣ ਲਈ ਇੱਕ ਸ਼੍ਰੇਣੀ ਦਰਜ ਕਰੋ",
     'please_sel_milk_buyer': 'ਕਿਰਪਾ ਕਰਕੇ ਇੱਕ ਦੁਧ ਖਰੀਦਦਾਰ ਚੁਣੋ',
-    'please_sel_fat_snf_qty': 'ਕਿਰਪਾ ਕਰਕੇ ਫੈਟ, ਐਸਐਨਐਫ ਅਤੇ ਮਾਤਰਾ ਦੇ ਮੁੱਲ ਦਰਜ ਕਰੋ',
-    'fat_snf_qty_val_chk': 'ਫੈਟ, ਐਸਐਨਐਫ ਅਤੇ ਮਾਤਰਾ ਵੈਧ ਸੰਖਿਆਵਾਂ ਹੋਣੀਆਂ ਚਾਹੀਦੀਆਂ ਹਨ ਜੋ ਜ਼ੀਰੋ ਤੋਂ ਵੱਡੀਆਂ ਹੋਣ',
-    'no_price_fat_snf': 'ਦਿੱਤੇ ਗਏ ਫੈਟ ਅਤੇ ਐਸਐਨਐਫ ਲਈ ਦੁਧ ਦੀ ਕੀਮਤ ਦਾ ਡਾਟਾ ਨਹੀਂ ਮਿਲਿਆ',
+    'please_sel_fat_snf_qty':
+        'ਕਿਰਪਾ ਕਰਕੇ ਫੈਟ, ਐਸਐਨਐਫ ਅਤੇ ਮਾਤਰਾ ਦੇ ਮੁੱਲ ਦਰਜ ਕਰੋ',
+    'fat_snf_qty_val_chk':
+        'ਫੈਟ, ਐਸਐਨਐਫ ਅਤੇ ਮਾਤਰਾ ਵੈਧ ਸੰਖਿਆਵਾਂ ਹੋਣੀਆਂ ਚਾਹੀਦੀਆਂ ਹਨ ਜੋ ਜ਼ੀਰੋ ਤੋਂ ਵੱਡੀਆਂ ਹੋਣ',
+    'no_price_fat_snf':
+        'ਦਿੱਤੇ ਗਏ ਫੈਟ ਅਤੇ ਐਸਐਨਐਫ ਲਈ ਦੁਧ ਦੀ ਕੀਮਤ ਦਾ ਡਾਟਾ ਨਹੀਂ ਮਿਲਿਆ',
     'please_enter_tot_income': 'ਕਿਰਪਾ ਕਰਕੇ ਕੁੱਲ ਆਯ ਦਰਜ ਕਰੋ',
     'sel_feed_consumption': 'ਚਾਰੇ ਦੀ ਖਪਤ ਚੁਣੋ :',
     'out_of_stock': 'ਸਟਾਕ ਖਤਮ ਹੋ ਗਿਆ ਹੈ, ਕਿਰਪਾ ਕਰਕੇ ਮੁੜ ਭਰੋ!',

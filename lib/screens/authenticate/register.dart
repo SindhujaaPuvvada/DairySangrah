@@ -45,7 +45,8 @@ class _RegisterState extends State<Register> {
             ),
             // Content container with opacity
             Container(
-              color: Colors.black.withValues(alpha: 0.5), // Set opacity level here
+              color:
+                  Colors.black.withValues(alpha: 0.5), // Set opacity level here
               child: Column(
                 children: [
                   // App bar with transparent background
@@ -280,7 +281,8 @@ class _RegisterOtpState extends State<RegisterOtp> {
             ),
             // Content container with opacity
             Container(
-              color: Colors.black.withValues(alpha: 0.5), // Set opacity level here
+              color:
+                  Colors.black.withValues(alpha: 0.5), // Set opacity level here
               child: Column(
                 children: [
                   // App bar with transparent background

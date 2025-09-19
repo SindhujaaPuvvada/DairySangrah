@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class CattleGroup {
   final String grpId;
   final String type;
-  final String breed;
+  final String? breed;
   final String state;
 
   CattleGroup({
@@ -13,7 +13,8 @@ class CattleGroup {
     required this.state,
   });
 
-  factory CattleGroup.fromFireStore(DocumentSnapshot<Map<String, dynamic>> snapshot,
+  factory CattleGroup.fromFireStore(
+      DocumentSnapshot<Map<String, dynamic>> snapshot,
       SnapshotOptions? options) {
     final data = snapshot.data();
     return CattleGroup(

@@ -23,5 +23,3 @@ class CattleHistory {
     return {'name': name, 'date': date};
   }
 }
-
-

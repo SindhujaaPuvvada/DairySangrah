@@ -13,17 +13,18 @@ class AnimalList1 extends StatefulWidget {
   const AnimalList1({super.key});
 
   @override
-  _AnimalList1State createState() => _AnimalList1State();
+  State<AnimalList1> createState() => _AnimalList1State();
 }
 
-class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStateMixin {
+class _AnimalList1State extends State<AnimalList1>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late DatabaseServicesForCattle cattleDb;
-  int CalfCount = 0;
+  int calfCount = 0;
   int dryCount = 0;
   int milkedCount = 0;
   int heiferCount = 0;
-  late Map<String, String> currentLocalization= {};
+  late Map<String, String> currentLocalization = {};
   late String languageCode = 'en';
 
   @override
@@ -35,37 +36,43 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
     setState(() {
       _fetchCounts('Cow');
     });
-     // Fetch counts for cows initially
+    // Fetch counts for cows initially
   }
 
   void _fetchCounts(String type) async {
-    final snapshot = await cattleDb.infoFromServerAllCattle(FirebaseAuth.instance.currentUser!.uid);
-    final allCattle = snapshot.docs.map((doc) => Cattle.fromFireStore(doc, null)).toList();
+    final snapshot = await cattleDb
+        .infoFromServerAllCattle(FirebaseAuth.instance.currentUser!.uid);
+    final allCattle =
+        snapshot.docs.map((doc) => Cattle.fromFireStore(doc, null)).toList();
 
     setState(() {
-      CalfCount = allCattle.where((cattle) => cattle.type == type && cattle.state == 'Calf').length;
-      dryCount = allCattle.where((cattle) => cattle.type == type && cattle.state == 'Dry').length;
-      milkedCount = allCattle.where((cattle) => cattle.type == type && cattle.state == 'Milked').length;
-      heiferCount = allCattle.where((cattle) => cattle.type == type && cattle.state == 'Heifer').length;
+      calfCount = allCattle
+          .where((cattle) => cattle.type == type && cattle.state == 'Calf')
+          .length;
+      dryCount = allCattle
+          .where((cattle) => cattle.type == type && cattle.state == 'Dry')
+          .length;
+      milkedCount = allCattle
+          .where((cattle) => cattle.type == type && cattle.state == 'Milked')
+          .length;
+      heiferCount = allCattle
+          .where((cattle) => cattle.type == type && cattle.state == 'Heifer')
+          .length;
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
-    languageCode = Provider
-        .of<AppData>(context)
-        .persistentVariable;
+    languageCode = Provider.of<AppData>(context).persistentVariable;
 
     currentLocalization = langFileMap[languageCode]!;
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(
-            onPressed: () =>
-                Navigator.push(
-                    context, MaterialPageRoute(
-                    builder: (context) => const WrapperHomePage())
-                )),
+            onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const WrapperHomePage()))),
         iconTheme: const IconThemeData(color: Colors.black),
         title: Text(
           currentLocalization['Animals'] ?? 'Animals',
@@ -80,12 +87,12 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
           controller: _tabController,
           labelColor: Colors.black,
           unselectedLabelColor: Colors.black54,
-          labelStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold), // Increased text size
+          labelStyle: const TextStyle(
+              fontSize: 18, fontWeight: FontWeight.bold), // Increased text size
           unselectedLabelStyle: const TextStyle(fontSize: 16),
-          tabs:  [
+          tabs: [
             Tab(text: currentLocalization['Cow'] ?? 'Cow'),
             Tab(text: currentLocalization['Buffalo'] ?? 'Buffalo'),
-
           ],
           onTap: (index) {
             if (index == 0) {
@@ -95,7 +102,6 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
             } else {
               setState(() {
                 _fetchCounts('Buffalo');
-
               });
             }
           },
@@ -107,7 +113,6 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
         children: [
           _buildCattleSection('Cow'),
           _buildCattleSection('Buffalo'),
-
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -132,11 +137,11 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
       padding: const EdgeInsets.all(10),
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
-      children: [_buildSectionCard('Calf', CalfCount, type),
+      children: [
+        _buildSectionCard('Calf', calfCount, type),
         _buildSectionCard('Dry', dryCount, type),
         _buildSectionCard('Milked', milkedCount, type),
         _buildSectionCard('Heifer', heiferCount, type),
-
       ],
     );
   }
@@ -147,11 +152,11 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => AnimalList2(animalType: type, section: section),
+            builder: (context) =>
+                AnimalList2(animalType: type, section: section),
           ),
         );
       },
-
       child: Card(
         color: Colors.white,
         elevation: 8,
@@ -160,9 +165,7 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
         ),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            color: Colors.white
-          ),
+              borderRadius: BorderRadius.circular(16), color: Colors.white),
           child: Column(
             children: [
               // Section name container with white background at the top
@@ -170,7 +173,8 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: const BoxDecoration(
-                  color:  Color.fromRGBO(13, 166, 186, 0.9),// White background for section name
+                  color: Color.fromRGBO(
+                      13, 166, 186, 0.9), // White background for section name
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(16),
                     topRight: Radius.circular(16),
@@ -179,9 +183,9 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
                 child: Text(
                   currentLocalization[section] ?? section,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-
               ),
 
               // Spacer for middle section
@@ -206,13 +210,11 @@ class _AnimalList1State extends State<AnimalList1> with SingleTickerProviderStat
                     color: Colors.black,
                   ),
                 ),
-
               ),
             ],
           ),
         ),
       ),
     );
-
   }
 }

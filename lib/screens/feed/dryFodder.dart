@@ -7,8 +7,6 @@ import 'package:provider/provider.dart';
 import '../../main.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 
-
-
 class DryFodderPage extends StatefulWidget {
   const DryFodderPage({super.key});
 
@@ -17,12 +15,12 @@ class DryFodderPage extends StatefulWidget {
 }
 
 class _DryFodderPageState extends State<DryFodderPage> {
-  final TextEditingController _quantityController = TextEditingController
-      .fromValue(TextEditingValue(text: '0.0'));
-  final TextEditingController _rateController = TextEditingController.fromValue(
-      TextEditingValue(text: '0.0'));
-  final TextEditingController _priceController = TextEditingController
-      .fromValue(TextEditingValue(text: '0.0'));
+  final TextEditingController _quantityController =
+      TextEditingController.fromValue(TextEditingValue(text: '0.0'));
+  final TextEditingController _rateController =
+      TextEditingController.fromValue(TextEditingValue(text: '0.0'));
+  final TextEditingController _priceController =
+      TextEditingController.fromValue(TextEditingValue(text: '0.0'));
   final TextEditingController _customTypeController = TextEditingController();
 
   String _selectedType = 'Wheat Straw';
@@ -46,9 +44,7 @@ class _DryFodderPageState extends State<DryFodderPage> {
 
   @override
   Widget build(BuildContext context) {
-    languageCode = Provider
-        .of<AppData>(context)
-        .persistentVariable;
+    languageCode = Provider.of<AppData>(context).persistentVariable;
 
     currentLocalization = langFileMap[languageCode]!;
 
@@ -64,8 +60,8 @@ class _DryFodderPageState extends State<DryFodderPage> {
     };
 
     unitMap = {
-      'Kg':currentLocalization['Kg']??'Kg',
-      'Quintal':currentLocalization['Quintal']??'Quintal'
+      'Kg': currentLocalization['Kg'] ?? 'Kg',
+      'Quintal': currentLocalization['Quintal'] ?? 'Quintal'
     };
 
     return Scaffold(
@@ -77,7 +73,7 @@ class _DryFodderPageState extends State<DryFodderPage> {
           },
         ),
         title: Text(
-          currentLocalization['Dry Fodder']??"",
+          currentLocalization['Dry Fodder'] ?? "",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color.fromRGBO(4, 142, 161, 1.0),
@@ -99,10 +95,10 @@ class _DryFodderPageState extends State<DryFodderPage> {
                   });
                 },
               ),
-
               if (_selectedType == 'Others') ...[
                 const SizedBox(height: 20),
-                FeedUtils.buildTextField(_customTypeController, currentLocalization['Enter custom type']??""),
+                FeedUtils.buildTextField(_customTypeController,
+                    currentLocalization['Enter custom type'] ?? ""),
               ],
               const SizedBox(height: 20),
               FeedUtils.buildDropdown(
@@ -120,37 +116,40 @@ class _DryFodderPageState extends State<DryFodderPage> {
                 children: [
                   Expanded(
                     flex: 2,
-                    child: FeedUtils.buildTextField(
-                        _quantityController, currentLocalization['Quantity']??""),
+                    child: FeedUtils.buildTextField(_quantityController,
+                        currentLocalization['Quantity'] ?? ""),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     flex: 1,
                     child: FeedUtils.buildDropdown(
-                        label: currentLocalization['Unit']??"",
+                        label: currentLocalization['Unit'] ?? "",
                         value: _selectedUnit,
                         items: unitMap,
                         onChanged: (newValue) {
                           setState(() {
                             _selectedUnit = newValue!;
                           });
-                        }
-                    ),
+                        }),
                   ),
                 ],
               ),
               const SizedBox(height: 20),
-              FeedUtils.buildTextField(_rateController, currentLocalization['Rate per Unit']??""),
+              FeedUtils.buildTextField(
+                  _rateController, currentLocalization['Rate per Unit'] ?? ""),
               const SizedBox(height: 20),
-              FeedUtils.buildTextField(_priceController, currentLocalization['Total Price']??""),
+              FeedUtils.buildTextField(
+                  _priceController, currentLocalization['Total Price'] ?? ""),
               const SizedBox(height: 40),
               Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    FeedUtils.buildElevatedButton(currentLocalization['Calculate']??"",
+                    FeedUtils.buildElevatedButton(
+                        currentLocalization['Calculate'] ?? "",
                         onPressed: () => _calculatePrice()),
-                    FeedUtils.buildElevatedButton(currentLocalization['Save']??"",
+                    FeedUtils.buildElevatedButton(
+                        currentLocalization['Save'] ?? "",
                         onPressed: () => _submitData()),
                   ],
                 ),
@@ -163,17 +162,18 @@ class _DryFodderPageState extends State<DryFodderPage> {
   }
 
   void _submitData() {
-    final type = _selectedType == 'Others'
-        ? _customTypeController.text
-        : _selectedType;
+    final type =
+        _selectedType == 'Others' ? _customTypeController.text : _selectedType;
     double quantity = double.parse(_quantityController.text);
     double rate = double.parse(_rateController.text);
     double price = double.parse(_priceController.text);
     final source = _selectedSource;
 
-    if(type.isEmpty){
+    if (type.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(currentLocalization['Custom Type cannot be empty!']??'')),
+        SnackBar(
+            content: Text(
+                currentLocalization['Custom Type cannot be empty!'] ?? '')),
       );
       return;
     }
@@ -196,19 +196,23 @@ class _DryFodderPageState extends State<DryFodderPage> {
     FeedUtils.saveFeedDetails(feed);
 
     Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const FeedPage()));
+        context, MaterialPageRoute(builder: (context) => const FeedPage()));
   }
 
   void _calculatePrice() {
-    double quantity = (_quantityController.text.isNotEmpty) ? double.parse(_quantityController.text):0.0;
-    double rate = (_rateController.text.isNotEmpty) ? double.parse(_rateController.text):0.0;
-    double price = (_priceController.text.isNotEmpty) ? double.parse(_priceController.text):0.0;
+    double quantity = (_quantityController.text.isNotEmpty)
+        ? double.parse(_quantityController.text)
+        : 0.0;
+    double rate = (_rateController.text.isNotEmpty)
+        ? double.parse(_rateController.text)
+        : 0.0;
+    double price = (_priceController.text.isNotEmpty)
+        ? double.parse(_priceController.text)
+        : 0.0;
 
     var lt = FeedUtils.calRateOrPrice(price, rate, quantity);
 
     _priceController.text = (lt[0].toPrecision(2)).toString();
     _rateController.text = (lt[1].toPrecision(2)).toString();
   }
-
 }

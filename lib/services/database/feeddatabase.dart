@@ -38,7 +38,7 @@ class DatabaseServicesForFeed {
         .collection('User')
         .doc(uid)
         .collection('Feed')
-        .doc((fdCategoryId.indexOf(category)+1).toString())
+        .doc((fdCategoryId.indexOf(category) + 1).toString())
         .collection(category)
         .orderBy('feedDate', descending: true)
         .get();

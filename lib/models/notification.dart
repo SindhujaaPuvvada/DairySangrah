@@ -7,13 +7,12 @@ class CattleNotification {
   final DateTime ntShowDate;
   final bool ntClosed;
 
-  CattleNotification({
-    required this.ntId,
-    required this.ntTitle,
-    required this.ntDetails,
-    required this.ntShowDate,
-    this.ntClosed = false
-  });
+  CattleNotification(
+      {required this.ntId,
+      required this.ntTitle,
+      required this.ntDetails,
+      required this.ntShowDate,
+      this.ntClosed = false});
 
   factory CattleNotification.fromFireStore(
       DocumentSnapshot<Map<String, dynamic>> snapshot,

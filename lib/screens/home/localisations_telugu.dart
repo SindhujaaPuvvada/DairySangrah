@@ -1,6 +1,6 @@
 class LocalizationTe {
   static const Map<String, String> translations = {
-    "cattles": "పశువులు",
+    "cattle": "పశువులు",
     "Register a New Farm": "కొత్త పాడి పరిశ్రమ నమోదు చేయండి",
     "feed": "మేత",
     "Cow": "ఆవు",
@@ -8,7 +8,7 @@ class LocalizationTe {
     "transaction": "లావాదేవీ",
     "avg_milk": "సగటు పాలు",
     "dry_cows": "ఒట్టి ఆవులు",
-    "RF ID": "ఆర్ ఎఫ్ ఐడి",
+    "RF ID": "పశువులు ఐడి",
     "Search Cattle": "పశువులను వెతకండి",
     "breed": "జాతి",
     "sex": "లింగం",
@@ -170,7 +170,8 @@ class LocalizationTe {
     "Modified Theileriosis Vax Alert": "మోడిఫైడ్ థైలీరియోసిస్ టీకా హెచ్చరిక",
     "Dairy Sangrah Registration": "డెయిరీ సంగ్రహ్ నమోదు",
     "Get into Existing Farm": "ఉన్న పాడి పరిశ్రమలో ప్రవేశించండి",
-    "Get started with your farm management journey": "మీ పాడి పరిశ్రమ నిర్వహణ ప్రయాణాన్ని ప్రారంభించండి",
+    "Get started with your farm management journey":
+        "మీ పాడి పరిశ్రమ నిర్వహణ ప్రయాణాన్ని ప్రారంభించండి",
     "Confirm": "నిర్ధారించు",
     "Sign Up": "నమోదు చేయండి",
     "Enter Your Phone Number": "మీ ఫోన్ నంబర్ నమోదు చేయండి",
@@ -180,7 +181,8 @@ class LocalizationTe {
     "Resend OTP": "OTP మళ్లీ పంపు",
     "Continue": "కొనసాగించు",
     "Enter OTP": "OTP నమోదు చేయండి",
-    "provide nutritional feed with high protein and fibre content": "ఎక్కువ ప్రోటీన్ మరియు ఫైబర్ కలిగిన పోషక మేతను ఇవ్వండి",
+    "provide nutritional feed with high protein and fibre content":
+        "ఎక్కువ ప్రోటీన్ మరియు ఫైబర్ కలిగిన పోషక మేతను ఇవ్వండి",
     "is expected to go dry": "పాలు నిలుపు సమయం వచ్చింది",
     "Heat alert": "యెద హెచ్చరిక",
     "is due for pregnancy test": "గర్భధారణ పరీక్షకు సమయం వచ్చింది",
@@ -189,7 +191,8 @@ class LocalizationTe {
     "is due for Insemination": "గర్భధారణకు సమయం వచ్చింది",
     "is due for deworming vaccination": "నులిపురుగుల నివారణ టీకా సమయం వచ్చింది",
     "is due for brucellosis vaccination": "బ్రూసెలోసిస్ టీకా సమయం వచ్చింది",
-    "is due for modified theileriosis vaccination": "మోడిఫైడ్ థైలీరియోసిస్ టీకా సమయం వచ్చింది",
+    "is due for modified theileriosis vaccination":
+        "మోడిఫైడ్ థైలీరియోసిస్ టీకా సమయం వచ్చింది",
     "Fat Percentage": "కొవ్వు శాతం",
     "SNF Percentage": "SNF శాతం",
     "Quantity (Liters)": "పరిమాణం (లీటర్లు)",
@@ -219,7 +222,8 @@ class LocalizationTe {
     "new_cattle_added_successfully": "కొత్త పశువుల విజయవంతంగా జోడించబడింది",
     "notifications": "అధిసూచనలు",
     "No existing Farm!": "పాడి పరిశ్రమ నమోదు చేసి లేదు!",
-    "Not Registered Content": "ఈ నంబర్ తో పాడి పరిశ్రమ నమోదు చేసి లేదు. దయచేసి కొత్త పాడి పరిశ్రమ నమోదు చేయడానికి 'నమోదు' ఎంచుకోండి లేదా వెనక్కి వెళ్లడానికి 'రద్దు' ఎంచుకోండి!",
+    "Not Registered Content":
+        "ఈ నంబర్ తో పాడి పరిశ్రమ నమోదు చేసి లేదు. దయచేసి కొత్త పాడి పరిశ్రమ నమోదు చేయడానికి 'నమోదు' ఎంచుకోండి లేదా వెనక్కి వెళ్లడానికి 'రద్దు' ఎంచుకోండి!",
     "register": "నమోదు చేయండి",
     "cancel": "రద్దు చేయండి",
     "Owner Name": "యజమాని పేరు",
@@ -230,12 +234,15 @@ class LocalizationTe {
     "Log out": "లాగ్ అవుట్ చేయండి",
     "Delete Data": "డేటాను తొలగించండి",
     "Are you Sure?": "మీరు నిశ్చయంగా ఉన్నారా?",
-    "Delete Data Content": "ఈ చర్యతో ఫార్మ్ డేటా పూర్తిగా తొలగించబడుతుంది, కానీ ఫార్మ్ నమోదు కొనసాగుతుంది. ముందుకు వెళ్లడానికి 'అవును' ఎంచుకోండి లేదా తిరిగి వెళ్లడానికి 'రద్దు' ఎంచుకోండి!",
+    "Delete Data Content":
+        "ఈ చర్యతో ఫార్మ్ డేటా పూర్తిగా తొలగించబడుతుంది, కానీ ఫార్మ్ నమోదు కొనసాగుతుంది. ముందుకు వెళ్లడానికి 'అవును' ఎంచుకోండి లేదా తిరిగి వెళ్లడానికి 'రద్దు' ఎంచుకోండి!",
     "Delete Account": "ఖాతాను తొలగించండి",
-    "Delete Account Content": "ఈ చర్యతో మీ యూజర్ మరియు ఫార్మ్ డేటా మొత్తం పూర్తిగా తొలగించబడుతుంది. ముందుకు వెళ్లడానికి 'తొలగించు' ఎంచుకోండి లేదా తిరిగి వెళ్లడానికి 'రద్దు' ఎంచుకోండి!",
+    "Delete Account Content":
+        "ఈ చర్యతో మీ యూజర్ మరియు ఫార్మ్ డేటా మొత్తం పూర్తిగా తొలగించబడుతుంది. ముందుకు వెళ్లడానికి 'తొలగించు' ఎంచుకోండి లేదా తిరిగి వెళ్లడానికి 'రద్దు' ఎంచుకోండి!",
     "re-login": "మళ్లీ లాగిన్ అవ్వండి",
     "requires recent login": "ఇటీవల లాగిన్ కావడం అవసరం!",
-    "re_login content": "దయచేసి 'మళ్లీ లాగిన్ అవ్వండి' ఎంచుకుని మళ్లీ ప్రయత్నించండి, లేదా తిరిగి వెళ్లడానికి 'రద్దు' ఎంచుకోండి!",
+    "re_login content":
+        "దయచేసి 'మళ్లీ లాగిన్ అవ్వండి' ఎంచుకుని మళ్లీ ప్రయత్నించండి, లేదా తిరిగి వెళ్లడానికి 'రద్దు' ఎంచుకోండి!",
     "More Options": "మరిన్ని ఎంపికలు",
     "Edit Profile": "ప్రొఫైల్ సవరించండి",
     "Error in Fetch": "డేటా తీసుకోవడంలో లోపం",
@@ -245,7 +252,8 @@ class LocalizationTe {
     "please_select_gender": "దయచేసి లింగాన్ని ఎంచుకోండి",
     "please_select_source": "దయచేసి మూలాన్ని ఎంచుకోండి",
     "please_select_breed": "దయచేసి జాతిని ఎంచుకోండి",
-    "cattle_details_updated_successfully": "వివరాలు విజయవంతంగా నవీకరించబడ్డాయి!",
+    "cattle_details_updated_successfully":
+        "వివరాలు విజయవంతంగా నవీకరించబడ్డాయి!",
     "event_name": "ఈవెంట్ పేరు",
     "event_date": "ఈవెంట్ తేదీ",
     "please_select_event_and_date": "దయచేసి ఈవెంట్ మరియు తేదీని ఎంచుకోండి",
@@ -263,11 +271,15 @@ class LocalizationTe {
     "err_msg": "లోపపు సందేశం",
     "OK": "సరే",
     "please_sel_income_type": "దయచేసి ఆదాయ రకాన్ని ఎంచుకోండి",
-    "please_enter_category_other": "'ఇతర' ఆదాయ రకం కోసం దయచేసి వర్గం నమోదు చేయండి",
+    "please_enter_category_other":
+        "'ఇతర' ఆదాయ రకం కోసం దయచేసి వర్గం నమోదు చేయండి",
     "please_sel_milk_buyer": "దయచేసి పాల కొనుగోలుదారుని ఎంచుకోండి",
-    "please_sel_fat_snf_qty": "దయచేసి కొవ్వు, SNF మరియు పరిమాణం విలువలను నమోదు చేయండి",
-    "fat_snf_qty_val_chk": "కొవ్వు, SNF, మరియు పరిమాణం విలువలు శూన్యంకంటే ఎక్కువ ఉండాలి",
-    "no_price_fat_snf": "ఇచ్చిన కొవ్వు మరియు SNF కొరకు పాల ధర డేటా కనుగొనబడలేదు",
+    "please_sel_fat_snf_qty":
+        "దయచేసి కొవ్వు, SNF మరియు పరిమాణం విలువలను నమోదు చేయండి",
+    "fat_snf_qty_val_chk":
+        "కొవ్వు, SNF, మరియు పరిమాణం విలువలు శూన్యంకంటే ఎక్కువ ఉండాలి",
+    "no_price_fat_snf":
+        "ఇచ్చిన కొవ్వు మరియు SNF కొరకు పాల ధర డేటా కనుగొనబడలేదు",
     "please_enter_tot_income": "దయచేసి మొత్తం ఆదాయాన్ని నమోదు చేయండి",
     "sel_feed_consumption": "మేతకు ఉపయోగించిన పరిమాణాన్ని ఎంచుకోండి:",
     "out_of_stock": "స్టాక్ అయిపోయింది, దయచేసి రీఫిల్ చేయండి!",

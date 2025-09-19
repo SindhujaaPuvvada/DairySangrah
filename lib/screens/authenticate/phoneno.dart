@@ -5,18 +5,18 @@ import 'package:farm_expense_mangement_app/screens/authenticate/otp.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:farm_expense_mangement_app/main.dart';
+
 class SignUpPage extends StatelessWidget {
   final AuthService _auth = AuthService();
   final TextEditingController _phoneController = TextEditingController();
-  static String verify="";
-  static String phoneNumber="";
-  static bool newFarmReg=true;
-  late Map<String, String> currentLocalization= {};
+  static String verify = "";
+  static String phoneNumber = "";
+  static bool newFarmReg = true;
+  late Map<String, String> currentLocalization = {};
 
   late String languageCode = 'en';
 
   SignUpPage({super.key});
-
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class SignUpPage extends StatelessWidget {
           },
         ),
         title: Text(
-          currentLocalization['Sign Up']??"", // Centered title
+          currentLocalization['Sign Up'] ?? "", // Centered title
           style: TextStyle(
             fontWeight: FontWeight.bold, // Make title bold
           ),
@@ -54,7 +54,7 @@ class SignUpPage extends StatelessWidget {
             children: <Widget>[
               // "Enter Your Phone Number" text (bold but not all caps)
               Text(
-                currentLocalization['Enter Your Phone Number']??"",
+                currentLocalization['Enter Your Phone Number'] ?? "",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -64,7 +64,8 @@ class SignUpPage extends StatelessWidget {
               SizedBox(height: 10), // Space between the text and the image
 
               // Image at the top
-              Image.asset('asset/phone.jpeg'), // Replace with your image asset path
+              Image.asset(
+                  'asset/phone.jpeg'), // Replace with your image asset path
 
               SizedBox(height: 20), // Space between the image and the next text
 
@@ -86,14 +87,19 @@ class SignUpPage extends StatelessWidget {
                   keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
                     border: InputBorder.none, // No border around
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0), // Padding inside the field
-                    labelText: currentLocalization['Phone Number']??"",
-                    hintText: currentLocalization['Enter your phone number']??"",
+                    contentPadding: EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 12.0), // Padding inside the field
+                    labelText: currentLocalization['Phone Number'] ?? "",
+                    hintText:
+                        currentLocalization['Enter your phone number'] ?? "",
                   ),
                 ),
               ),
 
-              SizedBox(height: 20), // Space between the input field and the next element
+              SizedBox(
+                  height:
+                      20), // Space between the input field and the next element
 
               // Full-width sign-up button with color #0EA6BB
 
@@ -103,26 +109,34 @@ class SignUpPage extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF0EA6BB), // Sign-up button color
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20), // More curve for the button
+                      borderRadius: BorderRadius.circular(
+                          20), // More curve for the button
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 14.0), // Slightly smaller height
+                    padding: EdgeInsets.symmetric(
+                        vertical: 14.0), // Slightly smaller height
                   ),
-                  onPressed: ()  async{
+                  onPressed: () async {
                     // Add +91 to the phone number before passing it to the function
                     phoneNumber = "+91${_phoneController.text.trim()}";
                     Navigator.push(
-                        context, MaterialPageRoute(
-                        builder: (context) =>  OtpVerificationPage()));
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => OtpVerificationPage()));
                     // Handle sign-up logic here
-                    await FirebaseAuth.instance.verifyPhoneNumber(phoneNumber:phoneNumber,timeout: const Duration(seconds: 60),verificationCompleted: (PhoneAuthCredential credential) { }, verificationFailed: (FirebaseAuthException e) {}, codeSent: (String verificationId, int? resendtoken){
-                      SignUpPage.verify=verificationId;
-                      //print(verificationId);
-                    }, codeAutoRetrievalTimeout: (String verificationId){
-
-                    });
+                    await FirebaseAuth.instance.verifyPhoneNumber(
+                        phoneNumber: phoneNumber,
+                        timeout: const Duration(seconds: 60),
+                        verificationCompleted:
+                            (PhoneAuthCredential credential) {},
+                        verificationFailed: (FirebaseAuthException e) {},
+                        codeSent: (String verificationId, int? resendtoken) {
+                          SignUpPage.verify = verificationId;
+                          //print(verificationId);
+                        },
+                        codeAutoRetrievalTimeout: (String verificationId) {});
                   },
                   child: Text(
-                    currentLocalization['Sign Up']??"",
+                    currentLocalization['Sign Up'] ?? "",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

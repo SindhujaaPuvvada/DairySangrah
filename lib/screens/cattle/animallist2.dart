@@ -10,8 +10,10 @@ import '../../../main.dart';
 class AnimalList2 extends StatefulWidget {
   final String animalType;
   final String section;
+  final String? breed;
 
-  const AnimalList2({required this.animalType, required this.section, super.key});
+  const AnimalList2(
+      {required this.animalType, required this.section, this.breed, super.key});
 
   @override
   State<AnimalList2> createState() => _AnimalList2State();
@@ -21,23 +23,45 @@ class _AnimalList2State extends State<AnimalList2> {
   late DatabaseServicesForCattle cattleDb;
   late List<Cattle> allCattle = [];
   List<Cattle> filteredCattle = [];
-  late Map<String, String> currentLocalization= {};
+  late Map<String, String> currentLocalization = {};
   late String languageCode = 'en';
   final TextEditingController _searchController = TextEditingController();
   String? _selectedBreed; // Store the selected breed for filtering
+  List<String> breedList = [];
 
   @override
   void initState() {
     super.initState();
-    cattleDb = DatabaseServicesForCattle(FirebaseAuth.instance.currentUser!.uid);
+    _selectedBreed = widget.breed;
+    if (widget.animalType == 'Cow') {
+      for (String breed in cowBreed) {
+        if (breed == 'select') {
+          breedList.add('All');
+        } else {
+          breedList.add(breed);
+        }
+      }
+    } else {
+      for (String breed in buffaloBreed) {
+        if (breed == 'select') {
+          breedList.add('All');
+        } else {
+          breedList.add(breed);
+        }
+      }
+    }
+    cattleDb =
+        DatabaseServicesForCattle(FirebaseAuth.instance.currentUser!.uid);
     _fetchCattle();
     _searchController.addListener(_searchCattle);
   }
 
   Future<void> _fetchCattle() async {
-    final snapshot = await cattleDb.infoFromServerAllCattle(FirebaseAuth.instance.currentUser!.uid);
+    final snapshot = await cattleDb
+        .infoFromServerAllCattle(FirebaseAuth.instance.currentUser!.uid);
     setState(() {
-      allCattle = snapshot.docs.map((doc) => Cattle.fromFireStore(doc, null)).toList();
+      allCattle =
+          snapshot.docs.map((doc) => Cattle.fromFireStore(doc, null)).toList();
       //print(widget.animalType);
       // print(widget.section);
       _filterCattle();
@@ -50,9 +74,15 @@ class _AnimalList2State extends State<AnimalList2> {
         //print(cattle.type);
         //print(cattle.state);
         if (widget.animalType == 'Cow' && cattle.type != 'Cow') return false;
-        if (widget.animalType == 'Buffalo' && cattle.type != 'Buffalo') return false;
+        if (widget.animalType == 'Buffalo' && cattle.type != 'Buffalo') {
+          return false;
+        }
         if (cattle.state != widget.section) return false;
-        if (_selectedBreed != null && _selectedBreed != 'All' && cattle.breed.toLowerCase() != _selectedBreed!.toLowerCase()) return false; // Filter by breed
+        if (_selectedBreed != null &&
+            _selectedBreed != 'All' &&
+            cattle.breed?.toLowerCase() != _selectedBreed?.toLowerCase()) {
+          return false; // Filter by breed
+        }
         return true;
       }).toList();
       _searchCattle(); // Apply search filter after breed filter
@@ -73,9 +103,14 @@ class _AnimalList2State extends State<AnimalList2> {
     String query = _searchController.text.toLowerCase();
     setState(() {
       filteredCattle = filteredCattle.where((cattle) {
-
-        if (_selectedBreed != null && _selectedBreed != 'All' && cattle.breed.toLowerCase() != _selectedBreed!.toLowerCase()) return false; // Apply breed filter
-        return cattle.rfid.toLowerCase().contains(query); // Search functionality
+        if (_selectedBreed != null &&
+            _selectedBreed != 'All' &&
+            cattle.breed?.toLowerCase() != _selectedBreed?.toLowerCase()) {
+          return false; // Apply breed filter
+        }
+        return cattle.rfid
+            .toLowerCase()
+            .contains(query); // Search functionality
       }).toList();
     });
   }
@@ -100,9 +135,7 @@ class _AnimalList2State extends State<AnimalList2> {
 
   @override
   Widget build(BuildContext context) {
-    languageCode = Provider
-        .of<AppData>(context)
-        .persistentVariable;
+    languageCode = Provider.of<AppData>(context).persistentVariable;
 
     currentLocalization = langFileMap[languageCode]!;
     return Scaffold(
@@ -110,17 +143,17 @@ class _AnimalList2State extends State<AnimalList2> {
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.black),
         title: Text(
-            '${currentLocalization[widget.animalType] ?? widget.animalType} - ${currentLocalization[widget.section] ?? widget.section}',
-            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black,fontSize: 20),
-          textAlign: TextAlign.center,
+          '${currentLocalization[widget.animalType] ?? widget.animalType} - ${currentLocalization[widget.section] ?? widget.section}',
+          style: const TextStyle(
+              fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20),
+          textAlign: TextAlign.start,
         ),
-        centerTitle: true,
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
         leading: IconButton(
           color: Colors.black,
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context) ;
+            Navigator.pop(context);
           },
         ),
         actions: [
@@ -131,25 +164,27 @@ class _AnimalList2State extends State<AnimalList2> {
               value: _selectedBreed,
               hint: Text(
                 _selectedBreed ?? currentLocalization['all'] ?? 'All',
-                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
               ),
               icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
               onChanged: (String? newValue) {
                 _filterByBreed(newValue);
               },
-              items: <String>['All', 'Sahiwal', 'Gir', 'Holstein', 'Jersey']
-                  .map<DropdownMenuItem<String>>((String value) {
+              items: breedList.map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(
-                    currentLocalization[value.toLowerCase()] ?? value,
-                    style: TextStyle(
-                      color: _selectedBreed == value ? Colors.black : Colors.black,
-                      fontWeight: _selectedBreed == value ? FontWeight.bold : FontWeight.normal,
-                    ),
-                  )
-
-                );
+                    value: value,
+                    child: Text(
+                      currentLocalization[value.toLowerCase()] ?? value,
+                      style: TextStyle(
+                        color: _selectedBreed == value
+                            ? Colors.black
+                            : Colors.black,
+                        fontWeight: _selectedBreed == value
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                    ));
               }).toList(),
             ),
           ),
@@ -166,20 +201,25 @@ class _AnimalList2State extends State<AnimalList2> {
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      labelText: currentLocalization['Search Cattle'] ?? 'Search Cattle',
-                      hintText: currentLocalization['RF ID']?? 'Filter by RFID',
+                      labelText: currentLocalization['Search Cattle'] ??
+                          'Search Cattle',
+                      hintText:
+                          currentLocalization['RF ID'] ?? 'Filter by Cattle ID',
                       prefixIcon: const Icon(Icons.search),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 10), // Reduced height
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 10), // Reduced height
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.black38, width: 1), // Border
+                        borderSide: const BorderSide(
+                            color: Colors.black38, width: 1), // Border
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.black38, width: 1),
+                        borderSide:
+                            const BorderSide(color: Colors.black38, width: 1),
                       ),
                     ),
-                    onChanged: (value){
+                    onChanged: (value) {
                       _filterCattle();
                     },
                   ),
@@ -215,53 +255,70 @@ class _AnimalList2State extends State<AnimalList2> {
                         borderRadius: BorderRadius.circular(1),
                       ),
                       child: ListTile(
-                        leading: Padding(
-                          padding: const EdgeInsets.all(5),
-                          child: cattleInfo.sex == 'Female'
-                              ? Container(
-                            margin: const EdgeInsets.fromLTRB(0, 1, 0, 1),
-                            foregroundDecoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(50),
-                            ),
-                            clipBehavior: Clip.hardEdge,
-                            child: Image.asset(
-                              'asset/cow1.jpg',
-                              fit: BoxFit.cover,
-                              width: 70,
-                              height: 150,
-                            ),
-                          )
-                              : Container(
-                            margin: const EdgeInsets.fromLTRB(0, 1, 0, 1),
-                            foregroundDecoration: const BoxDecoration(shape: BoxShape.circle),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(50),
-                            ),
-                            clipBehavior: Clip.hardEdge,
-                            child: Image.asset(
-                              'asset/Bull1.jpg',
-                              fit: BoxFit.cover,
-                              width: 70,
-                              height: 150,
-                            ),
+                          leading: Padding(
+                            padding: const EdgeInsets.all(5),
+                            child: //cattleInfo.sex == 'Female'?
+                            Container(
+                                    margin:
+                                        const EdgeInsets.fromLTRB(0, 1, 0, 1),
+                                    foregroundDecoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(50),
+                                      color: Color.fromRGBO(2, 48, 32, 1.0),
+                                    ),
+                                    clipBehavior: Clip.hardEdge,
+                                    child: Image.asset(
+                                      'asset/${cattleInfo.state}.png',
+                                      fit: BoxFit.contain,
+                                      width: 70,
+                                      height: 70,
+                                    ),
+                                  )
+                             /*   : Container(
+                                    margin:
+                                        const EdgeInsets.fromLTRB(0, 1, 0, 1),
+                                    foregroundDecoration: const BoxDecoration(
+                                        shape: BoxShape.circle),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(50),
+                                    ),
+                                    clipBehavior: Clip.hardEdge,
+                                    child: Image.asset(
+                                      'asset/Bull1.jpg',
+                                      fit: BoxFit.cover,
+                                      width: 70,
+                                      height: 150,
+                                    ),
+                                  ),*/
                           ),
-                        ),
-                        title: Text(
-                          "${currentLocalization['RF ID'] ?? 'RF ID'}: ${cattleInfo.rfid}",
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("${currentLocalization['breed'] ?? 'Breed'}: ${currentLocalization[cattleInfo.breed.toLowerCase()] ?? cattleInfo.breed}"),
-                            Text("${currentLocalization['sex'] ?? 'Sex'}: ${currentLocalization[cattleInfo.sex.toLowerCase()] ?? cattleInfo.sex}"),
-
-
-                          ],
-                        ),
+                          title: Text(
+                            "${currentLocalization['RF ID'] ?? 'Cattle ID'}: ${cattleInfo.rfid}",
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  "${currentLocalization['breed'] ?? 'Breed'}: ${currentLocalization[cattleInfo.breed?.toLowerCase()] ?? ''}"),
+                              Text(
+                                  "${currentLocalization['sex'] ?? 'Sex'}: ${currentLocalization[cattleInfo.sex?.toLowerCase()] ?? ''}"),
+                            ],
+                          ),
+                          trailing: Column(
+                                 mainAxisAlignment: MainAxisAlignment.center,
+                                 children: [
+                                   (cattleInfo.nickname != null) ?
+                                   Text(currentLocalization['cattle_name'] ??
+                                       'Name'): Text(""),
+                                   Text(
+                                     cattleInfo.nickname ?? '',
+                                     style: const TextStyle(
+                                         color: Colors.black, fontSize: 16),
+                                   ),
+                                 ],
+                               ),
                       ),
                     ),
                   ),
@@ -271,8 +328,6 @@ class _AnimalList2State extends State<AnimalList2> {
           ),
         ],
       ),
-      // Floating Action Button to Add New Cattle
-     // Bottom right corner
     );
   }
 }

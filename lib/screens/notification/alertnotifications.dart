@@ -34,9 +34,9 @@ class AlertNotifications {
 
     switch (newHistory.name) {
       case "Insemination":
-      //creating PTA
-        nDate = newHistory.date.add(
-            const Duration(days: 15)); // Scheduled after 15 days
+        //creating PTA
+        nDate = newHistory.date
+            .add(const Duration(days: 15)); // Scheduled after 15 days
         _createNTF(cattle, altTitle['PTA']!, altDesc['PTA']!, nDate);
 
         // TODO: verify this part
@@ -47,7 +47,7 @@ class AlertNotifications {
 
         break;
       case "Pregnant":
-      //Creating NUA
+        //Creating NUA
         _createNTF(cattle, altTitle['NUA']!, altDesc['NUA']!, newHistory.date);
 
         if (cattle.state == 'Milked') {
@@ -94,14 +94,14 @@ class AlertNotifications {
 
         //closing the pregnant related notifications
         String rfidPhrase = '${cattle.type} ${cattle.rfid}';
-        for(String alt in altEvents['Pregnant']!) {
+        for (String alt in altEvents['Pregnant']!) {
           ntfDb.closeNotificationByPhrase("$rfidPhrase ${altDesc[alt]}");
         }
 
         break;
 
       case "Calved":
-      // Creating MKA
+        // Creating MKA
         nDate = newHistory.date.add(const Duration(days: 3));
         _createNTF(cattle, altTitle['MKA']!, altDesc['MKA']!, nDate);
 
@@ -113,35 +113,26 @@ class AlertNotifications {
         cattle.isPregnant = false;
         _updateSingleCattle(cattle);
 
-
         break;
     }
   }
 
-
   void _createNTF(Cattle cattle, String nTitle, String nDesc, DateTime nDate) {
     CattleNotification ntf = CattleNotification(
-        ntId: DateTime
-            .now()
-            .microsecondsSinceEpoch
-            .toString(),
+        ntId: DateTime.now().microsecondsSinceEpoch.toString(),
         ntTitle: nTitle,
-        ntDetails: "${cattle.type} ${cattle.rfid} $nDesc",
+        ntDetails: "${cattle.type} ${cattle.rfid}-${cattle.nickname??''} $nDesc",
         ntShowDate: nDate // scheduled after 15 days
-    );
+        );
     _updateSingleNotification(ntf);
   }
-
 
   void createCalfNotifications(Cattle cattle) {
     Map<String, String> altTitle = AlertsConstants.alertTitle;
     Map<String, String> altDesc = AlertsConstants.alertDesc;
     DateTime nDate;
-    if(cattle.dateOfBirth != null) {
-      int age = DateTime
-          .now()
-          .difference(cattle.dateOfBirth!)
-          .inDays;
+    if (cattle.dateOfBirth != null) {
+      int age = DateTime.now().difference(cattle.dateOfBirth!).inDays;
 
       // Creating DWV if age is less than 180 days
       if (age <= 180) {
@@ -158,12 +149,12 @@ class AlertNotifications {
       //creating AI notification when it is ready to be a Heifer
       switch (cattle.type) {
         case 'Cow':
-        // 13 months
+          // 13 months
           nDate = cattle.dateOfBirth!.add(const Duration(days: 390));
           _createNTF(cattle, altTitle['AIA']!, altDesc['AIA']!, nDate);
           break;
         case 'Buffalo':
-        //28 months
+          //28 months
           nDate = cattle.dateOfBirth!.add(const Duration(days: 840));
           _createNTF(cattle, altTitle['AIA']!, altDesc['AIA']!, nDate);
 
@@ -171,5 +162,4 @@ class AlertNotifications {
       }
     }
   }
-
 }

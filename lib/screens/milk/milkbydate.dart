@@ -19,7 +19,7 @@ class MilkByDatePage extends StatefulWidget {
 }
 
 class _MilkByDatePageState extends State<MilkByDatePage> {
-  late Map<String, String> currentLocalization= {};
+  late Map<String, String> currentLocalization = {};
   late String languageCode = 'en';
 
   final user = FirebaseAuth.instance.currentUser;
@@ -36,7 +36,7 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
     _fetchAllMilk();
   }
 
-  void _deleteAllMilkOnDate() async{
+  void _deleteAllMilkOnDate() async {
     await db.deleteAllMilkRecords(widget.dateOfMilk!);
 
     Navigator.pop(context);
@@ -64,9 +64,12 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
       }
     });
   }
+
   double _calculateTotalMilk() {
-    return _filteredMilk.fold(0, (sum, milk) => sum + milk.morning + milk.evening);
+    return _filteredMilk.fold(
+        0, (sum, milk) => sum + milk.morning + milk.evening);
   }
+
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
@@ -77,9 +80,9 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
-        title:  Center(
+        title: Center(
           child: Text(
-            currentLocalization['milk_records']??"",
+            currentLocalization['milk_records'] ?? "",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
@@ -119,8 +122,7 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
           Padding(
             padding: const EdgeInsets.only(left: 20.0, top: 20.0),
             child: Text(
-              '${currentLocalization['date']}: ${widget.dateOfMilk!.day}-${widget.dateOfMilk!.month}-${widget.dateOfMilk!.year}                 ${currentLocalization['Total Milk'] ?? 'Total Milk'}: ${_calculateTotalMilk().toStringAsFixed(2)}L'
-              ,
+              '${currentLocalization['date']}: ${widget.dateOfMilk!.day}-${widget.dateOfMilk!.month}-${widget.dateOfMilk!.year}                 ${currentLocalization['Total Milk'] ?? 'Total Milk'}: ${_calculateTotalMilk().toStringAsFixed(2)}L',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -248,7 +250,7 @@ class MilkDataRow extends StatefulWidget {
 }
 
 class _MilkDataRowState extends State<MilkDataRow> {
-  late Map<String, String> currentLocalization= {};
+  late Map<String, String> currentLocalization = {};
   late String languageCode = 'en';
   void editDetail() {
     Navigator.push(
@@ -262,7 +264,8 @@ class _MilkDataRowState extends State<MilkDataRow> {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
     currentLocalization = langFileMap[languageCode]!;
-    final double totalMilk = (widget.data.evening + widget.data.morning).toPrecision(2);
+    final double totalMilk =
+        (widget.data.evening + widget.data.morning).toPrecision(2);
 
     return Card(
       margin: const EdgeInsets.fromLTRB(8, 5, 8, 5),
@@ -285,7 +288,7 @@ class _MilkDataRowState extends State<MilkDataRow> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  "${currentLocalization["ID"]??""}: ${widget.data.id}",
+                  "${currentLocalization["ID"] ?? ""}: ${widget.data.id}",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
@@ -319,7 +322,7 @@ class _MilkDataRowState extends State<MilkDataRow> {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        "${currentLocalization['morning']??""}: ${widget.data.morning.toStringAsFixed(2)}L",
+                        "${currentLocalization['morning'] ?? ""}: ${widget.data.morning.toStringAsFixed(2)}L",
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
@@ -396,7 +399,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
   final uid = FirebaseAuth.instance.currentUser!.uid;
   late DatabaseForMilk db;
   late DatabaseForMilkByDate dbByDate;
-  late Map<String, String> currentLocalization= {};
+  late Map<String, String> currentLocalization = {};
   late String languageCode = 'en';
 
   double? milkInMorning;
@@ -422,27 +425,26 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
       await dbByDate.infoToServerMilk(milkByDate);
     }
     final double totalMilk = (milkByDate.totalMilk +
-        milk.morning +
-        milk.evening -
-        widget.data.evening -
-        widget.data.morning).toPrecision(2);
+            milk.morning +
+            milk.evening -
+            widget.data.evening -
+            widget.data.morning)
+        .toPrecision(2);
     await dbByDate.infoToServerMilk(
         MilkByDate(dateOfMilk: milk.dateOfMilk, totalMilk: totalMilk));
   }
 
   @override
   Widget build(BuildContext context) {
-
-    languageCode = Provider
-        .of<AppData>(context)
-        .persistentVariable;
+    languageCode = Provider.of<AppData>(context).persistentVariable;
 
     currentLocalization = langFileMap[languageCode]!;
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
       appBar: AppBar(
-        title: Text( currentLocalization['edit_milk_data']??'',
+        title: Text(
+          currentLocalization['edit_milk_data'] ?? '',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
@@ -479,7 +481,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
               ),
               const SizedBox(height: 30.0),
               _buildInputBox(
-                labelText: currentLocalization['morning_milk']??"",
+                labelText: currentLocalization['morning_milk'] ?? "",
                 initialValue: milkInMorning.toString(),
                 onChanged: (value) {
                   setState(() {
@@ -489,7 +491,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
               ),
               const SizedBox(height: 30.0),
               _buildInputBox(
-                labelText: currentLocalization['evening_milk']??"",
+                labelText: currentLocalization['evening_milk'] ?? "",
                 initialValue: milkInEvening.toString(),
                 onChanged: (value) {
                   setState(() {
@@ -524,7 +526,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
                   child: Padding(
                     padding: EdgeInsets.all(4.0),
                     child: Text(
-                      currentLocalization['Save']??'',
+                      currentLocalization['Save'] ?? '',
                       style: TextStyle(fontSize: 15, color: Colors.black),
                     ),
                   ),

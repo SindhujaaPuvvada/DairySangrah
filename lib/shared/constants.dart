@@ -45,7 +45,7 @@ const langFileMap = {
 };
 
 const cowBreed = [
-  'None',
+  'select',
   'jersey',
   'holstein',
   'crossbred jersey',
@@ -65,7 +65,7 @@ const cowBreed = [
 ];
 
 const buffaloBreed = [
-  'None',
+  'select',
   'murrah',
   'nili ravi',
   'bhadawari',
@@ -76,10 +76,4 @@ const buffaloBreed = [
   'banni',
 ];
 
-const appModes = [
-  'CGM', //Group mode
-  'CIM'  //Individual mode
-];
-
-const milkEntryForCGM = ['whole farm', 'group wise'];
-const milkEntryForCIM = ['whole farm', 'cattle wise'];
+const milkEntryTypes = ['whole farm', 'group wise', 'cattle wise'];

@@ -1,44 +1,47 @@
-
+import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardUtils {
-
-  static Future<bool> checkFirstLaunch() async {
+  static Future<bool> checkFirstLaunch(String uid) async {
     bool showOnboarding = true;
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool? firstLaunch = prefs.getBool('first_launch');
+    bool? firstLaunch = prefs.getBool('first_launch_$uid');
 
-    if (firstLaunch == null || firstLaunch == true) {
-      // This is the first launch or the flag was not
-      showOnboarding = true;
-      await prefs.setBool(
-          'first_launch', false); // Set to false after showing onboarding
-    } else {
+    if (firstLaunch == false) {
       // Not the first launch
       showOnboarding = false;
+    } else {
+      // This is the first launch or the flag was not
+      if(firstLaunch == null){
+          DatabaseServicesForUser userDB = DatabaseServicesForUser(uid);
+          bool isFirstLaunch = await userDB.getIsFirstLaunch(uid);
+          showOnboarding = (isFirstLaunch == true) ? true : false;
+      }
+      showOnboarding = true;
     }
-    return true;
+    return showOnboarding;
   }
 
   static Widget buildTextField(TextEditingController controller, String label,
       [bool? allowNumOnly, String? validatorMsg]) {
     return TextFormField(
       controller: controller,
-      inputFormatters: allowNumOnly == true ? [
-        FilteringTextInputFormatter.allow(RegExp(r"[0-9]"))
-      ] : null,
+      inputFormatters: allowNumOnly == true
+          ? [FilteringTextInputFormatter.allow(RegExp(r"[0-9]"))]
+          : null,
       decoration: InputDecoration(
         labelText: label,
-    border: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(12.0),
-    ),
-    enabledBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(12.0),
-    borderSide: const BorderSide(color: Colors.black)),
+        labelStyle: const TextStyle(color: Colors.black87, fontSize: 14.0),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.0),
+            borderSide: const BorderSide(color: Colors.black)),
         filled: true,
-        fillColor: Color.fromRGBO(240, 255, 255, 0.7),
+        fillColor: Colors.white,
       ),
       validator: (value) {
         if (validatorMsg != null) {
@@ -63,7 +66,7 @@ class OnboardUtils {
       value: value,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Colors.black54, fontSize: 14.0),
+        labelStyle: const TextStyle(color: Colors.black87, fontSize: 14.0),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
         ),
@@ -71,7 +74,7 @@ class OnboardUtils {
             borderRadius: BorderRadius.circular(12.0),
             borderSide: const BorderSide(color: Colors.black)),
         filled: true,
-        fillColor: Color.fromRGBO(240, 255, 255, 1),
+        fillColor: Colors.white,
       ),
       items: itemsList.map((item) {
         return DropdownMenuItem<String>(
@@ -88,26 +91,20 @@ class OnboardUtils {
     return ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30)),
-          textStyle: const TextStyle(
-              fontSize: 18, fontWeight: FontWeight.bold),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           minimumSize: const Size(120, 50),
-          backgroundColor:
-          const Color.fromRGBO(13, 166, 186, 1.0),
+          backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
           foregroundColor: Colors.white,
           elevation: 10,
           // adjust elevation value as desired
           side: const BorderSide(color: Colors.grey, width: 2),
         ),
-        child: Text(
-            label,
+        child: Text(label,
             style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
-                fontSize: 15
-            )
-        )
-    );
+                fontSize: 15)));
   }
 }

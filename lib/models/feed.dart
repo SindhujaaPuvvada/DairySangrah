@@ -33,7 +33,8 @@ class Feed {
   }
 
   // Updated fromFireStore to require only one argument
-  factory Feed.fromFireStore(DocumentSnapshot<Map<String, dynamic>> snapshot, String category) {
+  factory Feed.fromFireStore(
+      DocumentSnapshot<Map<String, dynamic>> snapshot, String category) {
     final json = snapshot.data();
     return Feed(
       feedId: snapshot.id,
