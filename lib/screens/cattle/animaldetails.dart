@@ -234,7 +234,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                         )
                       : Expanded(
                           child: Container(
-                          padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
                           alignment: Alignment.center,
                           child: (_cattle.sex == null)
                               ? Text(

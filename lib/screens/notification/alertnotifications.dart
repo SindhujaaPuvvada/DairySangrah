@@ -121,7 +121,7 @@ class AlertNotifications {
     CattleNotification ntf = CattleNotification(
         ntId: DateTime.now().microsecondsSinceEpoch.toString(),
         ntTitle: nTitle,
-        ntDetails: "${cattle.type} ${cattle.rfid}-${cattle.nickname??''} $nDesc",
+        ntDetails: (cattle.nickname != null) ?"${cattle.type} ${cattle.rfid}(${cattle.nickname??''}) $nDesc": "${cattle.type} ${cattle.rfid} $nDesc",
         ntShowDate: nDate // scheduled after 15 days
         );
     _updateSingleNotification(ntf);

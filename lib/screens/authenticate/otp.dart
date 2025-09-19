@@ -4,7 +4,6 @@ import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:farm_expense_mangement_app/services/auth.dart';
 import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/phoneno.dart';
 import '../../logging.dart';

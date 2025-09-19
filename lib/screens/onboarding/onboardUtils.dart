@@ -19,7 +19,9 @@ class OnboardUtils {
           bool isFirstLaunch = await userDB.getIsFirstLaunch(uid);
           showOnboarding = (isFirstLaunch == true) ? true : false;
       }
-      showOnboarding = true;
+      else {
+        showOnboarding = true;
+      }
     }
     return showOnboarding;
   }

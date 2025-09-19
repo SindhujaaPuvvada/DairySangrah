@@ -1,25 +1,24 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:farm_expense_mangement_app/services/auth.dart';
+//import 'package:farm_expense_mangement_app/services/auth.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/otp.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:farm_expense_mangement_app/main.dart';
 
 class SignUpPage extends StatelessWidget {
-  final AuthService _auth = AuthService();
+  //final AuthService _auth = AuthService();
   final TextEditingController _phoneController = TextEditingController();
   static String verify = "";
   static String phoneNumber = "";
   static bool newFarmReg = true;
-  late Map<String, String> currentLocalization = {};
-
-  late String languageCode = 'en';
 
   SignUpPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    Map<String, String> currentLocalization = {};
+    String languageCode = 'en';
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
     currentLocalization = langFileMap[languageCode]!;
