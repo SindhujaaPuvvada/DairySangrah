@@ -53,4 +53,12 @@ class DatabaseServicesForUser {
 
     return snapshot.data()?['isFirstLaunch'] ?? true;
   }
+
+  Future<String> getChosenLanguage(String uid) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    final DocumentSnapshot<Map<String, dynamic>> snapshot =
+    await db.collection('User').doc(uid).get();
+
+    return snapshot.data()?['chosenLanguage'] ?? 'en';
+  }
 }

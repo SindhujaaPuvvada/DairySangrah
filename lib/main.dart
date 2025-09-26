@@ -16,20 +16,20 @@ final navigatorKey = GlobalKey<NavigatorState>();
 
 class AppData with ChangeNotifier {
   static String _persistentVariable = "en";
-  //static String _appMode = 'CGM';
+  static int _counter = 0;
 
   String get persistentVariable => _persistentVariable;
-  //String get appMode => _appMode;
+  int get counter => _counter;
 
   set persistentVariable(String value) {
     _persistentVariable = value;
     notifyListeners(); // Notify listeners of the change
   }
 
-  /*set appMode(String value) {
-    _appMode = value;
+  set counter(int value) {
+    _counter = value;
     notifyListeners(); // Notify listeners of the change
-  }*/
+  }
 }
 
 void main() async {

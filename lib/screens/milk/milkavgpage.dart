@@ -455,11 +455,11 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
                       if (formKey.currentState!.validate()) {
                         String idVal;
                         if (selectedEntryType == 'whole farm') {
-                          idVal = "WholeFarm";
+                          idVal = "whole farm";
                         } else {
                           idVal = (selectedEntryType == 'group wise')
-                              ? "GPID${selectedId!}"
-                              : "RFID${selectedId!}";
+                              ? "GPID-${selectedId!}"
+                              : "RFID-${selectedId!}";
                         }
                         final Milk newMilkData = Milk(
                           id: idVal,

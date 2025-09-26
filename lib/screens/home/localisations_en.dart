@@ -71,13 +71,13 @@ class LocalizationEn {
     "litre": "L",
     "Litres": "Litres",
     "add_milk_data": "Add Milk Data",
-    "select_rfid": "Select RFID",
+    "select_rfid": "Select Cattle ID",
     "morning_milk": "Morning Milk (Litres)",
     "evening_milk": "Evening Milk (Litres)",
     "milking_date": "Milking Date",
     "Source": "Source",
     "add": "Add",
-    "please_select_rfid": "Please select RFID",
+    "please_select_rfid": "Please select Cattle ID",
     "please_enter_value": "Please enter a value",
     "please_choose_date": "Please choose a date",
     "morning": "Morning",
@@ -215,7 +215,6 @@ class LocalizationEn {
     'event_name': 'Event Name',
     'event_date': 'Event Date',
     'please_select_event_and_date': 'Please select an event and date',
-    'rfid_already_exists': 'RFID already exists',
     'please_enter_tag_num': 'Please enter tag number',
     'please_select_cattle_type': 'Please select type of cattle',
     'list_is_empty': 'The list is empty!',
@@ -268,9 +267,6 @@ class LocalizationEn {
     "Preferred Language": "Preferred Language",
     "Cattle Groups": "Cattle Groups",
     "new_cattle_group": "New Cattle Group",
-    "enter_the_grpId": "Enter the Group ID",
-    "please_enter_grp_id": "Please enter Group ID",
-    "None": "None",
     'crossbred jersey': 'Crossbred Jersey',
     'crossbred HF': 'Crossbred HF',
     'amritmahal': 'Amritmahal',
@@ -297,8 +293,6 @@ class LocalizationEn {
     "new_cattle_grp_added_successfully":
         "New Cattle Group Added Successfully!!",
     "App Mode": "App Mode",
-    "CGM": "Cattle - Group",
-    "CIM": "Cattle - Individual",
     "whole farm": "Whole Farm",
     "group wise": "Group Wise",
     "cattle wise": "Cattle Wise",
@@ -307,7 +301,7 @@ class LocalizationEn {
     "ID": "ID",
     "enter_breed_count": "Enter the no. of breeds",
     "welcome_msg_onboard":
-        "Few more steps !!!\n\nWould you like to group the cattle breed wise?",
+        "Just a few more steps !!!\n\nWould you like to group the cattle breed wise?",
     "cow_breed_msg_onboard":
         "Please provide the number of cow breeds you have in your farm?",
     "cow_count_msg_onboard":
@@ -340,5 +334,6 @@ class LocalizationEn {
     'enter_the_cattle_name': 'Enter the Cattle Name / Tag No.',
     'please_select_status': 'Please select status',
     'cattle_name': 'Name / Tag No.',
+    'add_new_cattle': 'Add New Cattle',
   };
 }

@@ -33,6 +33,8 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
   List<TextEditingController> maleCountController = [];
   List<String> selectedBreeds = [];
 
+  bool isButtonDisabled = false;
+
   final List<Map<String, dynamic>> _pageData = [
     {
       'title': 'breed_wise_title',
@@ -115,21 +117,21 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
                       'asset/base.jpg',
                       fit: BoxFit.fill,
                       width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height * 0.25,
+                      height: MediaQuery.of(context).size.height * 0.22,
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 20, 10, 10),
+                    padding: const EdgeInsets.fromLTRB(10, 15, 10, 10),
                     child: Text(
                       currentLocalization[data['title']] ?? '',
                       style: const TextStyle(
-                          fontSize: 35,
+                          fontSize: 29,
                           color: Color.fromRGBO(13, 166, 186, 1.0),
                           fontWeight: FontWeight.bold),
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(30, 10, 10, 30),
+                    padding: const EdgeInsets.fromLTRB(30, 10, 10, 20),
                     child: Text(
                       currentLocalization[data['desc']] ?? '',
                       style: const TextStyle(
@@ -194,8 +196,8 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
                     ),
                   ],
                   if (data['type'] == 'count') ...[
-                    StatefulBuilder(builder:
-                        (BuildContext context, StateSetter setState) {
+                    StatefulBuilder(
+                        builder: (BuildContext context, StateSetter setState) {
                       int breedCount = int.parse(breedCountController.text);
                       for (int i = 0; i < breedCount; i++) {
                         milkedCountController
@@ -235,7 +237,7 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
                                                 13, 166, 186, 1.0),
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold)),
-                                SizedBox(height: 20),
+                                SizedBox(height: 15),
                                 (_selectedOption == 'no')
                                     ? Container()
                                     : OnboardUtils.buildDropdown(
@@ -250,10 +252,10 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
                                             selectedBreeds[j] = newValue!;
                                           });
                                         }),
-                                SizedBox(height: 20),
+                                SizedBox(height: 15),
                                 Row(
-                                  spacing: MediaQuery.of(context).size.width *
-                                      0.20,
+                                  spacing:
+                                      MediaQuery.of(context).size.width * 0.15,
                                   children: [
                                     Flexible(
                                       child: OnboardUtils.buildTextField(
@@ -275,11 +277,10 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
                                     ),
                                   ],
                                 ),
-                                SizedBox(height: 20),
+                                SizedBox(height: 15),
                                 Row(
-                                    spacing:
-                                        MediaQuery.of(context).size.width *
-                                            0.20,
+                                    spacing: MediaQuery.of(context).size.width *
+                                        0.15,
                                     children: [
                                       Flexible(
                                         child: OnboardUtils.buildTextField(
@@ -300,10 +301,9 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
                                             ''),
                                       ),
                                     ]),
-                                SizedBox(height: 20),
+                                SizedBox(height: 15),
                                 Row(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Flexible(
                                       child: OnboardUtils.buildTextField(
@@ -316,7 +316,7 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
                                     ),
                                   ],
                                 ),
-                                SizedBox(height: 20),
+                                SizedBox(height: 15),
                               ],
                             ],
                           ),
@@ -343,14 +343,19 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 15),
                     OnboardUtils.buildElevatedButton(
                         currentLocalization['Continue'] ?? 'Continue',
-                        onPressed: () {
-                      onContinue(index, data);
-                    }),
+                        onPressed: isButtonDisabled
+                            ? () {}
+                            : () {
+                                setState(() {
+                                  isButtonDisabled = true;
+                                });
+                                onContinue(index, data);
+                              }),
                     SizedBox(
-                      height: 30,
+                      height: 15,
                     )
                   ],
                 ),
@@ -405,11 +410,14 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                      "${currentLocalization['select_the_breed']} for Breed ${l + 1}"),
+                      "${currentLocalization['select_the_breed']} - ${currentLocalization['breed']} ${l + 1}"),
                   duration: Duration(seconds: 2),
                 ),
               );
             }
+            setState(() {
+              isButtonDisabled = false;
+            });
             return;
           }
         }
@@ -463,5 +471,8 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
         pageController.jumpToPage(index + 1);
       }
     }
+    setState(() {
+      isButtonDisabled = false;
+    });
   }
 }

@@ -38,10 +38,11 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
 
   void _deleteAllMilkOnDate() async {
     await db.deleteAllMilkRecords(widget.dateOfMilk!);
-
-    Navigator.pop(context);
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => const AvgMilkPage()));
+    if (mounted) {
+      Navigator.pop(context);
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => const AvgMilkPage()));
+    }
   }
 
   Future<void> _fetchAllMilk() async {
@@ -262,10 +263,25 @@ class _MilkDataRowState extends State<MilkDataRow> {
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
-
     currentLocalization = langFileMap[languageCode]!;
+
+    String id = '';
+    String idVal = '';
     final double totalMilk =
         (widget.data.evening + widget.data.morning).toPrecision(2);
+
+    if (widget.data.id == 'whole farm') {
+      id = 'whole farm';
+      idVal = '';
+    } else {
+      List<String> currentId = widget.data.id.split('-');
+      idVal = currentId[1];
+      if (currentId[0] == 'GPID') {
+        id = 'grpid';
+      } else {
+        id = 'RF ID';
+      }
+    }
 
     return Card(
       margin: const EdgeInsets.fromLTRB(8, 5, 8, 5),
@@ -282,24 +298,26 @@ class _MilkDataRowState extends State<MilkDataRow> {
         children: [
           // Left container
           Container(
-            width: 120,
+            width: 150,
             padding: const EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  "${currentLocalization["ID"] ?? ""}: ${widget.data.id}",
+                  "${currentLocalization[id] ?? ""}:\n$idVal",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                    fontSize: 15,
                   ),
+                  textAlign: TextAlign.center,
+                  softWrap: false,
                 ),
                 // const SizedBox(height: 5),
                 ClipOval(
                   child: Image.asset(
                     'asset/cow1.jpg',
                     fit: BoxFit.cover,
-                    width: 80,
+                    width: 100,
                     height: 65,
                   ),
                 ),

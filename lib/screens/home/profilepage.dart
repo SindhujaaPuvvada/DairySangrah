@@ -681,6 +681,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                           //appMode: _selectedAppMode,
                         );
                         updateUser(farmUser);
+                        Provider.of<AppData>(context, listen: false).counter = 0;
                         Navigator.pop(context);
                         Navigator.push(
                             context,

@@ -1,4 +1,3 @@
-import 'package:farm_expense_mangement_app/models/user.dart';
 import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -93,15 +92,15 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
   }
 
   Future<void> _LoadData() async {
-    String uid = FirebaseAuth.instance.currentUser!.uid;
-    DatabaseServicesForUser userDB = DatabaseServicesForUser(uid);
-    var snapshot = await userDB.infoFromServer(uid);
-    if (snapshot.exists) {
-      FarmUser farmUser = FarmUser.fromFireStore(snapshot, null);
+    int counter = Provider.of<AppData>(context, listen: false).counter;
+    if (counter == 0) {
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+      DatabaseServicesForUser userDB = DatabaseServicesForUser(uid);
+      var langCode = await userDB.getChosenLanguage(uid);
       if (mounted) {
         Provider.of<AppData>(context, listen: false).persistentVariable =
-            farmUser.chosenLanguage;
-        //Provider.of<AppData>(context, listen: false).appMode = farmUser.appMode;
+            langCode;
+        Provider.of<AppData>(context, listen: false).counter = 1;
       }
     }
   }

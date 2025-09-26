@@ -17,7 +17,7 @@ class OtpVerificationPage extends StatefulWidget {
   const OtpVerificationPage({super.key});
 
   @override
-  _OtpVerificationPageState createState() => _OtpVerificationPageState();
+  State<OtpVerificationPage> createState() => _OtpVerificationPageState();
 }
 
 class _OtpVerificationPageState extends State<OtpVerificationPage> {
@@ -158,52 +158,60 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
 
                     if (SignUpPage.newFarmReg && !snapshot.exists) {
                       //print("in register block");
-
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => RegisterFarm()));
+                      if (context.mounted) {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => RegisterFarm()));
+                      }
                     } else {
                       if (snapshot.exists) {
                         //print("in wrapper block");
                         checkForFirstLaunch().then((bool value) {
                           bool showOnboarding = value;
-                          Navigator.pushReplacement(context, MaterialPageRoute(
-                              builder: (BuildContext context) {
-                            return showOnboarding
-                                ? OnBoardingScreens()
-                                : const WrapperHomePage();
-                          }));
+                          if (context.mounted) {
+                            Navigator.pushReplacement(context,
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) {
+                              return showOnboarding
+                                  ? OnBoardingScreens()
+                                  : const WrapperHomePage();
+                            }));
+                          }
                         });
                       } else {
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AuthUtils.buildAlertDialog(
-                                  title: currentLocalization[
-                                          'No existing Farm!'] ??
-                                      '',
-                                  content: currentLocalization[
-                                          'Not Registered Content'] ??
-                                      '',
-                                  opt1: currentLocalization['register'] ?? '',
-                                  onPressedOpt1: () {
-                                    Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                RegisterFarm()));
-                                  },
-                                  opt2: currentLocalization['cancel'] ?? '',
-                                  onPressedOpt2: () async {
-                                    await FirebaseAuth.instance.currentUser!
-                                        .delete();
-                                    Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => MyApp()));
-                                  });
-                            });
+                        if (context.mounted) {
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AuthUtils.buildAlertDialog(
+                                    title: currentLocalization[
+                                            'No existing Farm!'] ??
+                                        '',
+                                    content: currentLocalization[
+                                            'Not Registered Content'] ??
+                                        '',
+                                    opt1: currentLocalization['register'] ?? '',
+                                    onPressedOpt1: () {
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  RegisterFarm()));
+                                    },
+                                    opt2: currentLocalization['cancel'] ?? '',
+                                    onPressedOpt2: () async {
+                                      await FirebaseAuth.instance.currentUser!
+                                          .delete();
+                                      if (context.mounted) {
+                                        Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => MyApp()));
+                                      }
+                                    });
+                              });
+                        }
                       }
                     }
                   } catch (e) {

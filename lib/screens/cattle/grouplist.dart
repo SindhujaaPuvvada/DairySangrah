@@ -212,8 +212,7 @@ class _GroupListState extends State<GroupList>
                           style: TextStyle(color: Colors.black, fontSize: 14)),
                       tileColor: Color.fromRGBO(177, 243, 238, 0.4),
                       leading: Container(
-                        margin:
-                        const EdgeInsets.fromLTRB(0, 1, 0, 1),
+                        margin: const EdgeInsets.fromLTRB(0, 1, 0, 1),
                         foregroundDecoration: const BoxDecoration(
                           shape: BoxShape.circle,
                         ),
@@ -228,25 +227,35 @@ class _GroupListState extends State<GroupList>
                           height: 150,
                         ),
                       ),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.more_vert),
-                        color: Colors.black,
-                        onPressed: () {
-                          Navigator.pop(context);
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => AddNewCattle(
-                                        type: grp.type,
-                                        state: grp.state,
-                                        breed: grp.breed,
-                                        gender: (grp.state != 'Calf')
-                                            ? (grp.state != 'Adult Male')
-                                                ? 'Female'
-                                                : 'Male'
-                                            : null,
-                                      )));
-                        },
+                      trailing: Tooltip(
+                        message: currentLocalization['add_new_cattle'],
+                        preferBelow: true,
+                        textAlign: TextAlign.right,
+                        textStyle: TextStyle(color: Color.fromRGBO(13, 166, 186, 1.0), fontStyle: FontStyle.italic),
+                        decoration: BoxDecoration(
+                          color: Colors.white70,
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.more_vert,),
+                          color: Colors.black87,
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => AddNewCattle(
+                                          type: grp.type,
+                                          state: grp.state,
+                                          breed: grp.breed,
+                                          gender: (grp.state != 'Calf')
+                                              ? (grp.state != 'Adult Male')
+                                                  ? 'Female'
+                                                  : 'Male'
+                                              : null,
+                                        )));
+                          },
+                        ),
                       ),
                     ),
                   ),
