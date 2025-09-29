@@ -199,7 +199,7 @@ class _AddNewCattleGroupState extends State<AddNewCattleGroup> {
               Padding(
                   padding: const EdgeInsets.fromLTRB(0, 8, 0, 26),
                   child: Text(
-                    currentLocalization["want_to_add_more_cattles"] ??
+                    currentLocalization["want_to_add_more_cattle"] ??
                         'Want to add more cattles to this group?',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 16),
