@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:farm_expense_mangement_app/screens/cattle/animallist.dart';
+import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +11,8 @@ import '../../../main.dart';
 import '../notification/alertnotifications.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 
+import 'grouplist.dart';
+
 class AnimalDetails extends StatefulWidget {
   final String rfid;
   const AnimalDetails({super.key, required this.rfid});
@@ -20,7 +22,7 @@ class AnimalDetails extends StatefulWidget {
 }
 
 class _AnimalDetailsState extends State<AnimalDetails> {
-  late Map<String, String> currentLocalization= {};
+  late Map<String, String> currentLocalization = {};
   late String languageCode = 'en';
 
   final user = FirebaseAuth.instance.currentUser;
@@ -37,7 +39,6 @@ class _AnimalDetailsState extends State<AnimalDetails> {
 
   @override
   void initState() {
-
     super.initState();
     cattleDb = DatabaseServicesForCattle(uid);
     cattleHistory = DatabaseServiceForCattleHistory(uid: uid);
@@ -45,15 +46,16 @@ class _AnimalDetailsState extends State<AnimalDetails> {
       _fetchCattleHistory();
     });
 
-      loadEvents();
-
+    loadEvents();
 
     _streamController = _fetchCattleDetail();
   }
+
   void loadEvents() async {
     // events1 = await _historyService.fetchEvents(uid, cattle.id);
     setState(() {});
   }
+
   Stream<DocumentSnapshot<Map<String, dynamic>>> _fetchCattleDetail() {
     return cattleDb.infoFromServer(widget.rfid).asStream();
   }
@@ -72,7 +74,6 @@ class _AnimalDetailsState extends State<AnimalDetails> {
     events.sort((a, b) => b.date.compareTo(a.date));
   }
 
-
   void editCattleDetail() {
     // Navigator.pop(context);
     // Navigator.pop(context);
@@ -83,32 +84,25 @@ class _AnimalDetailsState extends State<AnimalDetails> {
   }
 
   void deleteCattle() {
-    cattleDb
-        .deleteCattle(widget.rfid)
-        .then((value) =>
-        ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(
-            content: Text(currentLocalization['Deleted']??''),
-            duration: Duration(seconds: 2),
-          ),
+    cattleDb.deleteCattle(widget.rfid).then((value) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(currentLocalization['Deleted'] ?? ''),
+          duration: Duration(seconds: 2),
         ));
+      }
+    });
     Navigator.pop(context);
     Navigator.pop(context);
     Navigator.pop(context);
     Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                AnimalList1()));
-
+        context, MaterialPageRoute(builder: (context) => WrapperHomePage()));
   }
 
   bool isDetailVisible = false;
   @override
   Widget build(BuildContext context) {
-    languageCode = Provider
-        .of<AppData>(context)
-        .persistentVariable;
+    languageCode = Provider.of<AppData>(context).persistentVariable;
 
     currentLocalization = langFileMap[languageCode]!;
     Widget buildWidget(CattleHistory event) {
@@ -153,7 +147,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AnimalList1(),
+                  builder: (context) => GroupList(),
                 ),
               );
             },
@@ -192,165 +186,135 @@ class _AnimalDetailsState extends State<AnimalDetails> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  (_cattle.sex == 'Female') ?
-                  Expanded(
-                    // flex: 2,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(15, 5, 5, 5),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            currentLocalization['events'] ?? "",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 20),
+                  (_cattle.sex == 'Female')
+                      ? Expanded(
+                          // flex: 2,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(15, 5, 5, 5),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  currentLocalization['events'] ?? "",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20),
+                                ),
+                                ElevatedButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AddEventPopup(
+                                              uid: uid, cattle: _cattle);
+                                        },
+                                      );
+                                    },
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                          WidgetStateProperty.all<Color>(
+                                        const Color.fromRGBO(
+                                            240, 255, 255, 1.0),
+                                      ),
+                                      side: WidgetStateProperty.all<BorderSide>(
+                                        const BorderSide(
+                                            color: Colors
+                                                .black), // Set the border color here
+                                      ),
+                                    ),
+                                    child: Text(
+                                      currentLocalization['add_event'] ?? "",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold),
+                                    ))
+                              ],
+                            ),
                           ),
-                          ElevatedButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AddEventPopup(
-                                        uid: uid, cattle: _cattle);
-                                  },
-                                );
-                              },
-                              style: ButtonStyle(
-                                backgroundColor:
-                                WidgetStateProperty.all<Color>(
-                                  const Color.fromRGBO(240, 255, 255, 1.0),
-                                ),
-                                side: WidgetStateProperty.all<BorderSide>(
-                                  const BorderSide(
-                                      color: Colors
-                                          .black), // Set the border color here
-                                ),
-                              ),
-                              child: Text(
-                                currentLocalization['add_event'] ?? "",
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold),
-                              )
-                          )
-                        ],
-                      ),
-                    ),
-                  ) : Expanded(child: Container()),
+                        )
+                      : Expanded(
+                          child: Container(
+                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                          alignment: Alignment.center,
+                          child: (_cattle.sex == null)
+                              ? Text(
+                                  currentLocalization['Update_gender_dob'] ??
+                                      '',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.deepPurple),
+                                )
+                              : Text(''),
+                        )),
                   Expanded(
                     flex: 6,
-                    // child:SingleChildScrollView(
-                    //   scrollDirection: Axis.vertical,
                     child: ListView(
                       children: events
-                          .map((event) =>
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(10, 7, 10, 7),
-                            child: GestureDetector(
-                              /*onLongPress: () {
-                                showModalBottomSheet(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return Wrap(
-                                      children: [
-                                        ListTile(
-                                          leading: const Icon(
-                                              Icons.edit, color: Colors.blue),
-                                          title: Text(
-                                              currentLocalization["edit"] ??
-                                                  "Edit"),
-                                          onTap: () {
-                                            Navigator.pop(context);
-                                            // editEvent(event); // Function to handle edit
-                                          },
-                                        ),
-                                        ListTile(
-                                          leading: const Icon(
-                                              Icons.delete, color: Colors.red),
-                                          title: Text(
-                                              currentLocalization["delete"] ??
-                                                  "Delete"),
-                                          onTap: () {
-                                            Navigator.pop(context);
-                                            // deleteEvent(event);
-                                            // Function to handle delete
-                                            // _historyService.deleteEvent(uid, _cattle.rfid, events1[index]['eventId']);
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },*/
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: Colors.grey,
-                                    // Set the border color here
-                                    width: 1.5, // Set the border width here
+                          .map((event) => Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(10, 7, 10, 7),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: Colors.grey,
+                                      // Set the border color here
+                                      width: 1.5, // Set the border width here
+                                    ),
+                                    color:
+                                        const Color.fromRGBO(240, 255, 255, 1),
                                   ),
-                                  color: const Color.fromRGBO(240, 255, 255, 1),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment
-                                      .spaceAround,
-                                  children: [
-                                    Expanded(
-                                      flex: 4,
-                                      child: Container(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            20, 10, 10, 10),
-                                        width: 130,
-                                        height: 60,
-                                        alignment: Alignment.centerLeft,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                              12),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      Expanded(
+                                        flex: 4,
+                                        child: Container(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              20, 10, 10, 10),
+                                          width: 130,
+                                          height: 60,
+                                          alignment: Alignment.centerLeft,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                          ),
+                                          child: buildWidget(event),
                                         ),
-                                        child: buildWidget(event),
                                       ),
-                                    ),
-                                    Expanded(
-                                      flex: 12,
-                                      child: Text(
-                                        " ${capitalizeFirstLetterOfEachWord(
-                                            currentLocalization[event.name
-                                                .toLowerCase()] ?? "")}",
-                                        textAlign: TextAlign.left,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 6,
-                                      child: SizedBox(
+                                      Expanded(
+                                        flex: 12,
                                         child: Text(
-                                          "${event.date.year}-${(event.date
-                                              .month > 9)
-                                              ? event.date.month
-                                              : '0${event.date.month}'}-${(event
-                                              .date.day > 9)
-                                              ? event.date.day
-                                              : '0${event.date.day}'}",
-                                          // Display the raw date string
-                                          softWrap: false,
+                                          " ${capitalizeFirstLetterOfEachWord(currentLocalization[event.name.toLowerCase()] ?? "")}",
                                           textAlign: TextAlign.left,
+                                          overflow: TextOverflow.ellipsis,
                                           style: const TextStyle(
                                               fontSize: 16,
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold),
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                      Expanded(
+                                        flex: 6,
+                                        child: SizedBox(
+                                          child: Text(
+                                            "${event.date.year}-${(event.date.month > 9) ? event.date.month : '0${event.date.month}'}-${(event.date.day > 9) ? event.date.day : '0${event.date.day}'}",
+                                            // Display the raw date string
+                                            softWrap: false,
+                                            textAlign: TextAlign.left,
+                                            style: const TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ))
+                              ))
                           .toList(),
                     ),
 
@@ -372,12 +336,12 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                             onPressed: () {
                               setState(() {
                                 isDetailVisible =
-                                !isDetailVisible; // Toggle visibility
+                                    !isDetailVisible; // Toggle visibility
                               });
                             },
                           ),
                           Padding(
-                            padding: EdgeInsets.fromLTRB(12.0, 8, 12, 2),
+                            padding: EdgeInsets.fromLTRB(12.0, 0, 12, 2),
                             child: Text(
                               currentLocalization["details"] ?? "",
                               style: TextStyle(
@@ -395,9 +359,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                     // color: Colors.grey[200],
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
-                    height: isDetailVisible
-                        ? 300
-                        : 0,
+                    height: isDetailVisible ? 350 : 0,
                     // Set height based on visibility
                     child: SingleChildScrollView(
                       child: Padding(
@@ -408,10 +370,48 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                             const SizedBox(height: 20),
                             Container(
                               color: const Color.fromRGBO(13, 166, 186, 1.0),
+                              height: 60,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  SizedBox(
+                                    width: 100,
+                                    child: Text(
+                                      currentLocalization["cattle_name"] ??
+                                          "Name /Tag No.",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 110,
+                                    child: Text(
+                                      (_cattle.nickname == null)
+                                          ? ''
+                                          : _cattle.nickname
+                                              .toString()
+                                              .split(" ")[0],
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Container(
+                              color: const Color.fromRGBO(13, 166, 186, 1.0),
                               height: 50,
                               child: Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceAround,
+                                    MainAxisAlignment.spaceAround,
                                 children: [
                                   SizedBox(
                                     width: 100,
@@ -427,8 +427,11 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                   SizedBox(
                                     width: 110,
                                     child: Text(
-                                      _cattle.dateOfBirth.toString().split(
-                                          " ")[0],
+                                      (_cattle.dateOfBirth == null)
+                                          ? ''
+                                          : _cattle.dateOfBirth
+                                              .toString()
+                                              .split(" ")[0],
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white,
@@ -445,7 +448,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                               height: 50,
                               child: Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceAround,
+                                    MainAxisAlignment.spaceAround,
                                 children: [
                                   SizedBox(
                                     width: 100,
@@ -461,8 +464,9 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                   SizedBox(
                                     width: 100,
                                     child: Text(
-                                      currentLocalization[_cattle.sex
-                                          .toLowerCase()] ?? "",
+                                      currentLocalization[
+                                              _cattle.sex?.toLowerCase()] ??
+                                          "",
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white,
@@ -479,7 +483,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                               height: 50,
                               child: Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceAround,
+                                    MainAxisAlignment.spaceAround,
                                 children: [
                                   SizedBox(
                                     width: 100,
@@ -508,11 +512,11 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                             ),
                             const SizedBox(height: 10),
                             Container(
-                              height: 50,
+                              height: 60,
                               color: const Color.fromRGBO(13, 166, 186, 1.0),
                               child: Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceAround,
+                                    MainAxisAlignment.spaceAround,
                                 children: [
                                   SizedBox(
                                     width: 100,
@@ -528,7 +532,9 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                   SizedBox(
                                     width: 100,
                                     child: Text(
-                                      currentLocalization[_cattle.breed.toLowerCase()]??_cattle.breed,
+                                      currentLocalization[
+                                              _cattle.breed?.toLowerCase()] ??
+                                          '',
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white,
@@ -545,7 +551,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                               color: const Color.fromRGBO(13, 166, 186, 1.0),
                               child: Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceAround,
+                                    MainAxisAlignment.spaceAround,
                                 children: [
                                   SizedBox(
                                     width: 100,
@@ -561,8 +567,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                   SizedBox(
                                     width: 100,
                                     child: Text(
-                                      currentLocalization[_cattle.state
-                                          ] ?? "",
+                                      currentLocalization[_cattle.state] ?? "",
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white,
@@ -579,7 +584,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                               color: const Color.fromRGBO(13, 166, 186, 1.0),
                               child: Row(
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceAround,
+                                    MainAxisAlignment.spaceAround,
                                 children: [
                                   SizedBox(
                                     width: 100,
@@ -596,7 +601,9 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                   SizedBox(
                                     width: 100,
                                     child: Text(
-                                      currentLocalization[_cattle.source.toLowerCase()]??_cattle.source,
+                                      currentLocalization[
+                                              _cattle.source?.toLowerCase()] ??
+                                          '',
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white,
@@ -608,41 +615,44 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                               ),
                             ),
                             const SizedBox(height: 10),
-                            (_cattle.sex == currentLocalization['female']) ?
-                            Container(
-                              height: 60,
-                              color: const Color.fromRGBO(13, 166, 186, 1.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                MainAxisAlignment.spaceAround,
-                                children: [
-                                  SizedBox(
-                                    width: 100,
-                                    child: Text(
-                                      currentLocalization["pregnant"] ?? "",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                      ),
+                            (_cattle.sex == currentLocalization['female'])
+                                ? Container(
+                                    height: 60,
+                                    color:
+                                        const Color.fromRGBO(13, 166, 186, 1.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        SizedBox(
+                                          width: 100,
+                                          child: Text(
+                                            currentLocalization["pregnant"] ??
+                                                "",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 100,
+                                          child: Text(
+                                            (_cattle.isPregnant)
+                                                ? currentLocalization['yes']!
+                                                : currentLocalization['no']!,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                  SizedBox(
-                                    width: 100,
-                                    child: Text(
-                                      (_cattle.isPregnant)
-                                          ? currentLocalization['yes']!
-                                          : currentLocalization['no']!,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ) : Container(),
+                                  )
+                                : Container(),
                           ],
                         ),
                       ),
@@ -652,7 +662,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
               );
             } else {
               return Center(
-                child: Text(currentLocalization['Error in Fetch']??''),
+                child: Text(currentLocalization['Error in Fetch'] ?? ''),
               );
             }
           }),
@@ -669,20 +679,17 @@ class EditAnimalDetail extends StatefulWidget {
   State<EditAnimalDetail> createState() => _EditAnimalDetailState();
 }
 
-class _EditAnimalDetailState extends State<EditAnimalDetail>{
-late Map<String, String> currentLocalization= {};
-late String languageCode = 'en';
+class _EditAnimalDetailState extends State<EditAnimalDetail> {
+  late Map<String, String> currentLocalization = {};
+  late String languageCode = 'en';
   final _formKey = GlobalKey<FormState>();
-  // final TextEditingController _rfidTextController = TextEditingController();
+  final TextEditingController _nameTextController = TextEditingController();
   final TextEditingController _weightTextController = TextEditingController();
-  final TextEditingController _breedTextController = TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
-
-  // final TextEditingController _tagNumberController3 = TextEditingController();
 
   String? _selectedGender; // Variable to store selected gender
   String? _selectedSource;
-  String? _selectedStage;
+  String? _selectedBreed;
   DateTime? _birthDate;
 
   // Variable to store selected gender
@@ -692,12 +699,6 @@ late String languageCode = 'en';
     'Born on Farm',
     'Purchased'
   ]; // List of gender options
-  final List<String> stageOptions = [
-    'Milked',
-    'Heifer',
-    'Dry',
-    'Calf'
-  ];
 
   final user = FirebaseAuth.instance.currentUser;
   final uid = FirebaseAuth.instance.currentUser!.uid;
@@ -706,65 +707,61 @@ late String languageCode = 'en';
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     cattleDb = DatabaseServicesForCattle(uid);
-    _breedTextController.text = widget.cattle.breed;
+    _nameTextController.text = widget.cattle.nickname ?? '';
+    _selectedBreed = widget.cattle.breed;
     _weightTextController.text = widget.cattle.weight.toString();
     _selectedSource = widget.cattle.source;
-    _selectedStage = widget.cattle.state;
     _selectedGender = widget.cattle.sex;
     _birthDateController.text =
-    '${widget.cattle.dateOfBirth.year}-${widget.cattle.dateOfBirth
-        .month}-${widget.cattle.dateOfBirth
-        .day}';
+        '${widget.cattle.dateOfBirth?.year}-${widget.cattle.dateOfBirth?.month}-${widget.cattle.dateOfBirth?.day}';
   }
 
   void updateCattleButton(BuildContext context) {
     final cattle = Cattle(
         rfid: widget.cattle.rfid,
-        //age: int.parse(_ageTextController.text),
-        breed: _breedTextController.text,
+        nickname: _nameTextController.text,
+        breed: _selectedBreed.toString(),
         sex: _selectedGender.toString(),
         weight: int.parse(_weightTextController.text),
-        state: _selectedStage.toString(),
+        state: widget.cattle.state,
         source: _selectedSource.toString(),
         type: widget.cattle.type,
         isPregnant: widget.cattle.isPregnant,
-        dateOfBirth: _birthDate != null ? _birthDate! : widget.cattle.dateOfBirth
-    );
+        dateOfBirth:
+            _birthDate != null ? _birthDate! : widget.cattle.dateOfBirth);
 
     cattleDb.infoToServerSingleCattle(cattle);
-    if(cattle.state == "Calf" && cattle.sex == "Female" && cattle.state != widget.cattle.state) {
+    if (cattle.state == "Calf" &&
+        cattle.sex == "Female" &&
+        cattle.dateOfBirth != null &&
+        widget.cattle.dateOfBirth == null) {
       AlertNotifications alert = AlertNotifications();
       alert.createCalfNotifications(cattle);
     }
 
     Navigator.pop(context);
-   Navigator.pop(context);
+    Navigator.pop(context);
     Navigator.pop(context);
     Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                AnimalList1()));
+        context, MaterialPageRoute(builder: (context) => WrapperHomePage()));
   }
 
   @override
   Widget build(BuildContext context) {
-
-    languageCode = Provider
-        .of<AppData>(context)
-        .persistentVariable;
+    languageCode = Provider.of<AppData>(context).persistentVariable;
 
     currentLocalization = langFileMap[languageCode]!;
+
+    var breedList = (widget.cattle.type == 'Cow') ? cowBreed : buffaloBreed;
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1.0),
       appBar: AppBar(
         title: Text(
-          currentLocalization['edit_details']??'',
+          currentLocalization['edit_details'] ?? '',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -788,12 +785,31 @@ late String languageCode = 'en';
           child: Form(
             key: _formKey,
             child: ListView(children: [
+              SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(5, 0, 5, 26),
+                child: TextFormField(
+                  controller: _nameTextController,
+                  decoration: InputDecoration(
+                    labelText: currentLocalization['enter_the_cattle_name'] ?? '',
+                    border: OutlineInputBorder(),
+                    filled: true,
+                    fillColor: Color.fromRGBO(240, 255, 255, 0.7),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return currentLocalization['please_enter_tag_num'];
+                    }
+                    return null;
+                  },
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(5, 8, 5, 26),
                 child: DropdownButtonFormField<String>(
                   value: _selectedGender,
                   decoration: InputDecoration(
-                    labelText: "${currentLocalization['gender']??''}*",
+                    labelText: "${currentLocalization['gender'] ?? ''}*",
                     border: OutlineInputBorder(),
                     filled: true,
                     fillColor: Color.fromRGBO(240, 255, 255, 0.7),
@@ -801,7 +817,8 @@ late String languageCode = 'en';
                   items: genderOptions.map((String gender) {
                     return DropdownMenuItem<String>(
                       value: gender,
-                      child: Text(currentLocalization[gender.toLowerCase()]??''),
+                      child:
+                          Text(currentLocalization[gender.toLowerCase()] ?? ''),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -832,8 +849,7 @@ late String languageCode = 'en';
                       setState(() {
                         _birthDate = pickedDate;
                         _birthDateController.text =
-                        '${_birthDate!.year}-${_birthDate!.month}-${_birthDate!
-                            .day}';
+                            '${_birthDate!.year}-${_birthDate!.month}-${_birthDate!.day}';
                       });
                     }
                   },
@@ -860,7 +876,7 @@ late String languageCode = 'en';
                   keyboardType: TextInputType.number,
                   controller: _weightTextController,
                   decoration: InputDecoration(
-                    labelText: currentLocalization['enter_the_weight']??'',
+                    labelText: currentLocalization['enter_the_weight'] ?? '',
                     border: OutlineInputBorder(),
                     filled: true,
                     fillColor: Color.fromRGBO(240, 255, 255, 0.7),
@@ -873,7 +889,8 @@ late String languageCode = 'en';
                 child: DropdownButtonFormField<String>(
                   value: _selectedSource,
                   decoration: InputDecoration(
-                    labelText: currentLocalization['source_of_cattle']??""'*',
+                    labelText:
+                        currentLocalization['source_of_cattle'] ?? "" '*',
                     border: OutlineInputBorder(),
                     filled: true,
                     fillColor: Color.fromRGBO(240, 255, 255, 0.7),
@@ -881,7 +898,8 @@ late String languageCode = 'en';
                   items: sourceOptions.map((String source) {
                     return DropdownMenuItem<String>(
                       value: source,
-                      child: Text(currentLocalization[source.toLowerCase()]??''),
+                      child:
+                          Text(currentLocalization[source.toLowerCase()] ?? ''),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -900,43 +918,31 @@ late String languageCode = 'en';
               // SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 26),
-                child: TextFormField(
-                  controller: _breedTextController,
-                  decoration: InputDecoration(
-                    labelText: currentLocalization['enter_the_breed'],
-                    border: OutlineInputBorder(),
-                    filled: true,
-                    fillColor: Color.fromRGBO(240, 255, 255, 0.7),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return currentLocalization['please_enter_breed']??'';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.fromLTRB(5, 0, 5, 26),
                 child: DropdownButtonFormField<String>(
-                  value: _selectedStage,
-                  decoration:  InputDecoration(
-                    labelText: currentLocalization['status'],
+                  value: _selectedBreed,
+                  decoration: InputDecoration(
+                    labelText:
+                        currentLocalization['select_the_breed'] ?? "" '*',
                     border: OutlineInputBorder(),
                     filled: true,
                     fillColor: Color.fromRGBO(240, 255, 255, 0.7),
                   ),
-                  items: stageOptions.map((String stage) {
+                  items: breedList.map((String breed) {
                     return DropdownMenuItem<String>(
-                      value: stage,
-                      child: Text(currentLocalization[stage]??''),
+                      value: breed,
+                      child: Text(currentLocalization[breed] ?? 'breed'),
                     );
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
-                      _selectedStage = value;
+                      _selectedBreed = value;
                     });
+                  },
+                  validator: (value) {
+                    if (value == null || value == 'select') {
+                      return currentLocalization['please_select_breed'];
+                    }
+                    return null;
                   },
                 ),
               ),
@@ -951,8 +957,10 @@ late String languageCode = 'en';
                         updateCattleButton(context);
 
                         ScaffoldMessenger.of(context).showSnackBar(
-                           SnackBar(
-                              content: Text(currentLocalization['cattle_details_updated_successfully']??'')),
+                          SnackBar(
+                              content: Text(currentLocalization[
+                                      'cattle_details_updated_successfully'] ??
+                                  '')),
                         );
                       }
                     },
@@ -962,7 +970,7 @@ late String languageCode = 'en';
                       ),
                     ),
                     child: Text(
-                      currentLocalization['submit']??'',
+                      currentLocalization['submit'] ?? '',
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -1015,7 +1023,7 @@ class _AddEventPopupState extends State<AddEventPopup> {
   List<String> eventOptions = [];
   DateTime? selectedDate;
   late AlertNotifications alerts;
-  late Map<String, String> currentLocalization= {};
+  late Map<String, String> currentLocalization = {};
   late String languageCode = 'en';
 
   @override
@@ -1028,16 +1036,34 @@ class _AddEventPopupState extends State<AddEventPopup> {
   void setEventOptions() {
     switch (widget.cattle.state) {
       case 'Dry':
-        eventOptions = ['Abortion', 'Insemination', 'Pregnant', 'Calved','Vaccination'];
+        eventOptions = [
+          'Abortion',
+          'Insemination',
+          'Pregnant',
+          'Calved',
+          'Vaccination'
+        ];
         break;
       case 'Milked':
-        eventOptions = ['Insemination', 'Pregnant', 'Abortion', 'Dry','Vaccination'];
+        eventOptions = [
+          'Insemination',
+          'Pregnant',
+          'Abortion',
+          'Dry',
+          'Vaccination'
+        ];
         break;
       case 'Heifer':
-        eventOptions = ['Insemination', 'Pregnant', 'Abortion', 'Calved','Vaccination'];
+        eventOptions = [
+          'Insemination',
+          'Pregnant',
+          'Abortion',
+          'Calved',
+          'Vaccination'
+        ];
         break;
       case 'Calf':
-        eventOptions = ['Insemination','Vaccination'];
+        eventOptions = ['Insemination', 'Vaccination'];
         break;
       default:
         eventOptions = [];
@@ -1046,9 +1072,7 @@ class _AddEventPopupState extends State<AddEventPopup> {
 
   @override
   Widget build(BuildContext context) {
-    languageCode = Provider
-        .of<AppData>(context)
-        .persistentVariable;
+    languageCode = Provider.of<AppData>(context).persistentVariable;
 
     currentLocalization = langFileMap[languageCode]!;
 
@@ -1074,7 +1098,7 @@ class _AddEventPopupState extends State<AddEventPopup> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Text(
-            currentLocalization['add_event']??'',
+            currentLocalization['add_event'] ?? '',
             style: TextStyle(
               fontSize: 22.0,
               fontWeight: FontWeight.w600,
@@ -1091,13 +1115,13 @@ class _AddEventPopupState extends State<AddEventPopup> {
                 });
               },
               decoration: InputDecoration(
-                hintText: currentLocalization['event_name']??'',
+                hintText: currentLocalization['event_name'] ?? '',
                 border: OutlineInputBorder(),
               ),
               items: eventOptions.map((String option) {
                 return DropdownMenuItem<String>(
                   value: option,
-                  child: Text(currentLocalization[option.toLowerCase()]??''),
+                  child: Text(currentLocalization[option.toLowerCase()] ?? ''),
                 );
               }).toList(),
             ),
@@ -1123,7 +1147,7 @@ class _AddEventPopupState extends State<AddEventPopup> {
               }
             },
             decoration: InputDecoration(
-              hintText: currentLocalization['event_date']??'',
+              hintText: currentLocalization['event_date'] ?? '',
               border: OutlineInputBorder(),
             ),
           ),
@@ -1150,7 +1174,9 @@ class _AddEventPopupState extends State<AddEventPopup> {
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(currentLocalization['please_select_event_and_date']??''),
+                    content: Text(
+                        currentLocalization['please_select_event_and_date'] ??
+                            ''),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -1162,7 +1188,7 @@ class _AddEventPopupState extends State<AddEventPopup> {
               ),
             ),
             child: Text(
-              currentLocalization['submit']??'',
+              currentLocalization['submit'] ?? '',
               style: TextStyle(color: Colors.white),
             ),
           ),
@@ -1171,4 +1197,3 @@ class _AddEventPopupState extends State<AddEventPopup> {
     );
   }
 }
-

@@ -27,7 +27,7 @@ class DatabaseForMilk {
         .doc(
             'D${milk.dateOfMilk?.day}M${milk.dateOfMilk?.month}Y${milk.dateOfMilk?.year}')
         .collection('Store')
-        .doc(milk.rfid)
+        .doc(milk.id)
         .set(milk.toFireStore());
   }
 
@@ -42,9 +42,8 @@ class DatabaseForMilk {
         .doc('D${dateOfMilk.day}M${dateOfMilk.month}Y${dateOfMilk.year}');
 
     // Delete all documents in the 'Store' sub collection
-    final QuerySnapshot cattleMilkDocs = await milkDocRefForDate
-        .collection('Store')
-        .get();
+    final QuerySnapshot cattleMilkDocs =
+        await milkDocRefForDate.collection('Store').get();
 
     for (QueryDocumentSnapshot doc in cattleMilkDocs.docs) {
       await doc.reference.delete();

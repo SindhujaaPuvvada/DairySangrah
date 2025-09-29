@@ -1,4 +1,3 @@
-import 'package:farm_expense_mangement_app/models/user.dart';
 import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,8 +18,9 @@ class WrapperHomePage extends StatefulWidget {
 
 class LanguagePopup {
   static void showLanguageOptions(BuildContext context) {
-    var languageCode = Provider.of<AppData>(context,listen: false).persistentVariable;
-    Map<String, String> currentLocalization= {};
+    var languageCode =
+        Provider.of<AppData>(context, listen: false).persistentVariable;
+    Map<String, String> currentLocalization = {};
 
     currentLocalization = langFileMap[languageCode]!;
 
@@ -28,14 +28,19 @@ class LanguagePopup {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(currentLocalization['Select Language']??'Select Language'),
+          title:
+              Text(currentLocalization['Select Language'] ?? 'Select Language'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildLanguageOption(context, currentLocalization['English']??'English', 'en'),
-              _buildLanguageOption(context, currentLocalization['Hindi']??'Hindi', 'hi'),
-              _buildLanguageOption(context, currentLocalization['Punjabi']??'Punjabi', 'pa'),
-              _buildLanguageOption(context, currentLocalization['Telugu']??'Telugu', 'te')
+              _buildLanguageOption(
+                  context, currentLocalization['English'] ?? 'English', 'en'),
+              _buildLanguageOption(
+                  context, currentLocalization['Hindi'] ?? 'Hindi', 'hi'),
+              _buildLanguageOption(
+                  context, currentLocalization['Punjabi'] ?? 'Punjabi', 'pa'),
+              _buildLanguageOption(
+                  context, currentLocalization['Telugu'] ?? 'Telugu', 'te')
             ],
           ),
         );
@@ -47,7 +52,8 @@ class LanguagePopup {
       BuildContext context, String language, String languageCode) {
     return InkWell(
       onTap: () {
-        Provider.of<AppData>(context, listen: false).persistentVariable = languageCode;
+        Provider.of<AppData>(context, listen: false).persistentVariable =
+            languageCode;
         Navigator.pop(context);
       },
       child: Padding(
@@ -82,16 +88,20 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
     _streamControllerScreen.add(_screenFromNumber);
     _appBar = const HomeAppBar();
     _bodyScreen = const HomePage();
-    _setLanguage();
+    _LoadData();
   }
 
-  Future<void> _setLanguage() async {
-    String uid = FirebaseAuth.instance.currentUser!.uid;
-    DatabaseServicesForUser userDB = DatabaseServicesForUser(uid);
-    var snapshot =  await userDB.infoFromServer(uid);
-    if(snapshot.exists){
-      FarmUser farmUser = FarmUser.fromFireStore(snapshot, null);
-      Provider.of<AppData>(context, listen: false).persistentVariable = farmUser.chosenLanguage;
+  Future<void> _LoadData() async {
+    int counter = Provider.of<AppData>(context, listen: false).counter;
+    if (counter == 0) {
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+      DatabaseServicesForUser userDB = DatabaseServicesForUser(uid);
+      var langCode = await userDB.getChosenLanguage(uid);
+      if (mounted) {
+        Provider.of<AppData>(context, listen: false).persistentVariable =
+            langCode;
+        Provider.of<AppData>(context, listen: false).counter = 1;
+      }
     }
   }
 
@@ -109,7 +119,8 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
       } else if (_selectedIndex == 3) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const AlertNotificationsPage()),
+          MaterialPageRoute(
+              builder: (context) => const AlertNotificationsPage()),
         );
       }
     });
@@ -126,6 +137,7 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
       _updateIndex(1);
     });
   }
+
   void Language(BuildContext context) {
     setState(() {
       _updateIndex(2);
@@ -176,10 +188,9 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
                 ),
               ),
               FloatingActionButton(
-                onPressed: (){
+                onPressed: () {
                   LanguagePopup.showLanguageOptions(context);
                 },
-
                 backgroundColor: Colors.white,
                 elevation: 0,
                 child: Icon(
@@ -190,14 +201,16 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
               ),
               FloatingActionButton(
                 onPressed: () async {
-                  _selectedIndex=3;
+                  _selectedIndex = 3;
                   await Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const AlertNotificationsPage()),
+                    MaterialPageRoute(
+                        builder: (context) => const AlertNotificationsPage()),
                   );
                   // Reset index after returning from the notifications page
                   setState(() {
-                    _selectedIndex = 0; // Set this to the default page index (Home)
+                    _selectedIndex =
+                        0; // Set this to the default page index (Home)
                   });
                 },
                 backgroundColor: Colors.white,
@@ -214,5 +227,4 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
       ),
     );
   }
-
 }

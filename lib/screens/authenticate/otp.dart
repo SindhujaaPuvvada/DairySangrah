@@ -4,27 +4,29 @@ import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:farm_expense_mangement_app/services/auth.dart';
 import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/phoneno.dart';
 import '../../logging.dart';
 import '../../main.dart';
 import 'package:provider/provider.dart';
+
+import '../onboarding/onboard.dart';
+import '../onboarding/onboardUtils.dart';
+
 class OtpVerificationPage extends StatefulWidget {
   const OtpVerificationPage({super.key});
 
   @override
-  _OtpVerificationPageState createState() => _OtpVerificationPageState();
+  State<OtpVerificationPage> createState() => _OtpVerificationPageState();
 }
 
 class _OtpVerificationPageState extends State<OtpVerificationPage> {
   final _focusNodes = List.generate(6, (index) => FocusNode());
   final _controllers = List.generate(6, (index) => TextEditingController());
-  final AuthService _auth = AuthService();
+  //final AuthService _auth = AuthService();
   late String languageCode = 'en';
   final log = logger(OtpVerificationPage);
-  late Map<String, String> currentLocalization= {};
-
+  late Map<String, String> currentLocalization = {};
 
   @override
   void initState() {
@@ -52,13 +54,12 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     super.dispose();
   }
 
-
- @override
+  @override
   Widget build(BuildContext context) {
-   languageCode = Provider.of<AppData>(context).persistentVariable;
-   //print(languageCode);
+    languageCode = Provider.of<AppData>(context).persistentVariable;
+    //print(languageCode);
 
-   currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = langFileMap[languageCode]!;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -75,7 +76,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           },
         ),
         title: Text(
-          currentLocalization['Login To Dairy Sangrah']??"",
+          currentLocalization['Login To Dairy Sangrah'] ?? "",
           style: TextStyle(
             fontWeight: FontWeight.bold, // Make the title bold
           ),
@@ -90,7 +91,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           children: <Widget>[
             // "Enter OTP" text (bold)
             Text(
-              currentLocalization['Enter OTP']??"",
+              currentLocalization['Enter OTP'] ?? "",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -103,10 +104,12 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center, // Center the boxes
-                mainAxisSize: MainAxisSize.min, // Wrap the Row around its children
+                mainAxisSize:
+                    MainAxisSize.min, // Wrap the Row around its children
                 children: List.generate(6, (index) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0), // Spacing between boxes
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0), // Spacing between boxes
                     child: _buildOtpBox(
                       controller: _controllers[index],
                       focusNode: _focusNodes[index],
@@ -118,7 +121,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               ),
             ),
 
-            SizedBox(height: 20), // Space between the OTP boxes and the continue button
+            SizedBox(
+                height:
+                    20), // Space between the OTP boxes and the continue button
 
             // Continue button (same style as sign-up button)
             SizedBox(
@@ -127,73 +132,95 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF0EA6BB), // Continue button color
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), // More curve for the button
+                    borderRadius:
+                        BorderRadius.circular(10), // More curve for the button
                   ),
-                  padding: EdgeInsets.symmetric(vertical: 14.0), // Slightly smaller height
+                  padding: EdgeInsets.symmetric(
+                      vertical: 14.0), // Slightly smaller height
                 ),
                 onPressed: () async {
-                  String otp = _controllers.map((controller) => controller.text).join();
+                  String otp =
+                      _controllers.map((controller) => controller.text).join();
                   //print(otp);
                   //print(SignUpPage.verify);
                   try {
-                    PhoneAuthCredential credential = PhoneAuthProvider
-                        .credential(
-                        verificationId: SignUpPage.verify, smsCode: otp);
-                    await FirebaseAuth.instance.signInWithCredential(
-                        credential);
-
+                    PhoneAuthCredential credential =
+                        PhoneAuthProvider.credential(
+                            verificationId: SignUpPage.verify, smsCode: otp);
+                    await FirebaseAuth.instance
+                        .signInWithCredential(credential);
 
                     String uid = FirebaseAuth.instance.currentUser!.uid;
-                    DatabaseServicesForUser userDb = DatabaseServicesForUser(uid);
+                    DatabaseServicesForUser userDb =
+                        DatabaseServicesForUser(uid);
 
-                    final snapshot =  await userDb.infoFromServer(uid);
+                    final snapshot = await userDb.infoFromServer(uid);
 
                     if (SignUpPage.newFarmReg && !snapshot.exists) {
                       //print("in register block");
-
-                      Navigator.pushReplacement(
-                          context, MaterialPageRoute(
-                          builder: (context) => RegisterFarm()));
-                    }
-                    else {
+                      if (context.mounted) {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => RegisterFarm()));
+                      }
+                    } else {
                       if (snapshot.exists) {
                         //print("in wrapper block");
-                        Navigator.pushReplacement(
-                            context, MaterialPageRoute(
-                            builder: (context) => const WrapperHomePage()));
-                      }
-                      else {
-                        showDialog(context: context,
-                            builder: (context) {
-                              return AuthUtils.buildAlertDialog(
-                                  title: currentLocalization['No existing Farm!']??'',
-                                  content: currentLocalization['Not Registered Content']??'',
-                                  opt1: currentLocalization['register']??'',
-                                  onPressedOpt1: () {
-                                    Navigator.pushReplacement(
-                                        context, MaterialPageRoute(
-                                        builder: (context) => RegisterFarm()));
-                                  },
-                                  opt2: currentLocalization['cancel']??'',
-                                  onPressedOpt2: () async {
-                                    await FirebaseAuth
-                                        .instance
-                                        .currentUser!.delete();
-                                    Navigator.pushReplacement(
-                                      context, MaterialPageRoute(
-                                          builder: (context) => MyApp()));
-                                  }
-                              );
-                            });
+                        checkForFirstLaunch().then((bool value) {
+                          bool showOnboarding = value;
+                          if (context.mounted) {
+                            Navigator.pushReplacement(context,
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) {
+                              return showOnboarding
+                                  ? OnBoardingScreens()
+                                  : const WrapperHomePage();
+                            }));
+                          }
+                        });
+                      } else {
+                        if (context.mounted) {
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AuthUtils.buildAlertDialog(
+                                    title: currentLocalization[
+                                            'No existing Farm!'] ??
+                                        '',
+                                    content: currentLocalization[
+                                            'Not Registered Content'] ??
+                                        '',
+                                    opt1: currentLocalization['register'] ?? '',
+                                    onPressedOpt1: () {
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  RegisterFarm()));
+                                    },
+                                    opt2: currentLocalization['cancel'] ?? '',
+                                    onPressedOpt2: () async {
+                                      await FirebaseAuth.instance.currentUser!
+                                          .delete();
+                                      if (context.mounted) {
+                                        Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => MyApp()));
+                                      }
+                                    });
+                              });
+                        }
                       }
                     }
-                  }
-                  catch (e) {
-                    log.e("Encountered error!!", time: DateTime.now(), error: e.toString());
+                  } catch (e) {
+                    log.e("Encountered error!!",
+                        time: DateTime.now(), error: e.toString());
                   }
                 },
                 child: Text(
-                  currentLocalization['Continue']??"",
+                  currentLocalization['Continue'] ?? "",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -203,14 +230,16 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               ),
             ),
 
-            SizedBox(height: 20), // Space between the continue button and the next section
+            SizedBox(
+                height:
+                    20), // Space between the continue button and the next section
 
             // "Didn't receive code?" and "Resend OTP" button
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text(
-                  currentLocalization["Didn't receive code?"]??"",
+                  currentLocalization["Didn't receive code?"] ?? "",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w300, // Light weight font
@@ -221,7 +250,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     // Handle resend OTP logic here
                   },
                   child: Text(
-                    currentLocalization['Resend OTP']??"",
+                    currentLocalization['Resend OTP'] ?? "",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600, // Slightly more weight
@@ -232,7 +261,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               ],
             ),
 
-            SizedBox(height: 20), // Space between the resend OTP section and the terms text
+            SizedBox(
+                height:
+                    20), // Space between the resend OTP section and the terms text
 
             // Terms and conditions text
             // Center(
@@ -287,13 +318,21 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         onChanged: (text) {
           if (text.length == 1) {
             if (!isLast) {
-              FocusScope.of(context).requestFocus(_focusNodes[_focusNodes.indexOf(focusNode) + 1]);
+              FocusScope.of(context).requestFocus(
+                  _focusNodes[_focusNodes.indexOf(focusNode) + 1]);
             }
           } else if (text.isEmpty && !isFirst) {
-            FocusScope.of(context).requestFocus(_focusNodes[_focusNodes.indexOf(focusNode) - 1]);
+            FocusScope.of(context)
+                .requestFocus(_focusNodes[_focusNodes.indexOf(focusNode) - 1]);
           }
         },
       ),
     );
+  }
+
+  Future<bool> checkForFirstLaunch() async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    bool showOnBoard = await OnboardUtils.checkFirstLaunch(uid);
+    return showOnBoard;
   }
 }

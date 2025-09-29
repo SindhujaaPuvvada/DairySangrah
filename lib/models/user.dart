@@ -12,24 +12,32 @@ class FarmUser {
   final String location;
   final int phoneNo;
   final String chosenLanguage;
+  String appMode;
+  bool? isFirstLaunch;
 
-  FarmUser(
-      {required this.ownerName,
-      required this.farmName,
-      required this.location,
-      required this.phoneNo,
-      required this.chosenLanguage,});
+  FarmUser({
+    required this.ownerName,
+    required this.farmName,
+    required this.location,
+    required this.phoneNo,
+    required this.chosenLanguage,
+    this.appMode = 'GBW', //Group Breed Wise(GBW) or (Normal)
+    this.isFirstLaunch
+  });
 
   factory FarmUser.fromFireStore(
       DocumentSnapshot<Map<String, dynamic>> snapshot,
       SnapshotOptions? options) {
     final data = snapshot.data();
     return FarmUser(
-        ownerName: data?['ownerName'],
-        farmName: data?['farmName'],
-        location: data?['location'],
-        phoneNo: data?['phoneNo'],
-        chosenLanguage: data?['chosenLanguage']??'en');
+      ownerName: data?['ownerName'],
+      farmName: data?['farmName'],
+      location: data?['location'],
+      phoneNo: data?['phoneNo'],
+      chosenLanguage: data?['chosenLanguage'] ?? 'en',
+      appMode: data?['appMode'] ?? 'GBW',
+      isFirstLaunch: data?['isFirstLaunch'] ?? true
+    );
   }
 
   Map<String, dynamic> toFireStore() {
@@ -39,6 +47,8 @@ class FarmUser {
       'location': location,
       'phoneNo': phoneNo,
       'chosenLanguage': chosenLanguage,
+      'appMode': appMode,
+      'isFirstLaunch': isFirstLaunch
     };
   }
 }

@@ -1,4 +1,3 @@
-
 import 'package:farm_expense_mangement_app/models/notification.dart';
 import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,7 +7,6 @@ import '../../main.dart';
 import '../../services/database/notificationdatabase.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 
-
 class AlertNotificationsPage extends StatefulWidget {
   const AlertNotificationsPage({super.key});
 
@@ -17,8 +15,7 @@ class AlertNotificationsPage extends StatefulWidget {
 }
 
 class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
-
-  late Map<String, String> currentLocalization= {};
+  late Map<String, String> currentLocalization = {};
   late String languageCode = 'en';
 
   List<Map<String, String>> notifications = [];
@@ -31,22 +28,19 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
   Future<void> _getNotifications() async {
     final snapshot = await ntfDb.infoFromServerAllNotifications();
     setState(() {
-      List<CattleNotification> ntfs = snapshot.docs.map((doc) =>
-          CattleNotification.fromFireStore(doc, null)).toList();
+      List<CattleNotification> ntfs = snapshot.docs
+          .map((doc) => CattleNotification.fromFireStore(doc, null))
+          .toList();
 
       for (var ntf in ntfs) {
-        int diff = DateTime
-            .now()
-            .difference(ntf.ntShowDate)
-            .inDays;
+        int diff = DateTime.now().difference(ntf.ntShowDate).inDays;
         if ((!ntf.ntClosed) & (diff >= 0)) {
-          notifications.add(
-              {
-                "title": ntf.ntTitle,
-                "details": ntf.ntDetails,
-                "id": ntf.ntId,
-                "isSelected": false.toString()
-              });
+          notifications.add({
+            "title": ntf.ntTitle,
+            "details": ntf.ntDetails,
+            "id": ntf.ntId,
+            "isSelected": false.toString()
+          });
         }
       }
       _isLoading = false;
@@ -56,11 +50,12 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
   Future<void> _deleteNotifications() async {
     for (var ntf in notifications) {
       bool sel = bool.parse(ntf['isSelected']!);
-      if( sel == true) {
+      if (sel == true) {
         await ntfDb.closeNotification(ntf['id']!);
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const AlertNotificationsPage()),
+          MaterialPageRoute(
+              builder: (context) => const AlertNotificationsPage()),
         );
       }
     }
@@ -70,15 +65,13 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
   void initState() {
     super.initState();
     ntfDb = DatabaseServicesForNotification(uid);
-      setState(() {
-        _getNotifications();
-      });
+    setState(() {
+      _getNotifications();
+    });
   }
-
 
   @override
   Widget build(BuildContext context) {
-
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
     currentLocalization = langFileMap[languageCode]!;
@@ -98,7 +91,7 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
       String remaining = "";
 
       if (dashIndex != -1 && (isIndex == -1 || dashIndex < isIndex)) {
-        middle = rest.substring(0, dashIndex+1).trim();
+        middle = rest.substring(0, dashIndex + 1).trim();
         remaining = rest.substring(dashIndex + 1).trim();
       } else if (isIndex != -1) {
         middle = rest.substring(0, isIndex).trim();
@@ -115,163 +108,169 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
     return Scaffold(
         appBar: AppBar(
             leading: BackButton(
-                onPressed: () =>
-                    Navigator.push(
-                        context, MaterialPageRoute(
-                        builder: (context) => const WrapperHomePage())
-                    )),
+                onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const WrapperHomePage()))),
             title: Text(
-              currentLocalization['notifications']??"",
+              currentLocalization['notifications'] ?? "",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             backgroundColor: const Color(0xFF0DA6BA),
             // Tealish Blue
             elevation: 4.0,
-            actions: _showCheckboxes ? <Widget>[
-              IconButton(
-                  onPressed: () {
-                    _deleteNotifications();
-                  },
-                  icon: const Icon(
-                    Icons.delete,
-                    color: Colors.white,
-                  )
-              ),
-            ] : <Widget>[]
-        ),
+            actions: _showCheckboxes
+                ? <Widget>[
+                    IconButton(
+                        onPressed: () {
+                          _deleteNotifications();
+                        },
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.white,
+                        )),
+                  ]
+                : <Widget>[]),
         body: _isLoading
             ? const Center(
-          child: CircularProgressIndicator(),)
+                child: CircularProgressIndicator(),
+              )
             : Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: 16.0, vertical: 10.0),
-          child: ListView.builder(
-            scrollDirection: Axis.vertical,
-            itemCount: notifications.length,
-            itemBuilder: (context, index) {
-              _isSelected = bool.parse(notifications[index]['isSelected']!);
-              return Container(
-                margin: const EdgeInsets.symmetric(vertical: 10.0),
-                padding: const EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFFFFF),
-                  // White background
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.3),
-                      spreadRadius: 2,
-                      blurRadius: 6,
-                      offset: const Offset(0, 4), // Shadow position
-                    ),
-                  ],
-                  border: Border.all(
-                    color: const Color(0xFFE0E0E0),
-                    // Light gray border
-                    width: 1,
-                  ),
-                ),
-                child: ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF0DA6BA),
-                        // Tealish Blue Circle
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.notifications,
-                        color: Colors.white,
-                        size: 28,
-                      ),
-                    ),
-                    title: Text(
-                      currentLocalization[notifications[index]['title']] ?? notifications[index]['title']!,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF333333), // Dark gray
-                      ),
-                    ),
-                    subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 6.0),
-                      child:Text(
-                        localizeSentence(notifications[index]['details']!),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFF333333),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 10.0),
+                child: ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  itemCount: notifications.length,
+                  itemBuilder: (context, index) {
+                    _isSelected =
+                        bool.parse(notifications[index]['isSelected']!);
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 10.0),
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFFFFF),
+                        // White background
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withValues(alpha: 0.3),
+                            spreadRadius: 2,
+                            blurRadius: 6,
+                            offset: const Offset(0, 4), // Shadow position
+                          ),
+                        ],
+                        border: Border.all(
+                          color: const Color(0xFFE0E0E0),
+                          // Light gray border
+                          width: 1,
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    onLongPress: () {
-                      setState(() {
-                        _showCheckboxes = true;
-                      });
-                    },
-                    onTap: () {
-                      // Show full content in a dialog box
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text(
-                              currentLocalization[notifications[index]['title']] ?? notifications[index]['title']!,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
+                      child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF0DA6BA),
+                              // Tealish Blue Circle
+                              shape: BoxShape.circle,
                             ),
-                            content: Text(
-                              localizeSentence(notifications[index]['details']!),
+                            child: const Icon(
+                              Icons.notifications,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                          ),
+                          title: Text(
+                            currentLocalization[notifications[index]
+                                    ['title']] ??
+                                notifications[index]['title']!,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF333333), // Dark gray
+                            ),
+                          ),
+                          subtitle: Padding(
+                            padding: const EdgeInsets.only(top: 6.0),
+                            child: Text(
+                              localizeSentence(
+                                  notifications[index]['details']!),
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: Color(0xFF333333),
                               ),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                style: TextButton.styleFrom(
-                                  foregroundColor: const Color(
-                                      0xFF0DA6BA),
-                                ),
-                                child:  Text(
-                          currentLocalization['Close'] ?? 'Close'
-,
-                          style: TextStyle(fontSize: 16),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[_showCheckboxes ?
-                        Checkbox(value: _isSelected,
-                            checkColor: Colors.white,
-                            activeColor: const Color(0xFF0DA6BA),
-                            shape: const CircleBorder(),
-                            // Tealish blue
-                            onChanged: (val) {
-                          setState(() {
-                            _isSelected = val!;
-                            notifications[index]['isSelected'] =
-                                _isSelected.toString();
-                          });
-                        })
-                            : Container(),
-                        ])
+                          ),
+                          onLongPress: () {
+                            setState(() {
+                              _showCheckboxes = true;
+                            });
+                          },
+                          onTap: () {
+                            // Show full content in a dialog box
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text(
+                                    currentLocalization[notifications[index]
+                                            ['title']] ??
+                                        notifications[index]['title']!,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  content: Text(
+                                    localizeSentence(
+                                        notifications[index]['details']!),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      color: Color(0xFF333333),
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      style: TextButton.styleFrom(
+                                        foregroundColor:
+                                            const Color(0xFF0DA6BA),
+                                      ),
+                                      child: Text(
+                                        currentLocalization['Close'] ?? 'Close',
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                _showCheckboxes
+                                    ? Checkbox(
+                                        value: _isSelected,
+                                        checkColor: Colors.white,
+                                        activeColor: const Color(0xFF0DA6BA),
+                                        shape: const CircleBorder(),
+                                        // Tealish blue
+                                        onChanged: (val) {
+                                          setState(() {
+                                            _isSelected = val!;
+                                            notifications[index]['isSelected'] =
+                                                _isSelected.toString();
+                                          });
+                                        })
+                                    : Container(),
+                              ])),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
-        )
-    );
+              ));
   }
 }

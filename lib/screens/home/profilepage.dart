@@ -12,7 +12,6 @@ import '../../services/database/userdatabase.dart';
 import '../authenticate/authUtils.dart';
 import '../wrappers/wrapperhome.dart';
 
-
 class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
   ProfileAppBar({super.key});
 
@@ -21,7 +20,7 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    Map<String, String> currentLocalization= {};
+    Map<String, String> currentLocalization = {};
     String languageCode = 'en';
 
     languageCode = Provider.of<AppData>(context).persistentVariable;
@@ -30,22 +29,21 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     return AppBar(
       leading: BackButton(
-          onPressed: () =>
-              Navigator.push(
-                  context, MaterialPageRoute(
-                  builder: (context) => const WrapperHomePage())
-              )),
+          onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const WrapperHomePage()))),
       centerTitle: true,
       title: Text(
-        currentLocalization['Profile']??'',
-        style: TextStyle(color: Colors.white,
-            fontWeight: FontWeight.bold),
+        currentLocalization['Profile'] ?? '',
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
       ),
       backgroundColor: const Color.fromRGBO(13, 166, 186, 0.9),
       actions: [
         MenuBar(
-          style: MenuStyle(backgroundColor: WidgetStatePropertyAll<Color>(
-              Color.fromRGBO(13, 166, 186, 1)),
+          style: MenuStyle(
+            backgroundColor:
+                WidgetStatePropertyAll<Color>(Color.fromRGBO(13, 166, 186, 1)),
             elevation: WidgetStatePropertyAll<double>(1.0),
           ),
           children: [
@@ -59,130 +57,149 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                       MaterialPageRoute(builder: (context) => MyApp()),
                     );
                   },
-                  child: Text(currentLocalization['Log out']??''),
+                  child: Text(currentLocalization['Log out'] ?? ''),
                 ),
                 SubmenuButton(
-                  menuChildren:
-                  [
+                  menuChildren: [
                     MenuItemButton(
-                        child: Text(currentLocalization['Delete Data']??''),
+                        child: Text(currentLocalization['Delete Data'] ?? ''),
                         onPressed: () {
-                          showDialog(context: context,
+                          showDialog(
+                              context: context,
                               builder: (context) {
-                                return AuthUtils
-                                    .buildAlertDialog(
-                                    title: currentLocalization["Are you Sure?"]??'',
-                                    content: currentLocalization['Delete Data Content']??'',
-                                    opt1: currentLocalization['yes']??'',
+                                return AuthUtils.buildAlertDialog(
+                                    title:
+                                        currentLocalization["Are you Sure?"] ??
+                                            '',
+                                    content: currentLocalization[
+                                            'Delete Data Content'] ??
+                                        '',
+                                    opt1: currentLocalization['yes'] ?? '',
                                     onPressedOpt1: () async {
-                                      try{
-                                        HttpsCallable callDeleteFarmData = FirebaseFunctions.instance.httpsCallable('deleteFarmData');
+                                      try {
+                                        HttpsCallable callDeleteFarmData =
+                                            FirebaseFunctions.instance
+                                                .httpsCallable(
+                                                    'deleteFarmData');
                                         bool isDeleting = true;
-                                        if(isDeleting){
+                                        if (isDeleting) {
                                           final snackBar = SnackBar(
                                             backgroundColor: Colors.redAccent,
-                                            content: Text(currentLocalization['data_del_msg']??'Please wait!'),
+                                            content: Text(currentLocalization[
+                                                    'data_del_msg'] ??
+                                                'Please wait!'),
                                           );
 
-                                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(snackBar);
                                         }
                                         final resp = await callDeleteFarmData();
                                         isDeleting = false;
-                                        print(resp);
-                                      }
-                                      catch(error){
+                                        log.i(
+                                          resp,
+                                          time: DateTime.now(),
+                                        );
+                                      } catch (error) {
                                         log.e('Encountered error',
                                             time: DateTime.now(),
                                             error: error.toString());
                                       }
-
-                                      Navigator
-                                          .pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  MyApp()));
+                                      if (context.mounted) {
+                                        Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => MyApp()));
+                                      }
                                     },
-                                    opt2: currentLocalization['cancel']??'',
+                                    opt2: currentLocalization['cancel'] ?? '',
                                     onPressedOpt2: () {
                                       Navigator.pop(context);
-                                    }
-                                );
+                                    });
                               });
-                        }
-                    ),
+                        }),
                     MenuItemButton(
-                      child: Text(currentLocalization['Delete Account']??''),
+                      child: Text(currentLocalization['Delete Account'] ?? ''),
                       onPressed: () {
-                        showDialog(context: context,
+                        showDialog(
+                            context: context,
                             builder: (context) {
-                              return AuthUtils
-                                  .buildAlertDialog(
-                                title: currentLocalization["Are you Sure?"]??'',
-                                content: currentLocalization['Delete Account Content']??'',
-                                opt1: currentLocalization['delete']??'',
+                              return AuthUtils.buildAlertDialog(
+                                title:
+                                    currentLocalization["Are you Sure?"] ?? '',
+                                content: currentLocalization[
+                                        'Delete Account Content'] ??
+                                    '',
+                                opt1: currentLocalization['delete'] ?? '',
                                 onPressedOpt1: () async {
-                                  var user = FirebaseAuth.instance
-                                      .currentUser!;
+                                  var user = FirebaseAuth.instance.currentUser!;
 
                                   //deleting the current user account permanently
-                                  user.delete()
-                                      .then((val) async {
-                                    Navigator
-                                        .pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                MyApp()));
-                                  }).catchError((e) {
-                                    if (e.code ==
-                                        'requires-recent-login') {
-                                      showDialog(context: context,
-                                          builder: (context) {
-                                            return AuthUtils
-                                                .buildAlertDialog(
-                                                title: currentLocalization['requires recent login']??'',
-                                                content: currentLocalization['re_login content']??'',
-                                                opt1: currentLocalization['re-login']??'',
-                                                onPressedOpt1: () {
-                                                  FirebaseAuth
-                                                      .instance
-                                                      .signOut();
-                                                  Navigator.pushReplacement(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              MyApp()));
-                                                },
-                                                opt2: currentLocalization['cancel']??'',
-                                                onPressedOpt2: () {
-                                                  Navigator.pop(context);
-                                                  Navigator.pop(context);
-                                                }
-                                            );
-                                          });
+                                  user.delete().then((val) async {
+                                    if (context.mounted) {
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => MyApp()));
                                     }
-                                    else {
+                                  }).catchError((e) {
+                                    if (e.code == 'requires-recent-login') {
+                                      if (context.mounted) {
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return AuthUtils.buildAlertDialog(
+                                                  title: currentLocalization[
+                                                          'requires recent login'] ??
+                                                      '',
+                                                  content: currentLocalization[
+                                                          're_login content'] ??
+                                                      '',
+                                                  opt1: currentLocalization[
+                                                          're-login'] ??
+                                                      '',
+                                                  onPressedOpt1: () {
+                                                    FirebaseAuth.instance
+                                                        .signOut();
+                                                    Navigator.pushReplacement(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    MyApp()));
+                                                  },
+                                                  opt2: currentLocalization[
+                                                          'cancel'] ??
+                                                      '',
+                                                  onPressedOpt2: () {
+                                                    Navigator.pop(context);
+                                                    Navigator.pop(context);
+                                                  });
+                                            });
+                                      }
+                                    } else {
                                       log.e('Encountered error',
                                           time: DateTime.now(),
                                           error: e.toString());
                                     }
                                   });
                                 },
-                                opt2: currentLocalization['cancel']??'',
+                                opt2: currentLocalization['cancel'] ?? '',
                                 onPressedOpt2: () => Navigator.pop(context),
                               );
                             });
                       },
                     )
                   ],
-                  child: Text(currentLocalization['More Options']??''),
+                  child: Text(currentLocalization['More Options'] ?? ''),
                 )
               ],
-              child: const Icon(Icons.settings,
-                color: Colors.white,),
+              child: const Icon(
+                Icons.logout,
+                color: Colors.white,
+              ),
             )
-          ],),
+          ],
+        ),
       ],
     );
   }
@@ -202,8 +219,7 @@ class ProfilePage extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-
-  late Map<String, String> currentLocalization= {};
+  late Map<String, String> currentLocalization = {};
   late String languageCode = 'en';
   late String appVersion;
   late String appBuildNumber;
@@ -216,11 +232,11 @@ class _ProfilePageState extends State<ProfilePage> {
   late DatabaseServicesForUser userDb;
 
   Future<void> _fetchPkgInfo() async {
-  PackageInfo packageInfo = await PackageInfo.fromPlatform();
-  setState(() {
-    appVersion = packageInfo.version;
-    appBuildNumber = packageInfo.buildNumber;
-  });
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      appVersion = packageInfo.version;
+      appBuildNumber = packageInfo.buildNumber;
+    });
   }
 
   @override
@@ -235,7 +251,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
     currentLocalization = langFileMap[languageCode]!;
@@ -258,7 +273,6 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 Container(
                   decoration: const BoxDecoration(
-
                     color: Color.fromRGBO(13, 166, 186, 0.9),
                     borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(20.0),
@@ -287,7 +301,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            currentLocalization['Farm Owner']??'',
+                            currentLocalization['Farm Owner'] ?? '',
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 20,
@@ -305,9 +319,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 25),
-                Center(child: Text("${currentLocalization['app_version']??''}: $appVersion ($appBuildNumber)")),
+                Center(
+                    child: Text(
+                        "${currentLocalization['app_version'] ?? ''}: $appVersion ($appBuildNumber)")),
                 const SizedBox(height: 25),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12.0, 0, 12, 0),
@@ -320,16 +335,27 @@ class _ProfilePageState extends State<ProfilePage> {
                           Row(
                             children: [
                               const SizedBox(
-                              child:Icon(Icons.home,color: Color.fromRGBO(13, 166, 186, 1),),
+                                child: Icon(
+                                  Icons.home,
+                                  color: Color.fromRGBO(13, 166, 186, 1),
+                                ),
                               ),
-                              const SizedBox(width: 16,),
+                              const SizedBox(
+                                width: 16,
+                              ),
                               SizedBox(
-                                width: 120,
+                                  width: 120,
                                   child: Text(
-                                    currentLocalization["Farm Name"]??'',style: TextStyle(fontSize: 18),)
-        ),
-                              const SizedBox(width: 40,),
-                              Text(farmUser.farmName,style: const TextStyle(fontSize: 18),),
+                                    currentLocalization["Farm Name"] ?? '',
+                                    style: TextStyle(fontSize: 18),
+                                  )),
+                              const SizedBox(
+                                width: 40,
+                              ),
+                              Text(
+                                farmUser.farmName,
+                                style: const TextStyle(fontSize: 18),
+                              ),
                             ],
                           ),
                           // SizedBox(height: 20,),
@@ -349,7 +375,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               SizedBox(
                                   width: 120,
                                   child: Text(
-                                    currentLocalization["Phone No."]??'',
+                                    currentLocalization["Phone No."] ?? '',
                                     style: TextStyle(fontSize: 18),
                                   )),
                               const SizedBox(
@@ -377,7 +403,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               SizedBox(
                                   width: 120,
                                   child: Text(
-                                    currentLocalization["Farm Address"]??'',
+                                    currentLocalization["Farm Address"] ?? '',
                                     style: TextStyle(fontSize: 18),
                                   )),
                               const SizedBox(
@@ -405,7 +431,8 @@ class _ProfilePageState extends State<ProfilePage> {
                               SizedBox(
                                   width: 120,
                                   child: Text(
-                                    currentLocalization["Preferred Language"]??'Preferred Language',
+                                    currentLocalization["Preferred Language"] ??
+                                        'Preferred Language',
                                     style: TextStyle(fontSize: 18),
                                   )),
                               const SizedBox(
@@ -413,17 +440,47 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                               Expanded(
                                   child: Text(
-                                    currentLocalization[langCodeMap[farmUser.chosenLanguage??'en']!]!,
-                                    style: const TextStyle(fontSize: 18),
-                                  )),
+                                currentLocalization[
+                                    langCodeMap[farmUser.chosenLanguage]]!,
+                                style: const TextStyle(fontSize: 18),
+                              )),
                             ],
                           ),
+                          const SizedBox(
+                            height: 25,
+                          ),
+                          /*Row(
+                            children: [
+                              const Icon(
+                                Icons.star,
+                                color: Color.fromRGBO(13, 166, 186, 1),
+                              ),
+                              const SizedBox(
+                                width: 16,
+                              ),
+                              SizedBox(
+                                  width: 120,
+                                  child: Text(
+                                    currentLocalization["App Mode"] ??
+                                        'App Mode',
+                                    style: TextStyle(fontSize: 18),
+                                  )),
+                              const SizedBox(
+                                width: 40,
+                              ),
+                              Expanded(
+                                  child: Text(
+                                currentLocalization[farmUser.appMode] ??
+                                    farmUser.appMode,
+                                style: const TextStyle(fontSize: 18),
+                              )),
+                            ],
+                          ),*/
                         ],
                       ),
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 40),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -434,23 +491,29 @@ class _ProfilePageState extends State<ProfilePage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ProfileEditPage(farmUser: farmUser,refresh: () {
-                          setState(() {
-                            final snapshot1 = userDb.infoFromServer(uid) as AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>>;
-                            farmUser = FarmUser.fromFireStore(snapshot1.requireData, null);
-                          });
-                        },),
+                        builder: (context) => ProfileEditPage(
+                          farmUser: farmUser,
+                          refresh: () {
+                            setState(() {
+                              final snapshot1 = userDb.infoFromServer(uid)
+                                  as AsyncSnapshot<
+                                      DocumentSnapshot<Map<String, dynamic>>>;
+                              farmUser = FarmUser.fromFireStore(
+                                  snapshot1.requireData, null);
+                            });
+                          },
+                        ),
                       ),
                     );
                   },
-                  child: Text(currentLocalization['Edit Profile']??''),
+                  child: Text(currentLocalization['Edit Profile'] ?? ''),
                 ),
               ],
             ),
           );
         } else {
           return Center(
-            child: Text(currentLocalization['Error in Fetch']??''),
+            child: Text(currentLocalization['Error in Fetch'] ?? ''),
           );
         }
       },
@@ -461,7 +524,8 @@ class _ProfilePageState extends State<ProfilePage> {
 class ProfileEditPage extends StatefulWidget {
   final FarmUser farmUser;
   final Function refresh;
-  const ProfileEditPage({super.key,required this.farmUser,required this.refresh});
+  const ProfileEditPage(
+      {super.key, required this.farmUser, required this.refresh});
 
   @override
   State<ProfileEditPage> createState() => _ProfileEditPageState();
@@ -480,6 +544,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   final _controllerPhone = TextEditingController();
   final _controllerAddress = TextEditingController();
   late String _selectedLanguage;
+  //late String _selectedAppMode;
 
   @override
   void initState() {
@@ -488,7 +553,8 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     _controllerOwnerName.text = widget.farmUser.ownerName;
     _controllerPhone.text = widget.farmUser.phoneNo.toString();
     _controllerAddress.text = widget.farmUser.location;
-    _selectedLanguage = widget.farmUser.chosenLanguage ?? 'en';
+    _selectedLanguage = widget.farmUser.chosenLanguage;
+    //_selectedAppMode = widget.farmUser.appMode;
   }
 
   Future updateUser(FarmUser user) async {
@@ -496,12 +562,9 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
     db.infoToServer(uid, user);
   }
 
-
   @override
   Widget build(BuildContext context) {
-    languageCode = Provider
-        .of<AppData>(context)
-        .persistentVariable;
+    languageCode = Provider.of<AppData>(context).persistentVariable;
 
     currentLocalization = langFileMap[languageCode]!;
 
@@ -510,110 +573,126 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
           backgroundColor: const Color.fromRGBO(13, 166, 186, 0.9),
           title: Text(
             currentLocalization['Edit Profile'] ?? '',
-            style: TextStyle(
-                fontWeight: FontWeight.bold
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
-
         body: Padding(
             padding: const EdgeInsets.fromLTRB(20.0, 40, 20, 20),
             child: Form(
                 key: _formKey,
-                child: ListView(
-                    children: [
-                      TextFormField(
-                        controller: _controllerOwnerName,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          labelText: currentLocalization['Owner Name'] ?? '',
-                        ),
+                child: ListView(children: [
+                  TextFormField(
+                    controller: _controllerOwnerName,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      const SizedBox(height: 25),
-                      TextFormField(
-                        controller: _controllerName,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          labelText: currentLocalization['Farm Name'] ?? '',
-                        ),
+                      labelText: currentLocalization['Owner Name'] ?? '',
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  TextFormField(
+                    controller: _controllerName,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      const SizedBox(height: 25),
-                      TextFormField(
-                        readOnly: true,
-                        controller: _controllerPhone,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          labelText: currentLocalization['Phone No.'] ?? '',
-                        ),
+                      labelText: currentLocalization['Farm Name'] ?? '',
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  TextFormField(
+                    readOnly: true,
+                    controller: _controllerPhone,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      const SizedBox(height: 25),
-                      TextFormField(
-                        controller: _controllerAddress,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          labelText: currentLocalization['Farm Address'] ?? '',
-                        ),
+                      labelText: currentLocalization['Phone No.'] ?? '',
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  TextFormField(
+                    controller: _controllerAddress,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      const SizedBox(height: 25),
-                      DropdownButtonFormField<String>(
-                        value: _selectedLanguage,
-                        decoration: InputDecoration(
-                          labelText: currentLocalization["Preferred Language"] ?? '',
-                          labelStyle: const TextStyle(
-                              color: Colors.black54, fontSize: 14.0),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 12.0),
-                        ),
-                        items: langCodeMap.entries.map((lang) {
-                          return DropdownMenuItem<String>(
-                            value: lang.key,
-                            child: Text(currentLocalization[lang.value]!),
-                          );
-                        }).toList(),
-                        onChanged: (val) => (_selectedLanguage = val!),
+                      labelText: currentLocalization['Farm Address'] ?? '',
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  DropdownButtonFormField<String>(
+                    value: _selectedLanguage,
+                    decoration: InputDecoration(
+                      labelText:
+                          currentLocalization["Preferred Language"] ?? '',
+                      labelStyle: const TextStyle(
+                          color: Colors.black54, fontSize: 14.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.0),
                       ),
-                      const SizedBox(height: 25),
-                      ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromRGBO(
-                                13, 166, 186, 0.9),
-                            foregroundColor: Colors.white,
-                          ),
-                          onPressed: () {
-                            final FarmUser farmUser = FarmUser(
-                              ownerName: _controllerOwnerName.text,
-                              farmName: _controllerName.text,
-                              location: _controllerAddress.text,
-                              phoneNo: int.parse(_controllerPhone.text),
-                              chosenLanguage: _selectedLanguage,
-                            );
-                            updateUser(farmUser);
-                            Navigator.pop(context);
-                            Navigator.push(
-                                context, MaterialPageRoute(
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 10.0, horizontal: 12.0),
+                    ),
+                    items: langCodeMap.entries.map((lang) {
+                      return DropdownMenuItem<String>(
+                        value: lang.key,
+                        child: Text(currentLocalization[lang.value]!),
+                      );
+                    }).toList(),
+                    onChanged: (val) => (_selectedLanguage = val!),
+                  ),
+                  const SizedBox(height: 25),
+                  /*DropdownButtonFormField<String>(
+                    value: _selectedAppMode,
+                    decoration: InputDecoration(
+                      labelText: currentLocalization["App Mode"] ?? 'App Mode',
+                      labelStyle: const TextStyle(
+                          color: Colors.black54, fontSize: 14.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 10.0, horizontal: 12.0),
+                    ),
+                    items: appModes.map((item) {
+                      return DropdownMenuItem<String>(
+                        value: item,
+                        child: Text(currentLocalization[item] ?? item),
+                      );
+                    }).toList(),
+                    onChanged: (val) => (_selectedAppMode = val!),
+                  ),
+                  const SizedBox(height: 25),*/
+                  ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color.fromRGBO(13, 166, 186, 0.9),
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: () {
+                        final FarmUser farmUser = FarmUser(
+                          ownerName: _controllerOwnerName.text,
+                          farmName: _controllerName.text,
+                          location: _controllerAddress.text,
+                          phoneNo: int.parse(_controllerPhone.text),
+                          chosenLanguage: _selectedLanguage,
+                          //appMode: _selectedAppMode,
+                        );
+                        updateUser(farmUser);
+                        Provider.of<AppData>(context, listen: false).counter = 0;
+                        Navigator.pop(context);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
                                 builder: (context) => const WrapperHomePage()));
-                          },
-                          child: Text(
-                            currentLocalization['Save Changes'] ?? '',
-                            style: TextStyle(fontSize: 17,
-                                color: Colors.black),)
-                      ),
-
-                    ])
-
-            )
-        ));
+                      },
+                      child: Text(
+                        currentLocalization['Save Changes'] ?? '',
+                        style: TextStyle(fontSize: 17, color: Colors.black),
+                      )),
+                ]))));
   }
 }
 

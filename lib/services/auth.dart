@@ -5,10 +5,9 @@ import 'package:get/get.dart';
 
 import '../logging.dart';
 
-
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  var verificationId= ''.obs;
+  var verificationId = ''.obs;
   final log = logger(AuthService);
 
   // Create user object based on FirebaseUser
@@ -48,17 +47,18 @@ class AuthService {
 
       return _userFromFirebaseUser(user);
     } catch (error) {
-      log.e('Encountered error',time:DateTime.now(), error: error.toString());
+      log.e('Encountered error', time: DateTime.now(), error: error.toString());
       return null;
     }
   }
-  Future<my_app_user.User?> signInWithphoneAndOTP(String phoneNo) async{
+
+  Future<my_app_user.User?> signInWithphoneAndOTP(String phoneNo) async {
     await _auth.verifyPhoneNumber(
-      phoneNumber: phoneNo,
-        verificationCompleted: (credential) async{
-        await _auth.signInWithCredential(credential);
-    },
-        verificationFailed: (e){
+        phoneNumber: phoneNo,
+        verificationCompleted: (credential) async {
+          await _auth.signInWithCredential(credential);
+        },
+        verificationFailed: (e) {
           if (e.code == 'invalid-phone-number') {
             log.e('The phone number entered is invalid.');
             // Show an error message to the user about invalid phone number
@@ -69,28 +69,28 @@ class AuthService {
             log.e('SMS quota exceeded. Please try again later.');
             // Show an error message about SMS quota being exceeded
           } else if (e.code == 'operation-not-allowed') {
-            log.e('Phone authentication is not enabled. Please enable it in Firebase.');
+            log.e(
+                'Phone authentication is not enabled. Please enable it in Firebase.');
             // Handle operation-not-allowed error
           } else if (e.code == 'network-request-failed') {
-            log.e('Network error occurred. Please check your internet connection.');
+            log.e(
+                'Network error occurred. Please check your internet connection.');
             // Show an error message about network issues
           } else {
             log.e('Verification failed: ${e.message}');
             // Handle any other errors
           }
         },
-        codeSent: (verificationId,resendToken){
-this.verificationId.value = verificationId ;
+        codeSent: (verificationId, resendToken) {
+          this.verificationId.value = verificationId;
 //print("verify1");
 //print(verificationId);
 // Navigator.push(MaterialPageRoute(builder: (context) => OtpVerificationPage()));
         },
-        codeAutoRetrievalTimeout:(verificationId){
-        this.verificationId.value=verificationId;
-    }
-    );
+        codeAutoRetrievalTimeout: (verificationId) {
+          this.verificationId.value = verificationId;
+        });
     return null;
-
   }
 
   Future<bool> verifyOTP(String otp) async {
@@ -104,13 +104,13 @@ this.verificationId.value = verificationId ;
         ),
       );
 
-
       // Check if the user is not null and return true if successful, otherwise false
       //print(credentials.user);
       return credentials.user != null ? true : false;
     } catch (e) {
       // Handle exceptions, like an invalid OTP
-      log.e("Error during OTP verification",time:DateTime.now(),error: e.toString());
+      log.e("Error during OTP verification",
+          time: DateTime.now(), error: e.toString());
       return false;
     }
   }
@@ -123,7 +123,8 @@ this.verificationId.value = verificationId ;
       User? user = result.user;
       return _userFromFirebaseUser(user);
     } catch (error) {
-      log.e("Error during email authentication",time:DateTime.now(),error: error.toString());
+      log.e("Error during email authentication",
+          time: DateTime.now(), error: error.toString());
       return null;
     }
   }
@@ -138,7 +139,8 @@ this.verificationId.value = verificationId ;
     try {
       return await _auth.sendPasswordResetEmail(email: email);
     } catch (error) {
-      log.e("Error during update password!",time:DateTime.now(),error: error.toString());
+      log.e("Error during update password!",
+          time: DateTime.now(), error: error.toString());
       return;
     }
   }
@@ -148,7 +150,8 @@ this.verificationId.value = verificationId ;
     try {
       return await _auth.signOut();
     } catch (error) {
-      log.e("Error during signout!",time:DateTime.now(),error: error.toString());
+      log.e("Error during signout!",
+          time: DateTime.now(), error: error.toString());
     }
   }
 }

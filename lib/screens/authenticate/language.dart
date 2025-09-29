@@ -3,7 +3,6 @@ import 'package:provider/provider.dart'; // Import provider package for state ma
 import 'package:farm_expense_mangement_app/screens/authenticate/base.dart';
 import 'package:farm_expense_mangement_app/main.dart';
 
-
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
 
@@ -30,7 +29,8 @@ class _SignUpPageState extends State<SignUpPage> {
         children: <Widget>[
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,7 +79,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => DairyMitraRegistrationPage()),
+                      MaterialPageRoute(
+                          builder: (context) => DairyMitraRegistrationPage()),
                     );
                   },
                   child: Text(
@@ -104,7 +105,8 @@ class _SignUpPageState extends State<SignUpPage> {
         setState(() {
           selectedLanguage = language;
           // Set the selected language in AppData
-          Provider.of<AppData>(context, listen: false).persistentVariable = code;
+          Provider.of<AppData>(context, listen: false).persistentVariable =
+              code;
         });
       },
       child: Container(
@@ -157,5 +159,3 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 }
-
-

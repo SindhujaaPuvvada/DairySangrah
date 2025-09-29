@@ -27,7 +27,6 @@ class _FeedState extends State<FeedPage> {
 
   late String selectedSection = 'Green Fodder'; // Default section
 
-
   bool _showCheckboxes = false;
 
   List<String> selectedEntries = [];
@@ -40,40 +39,38 @@ class _FeedState extends State<FeedPage> {
 
   @override
   Widget build(BuildContext context) {
-    languageCode = Provider
-        .of<AppData>(context)
-        .persistentVariable;
+    languageCode = Provider.of<AppData>(context).persistentVariable;
 
-  currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = langFileMap[languageCode]!;
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
       appBar: AppBar(
           leading: BackButton(
-              onPressed: () =>
-                  Navigator.push(
-                      context, MaterialPageRoute(
-                      builder: (context) => const WrapperHomePage())
-                  )),
+              onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const WrapperHomePage()))),
           iconTheme: const IconThemeData(color: Colors.black),
           title: Text(
-            currentLocalization['Inventory']??"",
+            currentLocalization['Inventory'] ?? "",
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
             textAlign: TextAlign.center,
           ),
           backgroundColor: const Color.fromRGBO(4, 142, 161, 1.0),
-          actions: _showCheckboxes ? <Widget>[
-            IconButton(
-                onPressed: () {
-                  _deleteInvEntries();
-                },
-                icon: const Icon(
-                  Icons.delete,
-                  color: Colors.white,
-                )
-            ),
-          ] : <Widget>[] // AppBar color
-      ),
+          actions: _showCheckboxes
+              ? <Widget>[
+                  IconButton(
+                      onPressed: () {
+                        _deleteInvEntries();
+                      },
+                      icon: const Icon(
+                        Icons.delete,
+                        color: Colors.white,
+                      )),
+                ]
+              : <Widget>[] // AppBar color
+          ),
       body: Column(
         children: [
           // The Row for the three sections
@@ -134,7 +131,8 @@ class _FeedState extends State<FeedPage> {
           return const Center(child: CircularProgressIndicator());
         }
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Center(child: Text(currentLocalization['list_is_empty']??''));
+          return Center(
+              child: Text(currentLocalization['list_is_empty'] ?? ''));
         }
         final items = snapshot.data!.docs;
 
@@ -146,8 +144,8 @@ class _FeedState extends State<FeedPage> {
             String docId = items[index].id;
 
             final DateTime fdDate = item['feedDate'].toDate();
-            final String sFdDate = '${fdDate.day}-${fdDate.month}-${fdDate
-                .year}';
+            final String sFdDate =
+                '${fdDate.day}-${fdDate.month}-${fdDate.year}';
 
             return Container(
                 padding: EdgeInsets.all(10.0),
@@ -161,40 +159,35 @@ class _FeedState extends State<FeedPage> {
                     ),
                     subtitle: Text(
                         "${currentLocalization['quantity'] ?? 'Quantity'}: ${item['quantity'] ?? 0} ${currentLocalization['Kg']}"
-                            " | ${currentLocalization['Rate'] ?? 'Rate'}: ₹${item['ratePerKg']} / ${currentLocalization['Kg']}"
-                            " | ${currentLocalization['date'] ?? 'Date'}: $sFdDate"
-                            " | ${currentLocalization['Source'] ?? 'Source'}: ${currentLocalization[item['source'].toLowerCase()]}"
-                    ),
-
+                        " | ${currentLocalization['Rate'] ?? 'Rate'}: ₹${item['ratePerKg']} / ${currentLocalization['Kg']}"
+                        " | ${currentLocalization['date'] ?? 'Date'}: $sFdDate"
+                        " | ${currentLocalization['Source'] ?? 'Source'}: ${currentLocalization[item['source'].toLowerCase()]}"),
                     tileColor: Color.fromRGBO(177, 243, 238, 0.4),
                     onLongPress: () {
                       setState(() {
                         _showCheckboxes = true;
                       });
                     },
-                    trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[_showCheckboxes ?
-                        Checkbox(value: selectedEntries.contains(docId),
-                            checkColor: Colors.white,
-                            activeColor: const Color(0xFF0DA6BA),
-                            shape: const CircleBorder(),
-                            // Tealish blue
-                            onChanged: (val) {
-                              setState(() {
-                                if(val!){
-                                  selectedEntries.add(docId);
-                                }
-                                else{
-                                  selectedEntries.remove(docId);
-                                }
-                              });
-                            })
-                            : Container(),
-                        ]
-                    )
-                )
-            );
+                    trailing:
+                        Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                      _showCheckboxes
+                          ? Checkbox(
+                              value: selectedEntries.contains(docId),
+                              checkColor: Colors.white,
+                              activeColor: const Color(0xFF0DA6BA),
+                              shape: const CircleBorder(),
+                              // Tealish blue
+                              onChanged: (val) {
+                                setState(() {
+                                  if (val!) {
+                                    selectedEntries.add(docId);
+                                  } else {
+                                    selectedEntries.remove(docId);
+                                  }
+                                });
+                              })
+                          : Container(),
+                    ])));
           },
         );
       },
@@ -224,7 +217,7 @@ class _FeedState extends State<FeedPage> {
           ),
         ),
         child: Center(
-          child:Text(
+          child: Text(
             currentLocalization[sectionName] ?? sectionName,
             style: TextStyle(
               fontSize: 16,
@@ -241,12 +234,10 @@ class _FeedState extends State<FeedPage> {
     String category = selectedSection.replaceAll(' ', '');
 
     for (var docId in selectedEntries) {
-        fdDB.deleteFeedFromServer(category, docId);
+      fdDB.deleteFeedFromServer(category, docId);
     }
 
     Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const FeedPage()));
-
+        context, MaterialPageRoute(builder: (context) => const FeedPage()));
   }
 }

@@ -1,6 +1,4 @@
-//TODO: for Cattle database access
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import '../../models/cattle.dart';
 
 class DatabaseServicesForCattle {
@@ -50,29 +48,42 @@ class DatabaseServicesForCattle {
         .orderBy('rfid')
         .get();
   }
+
   Future<void> deleteCattle(String rfid) async {
     final FirebaseFirestore db = FirebaseFirestore.instance;
 
     // Reference to the specific cattle document
-    final DocumentReference cattleDocRef = db
-        .collection('User')
-        .doc(uid)
-        .collection('Cattle')
-        .doc(rfid);
+    final DocumentReference cattleDocRef =
+        db.collection('User').doc(uid).collection('Cattle').doc(rfid);
 
     // Delete all documents in the 'History' subcollection
-    final QuerySnapshot historyDocs = await cattleDocRef.collection('History').get();
+    final QuerySnapshot historyDocs =
+        await cattleDocRef.collection('History').get();
     // print(historyDocs);
     for (QueryDocumentSnapshot doc in historyDocs.docs) {
       await doc.reference.delete();
     }
 
-
     // Now delete the main cattle document
     await cattleDocRef.delete();
   }
 
+  Future<String> getLastUsedRFId(String uid) async {
+    final FirebaseFirestore db = FirebaseFirestore.instance;
 
+    final QuerySnapshot<Map<String, dynamic>> cattleDoc = await db
+        .collection('User')
+        .doc(uid)
+        .collection('Cattle')
+        .orderBy("rfid", descending: true)
+        .limit(1)
+        .get();
 
-
+    if (cattleDoc.docs.isNotEmpty) {
+      var cattle = Cattle.fromFireStore(cattleDoc.docs[0], null);
+      return cattle.rfid;
+    } else {
+      return '0';
+    }
+  }
 }

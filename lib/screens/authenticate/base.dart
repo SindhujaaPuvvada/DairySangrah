@@ -3,6 +3,7 @@ import 'package:farm_expense_mangement_app/screens/authenticate/phoneno.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:farm_expense_mangement_app/main.dart';
+
 class DairyMitraRegistrationPage extends StatefulWidget {
   const DairyMitraRegistrationPage({super.key});
 
@@ -14,9 +15,8 @@ class DairyMitraRegistrationPage extends StatefulWidget {
 class _DairyMitraRegistrationPageState
     extends State<DairyMitraRegistrationPage> {
   String? selectedOption;
-  late Map<String, String> currentLocalization= {};
+  late Map<String, String> currentLocalization = {};
   late String languageCode = 'en';
-
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class _DairyMitraRegistrationPageState
 
             // "DairyMitra Registration" text
             Text(
-              currentLocalization['Dairy Sangrah Registration']??"",
+              currentLocalization['Dairy Sangrah Registration'] ?? "",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -58,7 +58,9 @@ class _DairyMitraRegistrationPageState
 
             // Subtitle text
             Text(
-              currentLocalization['Get started with your farm management journey']??"",
+              currentLocalization[
+                      'Get started with your farm management journey'] ??
+                  "",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.normal,
@@ -98,7 +100,7 @@ class _DairyMitraRegistrationPageState
                   children: [
                     SizedBox(width: 16),
                     Text(
-                      currentLocalization['Register a New Farm']??"",
+                      currentLocalization['Register a New Farm'] ?? "",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
@@ -153,7 +155,7 @@ class _DairyMitraRegistrationPageState
                   children: [
                     SizedBox(width: 16),
                     Text(
-                      currentLocalization['Get into Existing Farm']??"",
+                      currentLocalization['Get into Existing Farm'] ?? "",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
@@ -186,7 +188,8 @@ class _DairyMitraRegistrationPageState
                   width: double.infinity, // Full width
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF0EA6BB), // Confirm button color
+                      backgroundColor:
+                          Color(0xFF0EA6BB), // Confirm button color
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12), // Curved edges
                       ),
@@ -194,15 +197,18 @@ class _DairyMitraRegistrationPageState
                     ),
                     onPressed: () {
                       // Handle confirm action
-                      bool isNewFarm=(selectedOption == 'Get into Existing Farm')?false:true;
-                      SignUpPage.newFarmReg=isNewFarm;
+                      bool isNewFarm =
+                          (selectedOption == 'Get into Existing Farm')
+                              ? false
+                              : true;
+                      SignUpPage.newFarmReg = isNewFarm;
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => SignUpPage()),
                       );
                     },
                     child: Text(
-                      currentLocalization['Confirm']??"",
+                      currentLocalization['Confirm'] ?? "",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,

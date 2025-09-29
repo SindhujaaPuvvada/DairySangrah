@@ -19,7 +19,7 @@ class MilkByDatePage extends StatefulWidget {
 }
 
 class _MilkByDatePageState extends State<MilkByDatePage> {
-  late Map<String, String> currentLocalization= {};
+  late Map<String, String> currentLocalization = {};
   late String languageCode = 'en';
 
   final user = FirebaseAuth.instance.currentUser;
@@ -36,12 +36,13 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
     _fetchAllMilk();
   }
 
-  void _deleteAllMilkOnDate() async{
+  void _deleteAllMilkOnDate() async {
     await db.deleteAllMilkRecords(widget.dateOfMilk!);
-
-    Navigator.pop(context);
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => const AvgMilkPage()));
+    if (mounted) {
+      Navigator.pop(context);
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => const AvgMilkPage()));
+    }
   }
 
   Future<void> _fetchAllMilk() async {
@@ -60,13 +61,16 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
         _filteredMilk = _allMilkInDate;
       } else {
         _filteredMilk =
-            _allMilkInDate.where((milk) => milk.rfid.contains(query)).toList();
+            _allMilkInDate.where((milk) => milk.id.contains(query)).toList();
       }
     });
   }
+
   double _calculateTotalMilk() {
-    return _filteredMilk.fold(0, (sum, milk) => sum + milk.morning + milk.evening);
+    return _filteredMilk.fold(
+        0, (sum, milk) => sum + milk.morning + milk.evening);
   }
+
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
@@ -77,9 +81,9 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
-        title:  Center(
+        title: Center(
           child: Text(
-            currentLocalization['milk_records']??"",
+            currentLocalization['milk_records'] ?? "",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
@@ -119,8 +123,7 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
           Padding(
             padding: const EdgeInsets.only(left: 20.0, top: 20.0),
             child: Text(
-              '${currentLocalization['date']}: ${widget.dateOfMilk!.day}-${widget.dateOfMilk!.month}-${widget.dateOfMilk!.year}                 ${currentLocalization['Total Milk'] ?? 'Total Milk'}: ${_calculateTotalMilk().toStringAsFixed(2)}L'
-              ,
+              '${currentLocalization['date']}: ${widget.dateOfMilk!.day}-${widget.dateOfMilk!.month}-${widget.dateOfMilk!.year}                 ${currentLocalization['Total Milk'] ?? 'Total Milk'}: ${_calculateTotalMilk().toStringAsFixed(2)}L',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -222,7 +225,7 @@ class MilkSearchDelegate extends SearchDelegate<String> {
   Widget _buildSearchResults() {
     final List<Milk> searchResults = query.isEmpty
         ? allMilk
-        : allMilk.where((milk) => milk.rfid.contains(query)).toList();
+        : allMilk.where((milk) => milk.id.contains(query)).toList();
 
     return Container(
       color: const Color.fromRGBO(
@@ -248,7 +251,7 @@ class MilkDataRow extends StatefulWidget {
 }
 
 class _MilkDataRowState extends State<MilkDataRow> {
-  late Map<String, String> currentLocalization= {};
+  late Map<String, String> currentLocalization = {};
   late String languageCode = 'en';
   void editDetail() {
     Navigator.push(
@@ -260,9 +263,25 @@ class _MilkDataRowState extends State<MilkDataRow> {
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
-
     currentLocalization = langFileMap[languageCode]!;
-    final double totalMilk = (widget.data.evening + widget.data.morning).toPrecision(2);
+
+    String id = '';
+    String idVal = '';
+    final double totalMilk =
+        (widget.data.evening + widget.data.morning).toPrecision(2);
+
+    if (widget.data.id == 'whole farm') {
+      id = 'whole farm';
+      idVal = '';
+    } else {
+      List<String> currentId = widget.data.id.split('-');
+      idVal = currentId[1];
+      if (currentId[0] == 'GPID') {
+        id = 'grpid';
+      } else {
+        id = 'RF ID';
+      }
+    }
 
     return Card(
       margin: const EdgeInsets.fromLTRB(8, 5, 8, 5),
@@ -279,24 +298,26 @@ class _MilkDataRowState extends State<MilkDataRow> {
         children: [
           // Left container
           Container(
-            width: 120,
+            width: 150,
             padding: const EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  "${currentLocalization["RF ID"]??""}: ${widget.data.rfid}",
+                  "${currentLocalization[id] ?? ""}:\n$idVal",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 15,
                   ),
+                  textAlign: TextAlign.center,
+                  softWrap: false,
                 ),
                 // const SizedBox(height: 5),
                 ClipOval(
                   child: Image.asset(
                     'asset/cow1.jpg',
                     fit: BoxFit.cover,
-                    width: 80,
+                    width: 100,
                     height: 65,
                   ),
                 ),
@@ -319,7 +340,7 @@ class _MilkDataRowState extends State<MilkDataRow> {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        "${currentLocalization['morning']??""}: ${widget.data.morning.toStringAsFixed(2)}L",
+                        "${currentLocalization['morning'] ?? ""}: ${widget.data.morning.toStringAsFixed(2)}L",
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
@@ -396,7 +417,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
   final uid = FirebaseAuth.instance.currentUser!.uid;
   late DatabaseForMilk db;
   late DatabaseForMilkByDate dbByDate;
-  late Map<String, String> currentLocalization= {};
+  late Map<String, String> currentLocalization = {};
   late String languageCode = 'en';
 
   double? milkInMorning;
@@ -422,27 +443,26 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
       await dbByDate.infoToServerMilk(milkByDate);
     }
     final double totalMilk = (milkByDate.totalMilk +
-        milk.morning +
-        milk.evening -
-        widget.data.evening -
-        widget.data.morning).toPrecision(2);
+            milk.morning +
+            milk.evening -
+            widget.data.evening -
+            widget.data.morning)
+        .toPrecision(2);
     await dbByDate.infoToServerMilk(
         MilkByDate(dateOfMilk: milk.dateOfMilk, totalMilk: totalMilk));
   }
 
   @override
   Widget build(BuildContext context) {
-
-    languageCode = Provider
-        .of<AppData>(context)
-        .persistentVariable;
+    languageCode = Provider.of<AppData>(context).persistentVariable;
 
     currentLocalization = langFileMap[languageCode]!;
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
       appBar: AppBar(
-        title: Text( currentLocalization['edit_milk_data']??'',
+        title: Text(
+          currentLocalization['edit_milk_data'] ?? '',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
@@ -464,7 +484,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "${currentLocalization['RF ID']} : ${widget.data.rfid}",
+                    "${currentLocalization['RF ID']} : ${widget.data.id}",
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.bold),
                   ),
@@ -479,7 +499,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
               ),
               const SizedBox(height: 30.0),
               _buildInputBox(
-                labelText: currentLocalization['morning_milk']??"",
+                labelText: currentLocalization['morning_milk'] ?? "",
                 initialValue: milkInMorning.toString(),
                 onChanged: (value) {
                   setState(() {
@@ -489,7 +509,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
               ),
               const SizedBox(height: 30.0),
               _buildInputBox(
-                labelText: currentLocalization['evening_milk']??"",
+                labelText: currentLocalization['evening_milk'] ?? "",
                 initialValue: milkInEvening.toString(),
                 onChanged: (value) {
                   setState(() {
@@ -506,7 +526,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
                   onPressed: () {
                     if (milkInMorning != null && milkInEvening != null) {
                       Milk newMilkData = Milk(
-                        rfid: widget.data.rfid,
+                        id: widget.data.id,
                         morning: milkInMorning!.toPrecision(2),
                         evening: milkInEvening!.toPrecision(2),
                         dateOfMilk: widget.data.dateOfMilk,
@@ -524,7 +544,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
                   child: Padding(
                     padding: EdgeInsets.all(4.0),
                     child: Text(
-                      currentLocalization['Save']??'',
+                      currentLocalization['Save'] ?? '',
                       style: TextStyle(fontSize: 15, color: Colors.black),
                     ),
                   ),
