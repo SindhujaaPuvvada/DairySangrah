@@ -1,4 +1,4 @@
-import 'package:farm_expense_mangement_app/api/firebase_api.dart';
+import 'package:farm_expense_mangement_app/api/notifications_api.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/authentication.dart';
 import 'package:farm_expense_mangement_app/screens/onboarding/onboard.dart';
 import 'package:farm_expense_mangement_app/screens/onboarding/onboardUtils.dart';
@@ -35,8 +35,9 @@ class AppData with ChangeNotifier {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  await FirebaseApi().initNotifications();
+  await NotificationsApi().initNotifications();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   runApp(ChangeNotifierProvider(
     create: (context) => AppData(),
@@ -52,6 +53,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       home: UpgradeAlert(
           showIgnore: false,
           showLater: true,
@@ -82,7 +84,7 @@ class MyApp extends StatelessWidget {
                               ? OnBoardingScreens()
                               : const WrapperHomePage();
                         } else {
-                          return CircularProgressIndicator();
+                          return Container(color: Colors.white,);
                         }
                       });
                 }
