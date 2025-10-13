@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:farm_expense_mangement_app/screens/home/homepage.dart';
 import 'package:farm_expense_mangement_app/screens/home/profilepage.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../main.dart';
 import '../notification/alertnotificationpage.dart';
 
@@ -88,19 +89,36 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
     _streamControllerScreen.add(_screenFromNumber);
     _appBar = const HomeAppBar();
     _bodyScreen = const HomePage();
-    _LoadData();
+    _loadData();
   }
 
-  Future<void> _LoadData() async {
-    int counter = Provider.of<AppData>(context, listen: false).counter;
-    if (counter == 0) {
+  Future<void> _loadData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool? fcmToUpdate = prefs.getBool('fcm_to_update');
+    if (fcmToUpdate == true) {
       String uid = FirebaseAuth.instance.currentUser!.uid;
       DatabaseServicesForUser userDB = DatabaseServicesForUser(uid);
-      var langCode = await userDB.getChosenLanguage(uid);
-      if (mounted) {
-        Provider.of<AppData>(context, listen: false).persistentVariable =
-            langCode;
-        Provider.of<AppData>(context, listen: false).counter = 1;
+      String? fcmToken = prefs.getString('fcm_token');
+      await userDB.updateFCMToken(uid,fcmToken);
+      await prefs.setBool('fcm_to_update', false);
+    }
+    if(mounted) {
+      int counter = Provider
+          .of<AppData>(context, listen: false)
+          .counter;
+      if (counter == 0) {
+        String uid = FirebaseAuth.instance.currentUser!.uid;
+        DatabaseServicesForUser userDB = DatabaseServicesForUser(uid);
+        var langCode = await userDB.getChosenLanguage(uid);
+        if (mounted) {
+          Provider
+              .of<AppData>(context, listen: false)
+              .persistentVariable =
+              langCode;
+          Provider
+              .of<AppData>(context, listen: false)
+              .counter = 1;
+        }
       }
     }
   }
@@ -138,7 +156,7 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
     });
   }
 
-  void Language(BuildContext context) {
+  void language(BuildContext context) {
     setState(() {
       _updateIndex(2);
     });

@@ -3,6 +3,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:farm_expense_mangement_app/logging.dart';
 import 'package:farm_expense_mangement_app/main.dart';
 import 'package:farm_expense_mangement_app/models/user.dart';
+import 'package:farm_expense_mangement_app/screens/authenticate/language.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -52,9 +53,9 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                 MenuItemButton(
                   onPressed: () {
                     FirebaseAuth.instance.signOut();
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => MyApp()),
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (context) => SignUpPage()),
+                          (Route<dynamic> route) => false,
                     );
                   },
                   child: Text(currentLocalization['Log out'] ?? ''),
@@ -105,10 +106,10 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                                             error: error.toString());
                                       }
                                       if (context.mounted) {
-                                        Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) => MyApp()));
+                                        Navigator.of(context).pushAndRemoveUntil(
+                                          MaterialPageRoute(builder: (context) => SignUpPage()),
+                                              (Route<dynamic> route) => false,
+                                        );
                                       }
                                     },
                                     opt2: currentLocalization['cancel'] ?? '',
@@ -136,10 +137,10 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                                   //deleting the current user account permanently
                                   user.delete().then((val) async {
                                     if (context.mounted) {
-                                      Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => MyApp()));
+                                      Navigator.of(context).pushAndRemoveUntil(
+                                        MaterialPageRoute(builder: (context) => SignUpPage()),
+                                            (Route<dynamic> route) => false,
+                                      );
                                     }
                                   }).catchError((e) {
                                     if (e.code == 'requires-recent-login') {
@@ -160,12 +161,10 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                                                   onPressedOpt1: () {
                                                     FirebaseAuth.instance
                                                         .signOut();
-                                                    Navigator.pushReplacement(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder:
-                                                                (context) =>
-                                                                    MyApp()));
+                                                    Navigator.of(context).pushAndRemoveUntil(
+                                                      MaterialPageRoute(builder: (context) => SignUpPage()),
+                                                          (Route<dynamic> route) => false,
+                                                    );
                                                   },
                                                   opt2: currentLocalization[
                                                           'cancel'] ??

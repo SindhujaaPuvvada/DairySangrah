@@ -458,6 +458,22 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
 
     currentLocalization = langFileMap[languageCode]!;
 
+    String id = '';
+    String idVal = '';
+
+    if (widget.data.id == 'whole farm') {
+      id = 'whole farm';
+      idVal = '';
+    } else {
+      List<String> currentId = widget.data.id.split('-');
+      idVal = currentId[1];
+      if (currentId[0] == 'GPID') {
+        id = 'grpid';
+      } else {
+        id = 'RF ID';
+      }
+    }
+
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
       appBar: AppBar(
@@ -484,7 +500,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "${currentLocalization['RF ID']} : ${widget.data.id}",
+                    "${currentLocalization[id]} : $idVal",
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.bold),
                   ),

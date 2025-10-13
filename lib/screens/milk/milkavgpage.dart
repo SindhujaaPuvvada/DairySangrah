@@ -15,7 +15,8 @@ import '../../../main.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 
 class AvgMilkPage extends StatefulWidget {
-  const AvgMilkPage({super.key});
+  final bool? fromNotification;
+  const AvgMilkPage({super.key, this.fromNotification});
 
   @override
   State<AvgMilkPage> createState() => _AvgMilkPageState();
@@ -94,6 +95,13 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
     currentLocalization = langFileMap[languageCode]!;
+
+    if (widget.fromNotification != null && widget.fromNotification == true) {
+      return AddMilkDataPage(
+          onMilkRecordAdded: () {
+            _fetchAllMilkByDate();
+          });
+    }
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
@@ -242,7 +250,7 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
   String? selectedId;
   double? milkInMorning;
   double? milkInEvening;
-  DateTime? milkingDate;
+  DateTime? milkingDate = DateTime.now();
 
   @override
   void initState() {
@@ -291,9 +299,8 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
     }
 
     for (Cattle cattle in milkedCattle) {
-
       if (cattle.nickname != null) {
-        milkedCattleIdsMap[cattle.rfid] =  "${cattle.rfid}-${cattle.nickname}";
+        milkedCattleIdsMap[cattle.rfid] = "${cattle.rfid}-${cattle.nickname}";
       } else {
         milkedCattleIdsMap[cattle.rfid] = cattle.rfid;
       }
@@ -459,7 +466,7 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
                         } else {
                           idVal = (selectedEntryType == 'group wise')
                               ? "GPID-${selectedId!}"
-                              : "RFID-${selectedId!}";
+                              : "CTID-${selectedId!}";
                         }
                         final Milk newMilkData = Milk(
                           id: idVal,

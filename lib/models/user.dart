@@ -14,6 +14,7 @@ class FarmUser {
   final String chosenLanguage;
   String appMode;
   bool? isFirstLaunch;
+  String? fcmToken;
 
   FarmUser({
     required this.ownerName,
@@ -22,7 +23,8 @@ class FarmUser {
     required this.phoneNo,
     required this.chosenLanguage,
     this.appMode = 'GBW', //Group Breed Wise(GBW) or (Normal)
-    this.isFirstLaunch
+    this.isFirstLaunch,
+    this.fcmToken,
   });
 
   factory FarmUser.fromFireStore(
@@ -36,7 +38,8 @@ class FarmUser {
       phoneNo: data?['phoneNo'],
       chosenLanguage: data?['chosenLanguage'] ?? 'en',
       appMode: data?['appMode'] ?? 'GBW',
-      isFirstLaunch: data?['isFirstLaunch'] ?? true
+      isFirstLaunch: data?['isFirstLaunch'] ?? true,
+      fcmToken: data?['fcmToken'] ?? '',
     );
   }
 
@@ -48,7 +51,8 @@ class FarmUser {
       'phoneNo': phoneNo,
       'chosenLanguage': chosenLanguage,
       'appMode': appMode,
-      'isFirstLaunch': isFirstLaunch
+      'isFirstLaunch': isFirstLaunch,
+      'fcmToken': fcmToken
     };
   }
 }

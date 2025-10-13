@@ -61,4 +61,14 @@ class DatabaseServicesForUser {
 
     return snapshot.data()?['chosenLanguage'] ?? 'en';
   }
+
+  Future<void> updateFCMToken(String uid, String? fcmToken) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    final DocumentReference docRef = db.collection('User').doc(uid);
+
+    await docRef.update({
+      'fcmToken': fcmToken,
+    });
+    return;
+  }
 }
