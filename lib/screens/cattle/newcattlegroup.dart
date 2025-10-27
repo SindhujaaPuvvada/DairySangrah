@@ -233,8 +233,21 @@ class _AddNewCattleGroupState extends State<AddNewCattleGroup> {
                         }
                         return;
                       }
+
+                      final results = await Future.wait([
+                        CattleUtils.getLastUsedGrpId(uid),
+                        CattleUtils.getLastUsedRFId(uid)
+                      ]);
+                      int lastGrpId = results[0];
+                      int lastRFId = results[1];
+
                       String result = await CattleUtils.addCattleGroupToDB(
-                          _selectedType, _selectedBreed, _selectedStatus);
+                          _selectedType,
+                          _selectedBreed,
+                          _selectedStatus,
+                          lastGrpId);
+                      lastGrpId++;
+
                       String msg = "";
                       if (result == 'Already Exists') {
                         msg = 'cattle_grp_exists';
@@ -256,8 +269,9 @@ class _AddNewCattleGroupState extends State<AddNewCattleGroup> {
                               ? 'Male'
                               : 'Female';
                       for (int i = 0; i < newCattleCount; i++) {
-                        await CattleUtils.addNewCattleToDB(_selectedType,
-                            _selectedBreed, _selectedStatus, gender);
+                        CattleUtils.addNewCattleToDB(_selectedType,
+                            _selectedBreed, _selectedStatus, lastRFId, gender);
+                        lastRFId++;
                       }
                       if (context.mounted) {
                         Navigator.pop(context);

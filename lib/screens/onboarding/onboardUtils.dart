@@ -14,12 +14,11 @@ class OnboardUtils {
       showOnboarding = false;
     } else {
       // This is the first launch or the flag was not
-      if(firstLaunch == null){
-          DatabaseServicesForUser userDB = DatabaseServicesForUser(uid);
-          bool isFirstLaunch = await userDB.getIsFirstLaunch(uid);
-          showOnboarding = (isFirstLaunch == true) ? true : false;
-      }
-      else {
+      if (firstLaunch == null) {
+        DatabaseServicesForUser userDB = DatabaseServicesForUser(uid);
+        bool isFirstLaunch = await userDB.getIsFirstLaunch(uid);
+        showOnboarding = (isFirstLaunch == true) ? true : false;
+      } else {
         showOnboarding = true;
       }
     }
@@ -30,6 +29,7 @@ class OnboardUtils {
       [bool? allowNumOnly, String? validatorMsg]) {
     return TextFormField(
       controller: controller,
+      keyboardType: TextInputType.number,
       inputFormatters: allowNumOnly == true
           ? [FilteringTextInputFormatter.allow(RegExp(r"[0-9]"))]
           : null,
@@ -65,7 +65,7 @@ class OnboardUtils {
   }) {
     var itemsList = items.entries.toList();
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(color: Colors.black87, fontSize: 14.0),
@@ -88,7 +88,7 @@ class OnboardUtils {
     );
   }
 
-  static buildElevatedButton(String label,
+  static ElevatedButton buildElevatedButton(String label,
       {required void Function() onPressed}) {
     return ElevatedButton(
         onPressed: onPressed,

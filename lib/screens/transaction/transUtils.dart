@@ -24,7 +24,7 @@ class TransUtils{
     required ValueChanged<String?> onChanged,
   }) {
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(color: Colors.black54, fontSize: 14.0),
@@ -42,7 +42,7 @@ class TransUtils{
     );
   }
 
-  static buildElevatedButton(String label, {required void Function() onPressed}) {
+  static ElevatedButton buildElevatedButton(String label, {required void Function() onPressed}) {
     return ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(

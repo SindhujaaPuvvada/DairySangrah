@@ -24,8 +24,9 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
 
   final PageController pageController = PageController();
 
-  final TextEditingController breedCountController =
-      TextEditingController(text: '1');
+  final TextEditingController breedCountController = TextEditingController(
+    text: '1',
+  );
   List<TextEditingController> milkedCountController = [];
   List<TextEditingController> dryCountController = [];
   List<TextEditingController> calfCountController = [];
@@ -39,27 +40,27 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
     {
       'title': 'breed_wise_title',
       'type': 'breedWise',
-      'desc': 'welcome_msg_onboard'
+      'desc': 'welcome_msg_onboard',
     },
     {
       'title': 'cow_breeds_title',
       'type': 'breed',
-      'desc': 'cow_breed_msg_onboard'
+      'desc': 'cow_breed_msg_onboard',
     },
     {
       'title': 'cow_count_title',
       'type': 'count',
-      'desc': 'cow_count_msg_onboard'
+      'desc': 'cow_count_msg_onboard',
     },
     {
       'title': 'buffalo_breeds_title',
       'type': 'breed',
-      'desc': 'buffalo_breed_msg_onboard'
+      'desc': 'buffalo_breed_msg_onboard',
     },
     {
       'title': 'buffalo_count_title',
       'type': 'count',
-      'desc': 'buffalo_count_msg_onboard'
+      'desc': 'buffalo_count_msg_onboard',
     },
   ];
 
@@ -102,264 +103,305 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
         itemCount: _pageData.length,
         itemBuilder: (BuildContext context, int index) {
           final data = _pageData[index];
-          return Container(
-            color: Colors.white54,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Column(children: [
-                  ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(36),
-                      bottomRight: Radius.circular(36),
-                    ),
-                    child: Image.asset(
-                      'asset/base.jpg',
-                      fit: BoxFit.fill,
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height * 0.22,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 15, 10, 10),
-                    child: Text(
-                      currentLocalization[data['title']] ?? '',
-                      style: const TextStyle(
-                          fontSize: 29,
-                          color: Color.fromRGBO(13, 166, 186, 1.0),
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(30, 10, 10, 20),
-                    child: Text(
-                      currentLocalization[data['desc']] ?? '',
-                      style: const TextStyle(
-                          color: Color.fromRGBO(165, 42, 42, 1.0),
-                          fontSize: 18,
-                          fontStyle: FontStyle.italic),
-                    ),
-                  ),
-                  if (data['type'] == 'breedWise') ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Radio<String>(
-                          value: 'yes',
-                          groupValue: _selectedOption,
-                          activeColor: Color.fromRGBO(13, 166, 186, 1.0),
-                          onChanged: (String? value) {
-                            setState(() {
-                              _selectedOption = value;
-                            });
-                          },
+          return SingleChildScrollView(
+            child: Container(
+              color: Colors.white54,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Column(
+                    children: [
+                      ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(36),
+                          bottomRight: Radius.circular(36),
                         ),
-                        Text(
-                          currentLocalization['yes'] ?? 'Yes',
-                          style: TextStyle(color: Colors.black, fontSize: 18),
-                        ),
-                        SizedBox(width: 50),
-                        Radio<String>(
-                          value: 'no',
-                          groupValue: _selectedOption,
-                          activeColor: Color.fromRGBO(13, 166, 186, 1.0),
-                          onChanged: (String? value) {
-                            setState(() {
-                              _selectedOption = value;
-                            });
-                          },
-                        ),
-                        Text(currentLocalization['no'] ?? 'No',
-                            style:
-                                TextStyle(color: Colors.black, fontSize: 18)),
-                      ],
-                    )
-                  ],
-                  if (data['type'] == 'breed') ...[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(30, 0, 30, 50),
-                      child: TextFormField(
-                        controller: breedCountController,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp(r"[0-9]"))
-                        ],
-                        decoration: InputDecoration(
-                          labelText:
-                              '${currentLocalization['enter_breed_count'] ?? "Enter the number of breeds"}*',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
+                        child: Image.asset(
+                          'asset/base.jpg',
+                          fit: BoxFit.fill,
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height * 0.22,
                         ),
                       ),
-                    ),
-                  ],
-                  if (data['type'] == 'count') ...[
-                    StatefulBuilder(
-                        builder: (BuildContext context, StateSetter setState) {
-                      int breedCount = int.parse(breedCountController.text);
-                      for (int i = 0; i < breedCount; i++) {
-                        milkedCountController
-                            .add(TextEditingController(text: '0'));
-                        dryCountController
-                            .add(TextEditingController(text: '0'));
-                        calfCountController
-                            .add(TextEditingController(text: '0'));
-                        heiferCountController
-                            .add(TextEditingController(text: '0'));
-                        maleCountController
-                            .add(TextEditingController(text: '0'));
-                        selectedBreeds.add('select');
-                      }
-                      return SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.80,
-                        height: MediaQuery.of(context).size.height * 0.35,
-                        child: SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              for (int j = 0; j < breedCount; j++) ...[
-                                (_selectedOption == 'no')
-                                    ? Text(
-                                        currentLocalization[
-                                                'enter_the_details'] ??
-                                            '',
-                                        style: TextStyle(
-                                            color: Color.fromRGBO(
-                                                13, 166, 186, 1.0),
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold))
-                                    : Text(
-                                        "${currentLocalization['enter_for_breed']} ${j + 1}",
-                                        style: TextStyle(
-                                            color: Color.fromRGBO(
-                                                13, 166, 186, 1.0),
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold)),
-                                SizedBox(height: 15),
-                                (_selectedOption == 'no')
-                                    ? Container()
-                                    : OnboardUtils.buildDropdown(
-                                        label:
-                                            "${currentLocalization['breed']} ${j + 1}",
-                                        value: selectedBreeds[j],
-                                        items: (index == 2)
-                                            ? cowBreedMap
-                                            : buffaloBreedMap,
-                                        onChanged: (newValue) {
-                                          setState(() {
-                                            selectedBreeds[j] = newValue!;
-                                          });
-                                        }),
-                                SizedBox(height: 15),
-                                Row(
-                                  spacing:
-                                      MediaQuery.of(context).size.width * 0.15,
-                                  children: [
-                                    Flexible(
-                                      child: OnboardUtils.buildTextField(
-                                          calfCountController[j],
-                                          currentLocalization[
-                                                  'enter_calf_count'] ??
-                                              '',
-                                          true,
-                                          ''),
-                                    ),
-                                    Flexible(
-                                      child: OnboardUtils.buildTextField(
-                                          heiferCountController[j],
-                                          currentLocalization[
-                                                  'enter_heifer_count'] ??
-                                              '',
-                                          true,
-                                          ''),
-                                    ),
-                                  ],
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 15, 10, 10),
+                        child: Text(
+                          currentLocalization[data['title']] ?? '',
+                          style: const TextStyle(
+                            fontSize: 29,
+                            color: Color.fromRGBO(13, 166, 186, 1.0),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(30, 10, 10, 20),
+                        child: Text(
+                          currentLocalization[data['desc']] ?? '',
+                          style: const TextStyle(
+                            color: Color.fromRGBO(165, 42, 42, 1.0),
+                            fontSize: 18,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                      if (data['type'] == 'breedWise') ...[
+                        RadioGroup<String>(
+                          groupValue: _selectedOption,
+                          //activeColor: Color.fromRGBO(13, 166, 186, 1.0),
+                          onChanged: (String? value) {
+                            setState(() {
+                              _selectedOption = value;
+                            });
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Radio<String>(
+                                value: 'yes',
+                                activeColor: Color.fromRGBO(13, 166, 186, 1.0),
+                              ),
+                              Text(
+                                currentLocalization['yes'] ?? 'Yes',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18,
                                 ),
-                                SizedBox(height: 15),
-                                Row(
-                                    spacing: MediaQuery.of(context).size.width *
-                                        0.15,
-                                    children: [
-                                      Flexible(
-                                        child: OnboardUtils.buildTextField(
-                                            milkedCountController[j],
-                                            currentLocalization[
-                                                    'enter_milked_count'] ??
-                                                '',
-                                            true,
-                                            ''),
-                                      ),
-                                      Flexible(
-                                        child: OnboardUtils.buildTextField(
-                                            dryCountController[j],
-                                            currentLocalization[
-                                                    'enter_dry_count'] ??
-                                                '',
-                                            true,
-                                            ''),
-                                      ),
-                                    ]),
-                                SizedBox(height: 15),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Flexible(
-                                      child: OnboardUtils.buildTextField(
-                                          maleCountController[j],
-                                          currentLocalization[
-                                                  'enter_male_count'] ??
-                                              '',
-                                          true,
-                                          ''),
-                                    ),
-                                  ],
+                              ),
+                              SizedBox(width: 50),
+                              Radio<String>(
+                                value: 'no',
+                                activeColor: Color.fromRGBO(13, 166, 186, 1.0),
+                              ),
+                              Text(
+                                currentLocalization['no'] ?? 'No',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18,
                                 ),
-                                SizedBox(height: 15),
-                              ],
+                              ),
                             ],
                           ),
                         ),
-                      );
-                    })
-                  ],
-                  SizedBox(height: 20),
-                ]),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: SmoothPageIndicator(
-                        controller: pageController,
-                        count: _pageData.length,
-                        effect: ExpandingDotsEffect(
-                          dotColor: Colors.black26,
-                          dotHeight: 10,
-                          dotWidth: 10,
-                          expansionFactor: 8,
-                          activeDotColor: Color.fromRGBO(13, 166, 186, 1.0),
+                      ],
+                      if (data['type'] == 'breed') ...[
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(30, 0, 30, 50),
+                          child: TextFormField(
+                            controller: breedCountController,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r"[0-9]"),
+                              ),
+                            ],
+                            decoration: InputDecoration(
+                              labelText:
+                                  '${currentLocalization['enter_breed_count'] ?? "Enter the number of breeds"}*',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                      if (data['type'] == 'count') ...[
+                        StatefulBuilder(
+                          builder: (
+                            BuildContext context,
+                            StateSetter setState,
+                          ) {
+                            int breedCount = int.parse(
+                              breedCountController.text,
+                            );
+                            for (int i = 0; i < breedCount; i++) {
+                              milkedCountController.add(
+                                TextEditingController(text: '0'),
+                              );
+                              dryCountController.add(
+                                TextEditingController(text: '0'),
+                              );
+                              calfCountController.add(
+                                TextEditingController(text: '0'),
+                              );
+                              heiferCountController.add(
+                                TextEditingController(text: '0'),
+                              );
+                              maleCountController.add(
+                                TextEditingController(text: '0'),
+                              );
+                              selectedBreeds.add('select');
+                            }
+                            return SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.80,
+                              height: MediaQuery.of(context).size.height * 0.38,
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    for (int j = 0; j < breedCount; j++) ...[
+                                      (_selectedOption == 'no')
+                                          ? Text(
+                                            currentLocalization['enter_the_details'] ??
+                                                '',
+                                            style: TextStyle(
+                                              color: Color.fromRGBO(
+                                                13,
+                                                166,
+                                                186,
+                                                1.0,
+                                              ),
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          )
+                                          : Text(
+                                            "${currentLocalization['enter_for_breed']} ${j + 1}",
+                                            style: TextStyle(
+                                              color: Color.fromRGBO(
+                                                13,
+                                                166,
+                                                186,
+                                                1.0,
+                                              ),
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                      SizedBox(height: 15),
+                                      (_selectedOption == 'no')
+                                          ? Container()
+                                          : OnboardUtils.buildDropdown(
+                                            label:
+                                                "${currentLocalization['breed']} ${j + 1}",
+                                            value: selectedBreeds[j],
+                                            items:
+                                                (index == 2)
+                                                    ? cowBreedMap
+                                                    : buffaloBreedMap,
+                                            onChanged: (newValue) {
+                                              setState(() {
+                                                selectedBreeds[j] = newValue!;
+                                              });
+                                            },
+                                          ),
+                                      SizedBox(height: 15),
+                                      Row(
+                                        spacing:
+                                            MediaQuery.of(context).size.width *
+                                            0.15,
+                                        children: [
+                                          Flexible(
+                                            child: OnboardUtils.buildTextField(
+                                              calfCountController[j],
+                                              currentLocalization['enter_calf_count'] ??
+                                                  '',
+                                              true,
+                                              '',
+                                            ),
+                                          ),
+                                          Flexible(
+                                            child: OnboardUtils.buildTextField(
+                                              heiferCountController[j],
+                                              currentLocalization['enter_heifer_count'] ??
+                                                  '',
+                                              true,
+                                              '',
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 15),
+                                      Row(
+                                        spacing:
+                                            MediaQuery.of(context).size.width *
+                                            0.15,
+                                        children: [
+                                          Flexible(
+                                            child: OnboardUtils.buildTextField(
+                                              milkedCountController[j],
+                                              currentLocalization['enter_milked_count'] ??
+                                                  '',
+                                              true,
+                                              '',
+                                            ),
+                                          ),
+                                          Flexible(
+                                            child: OnboardUtils.buildTextField(
+                                              dryCountController[j],
+                                              currentLocalization['enter_dry_count'] ??
+                                                  '',
+                                              true,
+                                              '',
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 15),
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Flexible(
+                                            child: OnboardUtils.buildTextField(
+                                              maleCountController[j],
+                                              currentLocalization['enter_male_count'] ??
+                                                  '',
+                                              true,
+                                              '',
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 15),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                      SizedBox(height: 20),
+                    ],
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: SmoothPageIndicator(
+                          controller: pageController,
+                          count: _pageData.length,
+                          effect: ExpandingDotsEffect(
+                            dotColor: Colors.black26,
+                            dotHeight: 10,
+                            dotWidth: 10,
+                            expansionFactor: 8,
+                            activeDotColor: Color.fromRGBO(13, 166, 186, 1.0),
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(height: 15),
-                    OnboardUtils.buildElevatedButton(
+                      SizedBox(height: 15),
+                      OnboardUtils.buildElevatedButton(
                         currentLocalization['Continue'] ?? 'Continue',
-                        onPressed: isButtonDisabled
-                            ? () {}
-                            : () {
-                                setState(() {
-                                  isButtonDisabled = true;
-                                });
-                                onContinue(index, data);
-                              }),
-                    SizedBox(
-                      height: 15,
-                    )
-                  ],
-                ),
-              ],
+                        onPressed:
+                            isButtonDisabled
+                                ? () {}
+                                : () {
+                                  setState(() {
+                                    isButtonDisabled = true;
+                                  });
+                                  onContinue(index, data);
+                                },
+                      ),
+                      SizedBox(height: 15),
+                    ],
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -367,50 +409,124 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
     );
   }
 
-  Future<void> createGroups(String cattleType, String? breed, int calfCount,
-      int heiferCount, int milkedCount, int dryCount, int maleCount) async {
-    await CattleUtils.addCattleGroupToDB(cattleType, breed, 'Calf');
+  Future<void> createGroups(
+    String cattleType,
+    String? breed,
+    int calfCount,
+    int heiferCount,
+    int milkedCount,
+    int dryCount,
+    int maleCount,
+    int lastGrpId,
+    int lastRFId,
+  ) async {
+    List<Future<void>> futures = [];
+
+    futures.add(
+      CattleUtils.addCattleGroupToDB(cattleType, breed, 'Calf', lastGrpId),
+    );
+    lastGrpId++;
     for (int i = 0; i < calfCount; i++) {
-      await CattleUtils.addNewCattleToDB(cattleType, breed, 'Calf');
+      futures.add(
+        CattleUtils.addNewCattleToDB(cattleType, breed, 'Calf', lastRFId),
+      );
+      lastRFId++;
     }
 
-    await CattleUtils.addCattleGroupToDB(cattleType, breed, 'Heifer');
+    futures.add(
+      CattleUtils.addCattleGroupToDB(cattleType, breed, 'Heifer', lastGrpId),
+    );
+    lastGrpId++;
     for (int i = 0; i < heiferCount; i++) {
-      await CattleUtils.addNewCattleToDB(cattleType, breed, 'Heifer', 'Female');
+      futures.add(
+        CattleUtils.addNewCattleToDB(
+          cattleType,
+          breed,
+          'Heifer',
+          lastRFId,
+          'Female',
+        ),
+      );
+      lastRFId++;
     }
 
-    await CattleUtils.addCattleGroupToDB(cattleType, breed, 'Milked');
+    futures.add(
+      CattleUtils.addCattleGroupToDB(cattleType, breed, 'Milked', lastGrpId),
+    );
+    lastGrpId++;
     for (int i = 0; i < milkedCount; i++) {
-      await CattleUtils.addNewCattleToDB(cattleType, breed, 'Milked', 'Female');
+      futures.add(
+        CattleUtils.addNewCattleToDB(
+          cattleType,
+          breed,
+          'Milked',
+          lastRFId,
+          'Female',
+        ),
+      );
+      lastRFId++;
     }
 
-    await CattleUtils.addCattleGroupToDB(cattleType, breed, 'Dry');
+    futures.add(
+      CattleUtils.addCattleGroupToDB(cattleType, breed, 'Dry', lastGrpId),
+    );
+    lastGrpId++;
     for (int i = 0; i < dryCount; i++) {
-      await CattleUtils.addNewCattleToDB(cattleType, breed, 'Dry', 'Female');
+      futures.add(
+        CattleUtils.addNewCattleToDB(
+          cattleType,
+          breed,
+          'Dry',
+          lastRFId,
+          'Female',
+        ),
+      );
+      lastRFId++;
     }
 
-    await CattleUtils.addCattleGroupToDB(cattleType, breed, 'Adult Male');
+    futures.add(
+      CattleUtils.addCattleGroupToDB(
+        cattleType,
+        breed,
+        'Adult Male',
+        lastGrpId,
+      ),
+    );
+    lastGrpId++;
     for (int i = 0; i < maleCount; i++) {
-      await CattleUtils.addNewCattleToDB(
-          cattleType, breed, 'Adult Male', 'Male');
+      futures.add(
+        CattleUtils.addNewCattleToDB(
+          cattleType,
+          breed,
+          'Adult Male',
+          lastRFId,
+          'Male',
+        ),
+      );
+      lastRFId++;
     }
+
+    await Future.wait(futures);
   }
 
   Future<void> onContinue(int index, var data) async {
     String uid = FirebaseAuth.instance.currentUser!.uid;
     DatabaseServicesForUser userDB = DatabaseServicesForUser(uid);
+    List<Future<void>> futures = [];
+
     if (data['type'] == 'count') {
       int breedCount = int.parse(breedCountController.text);
 
       if (_selectedOption == 'yes') {
-        await userDB.updateAppMode(uid, 'GBW');
+        futures.add(userDB.updateAppMode(uid, 'GBW'));
         for (int l = 0; l < breedCount; l++) {
           if (selectedBreeds[l] == 'select') {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                      "${currentLocalization['select_the_breed']} - ${currentLocalization['breed']} ${l + 1}"),
+                    "${currentLocalization['select_the_breed']} - ${currentLocalization['breed']} ${l + 1}",
+                  ),
                   duration: Duration(seconds: 2),
                 ),
               );
@@ -422,11 +538,19 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
           }
         }
       } else {
-        await userDB.updateAppMode(uid, 'Normal');
+        futures.add(userDB.updateAppMode(uid, 'Normal'));
       }
 
       String cattleType = (index == 2) ? 'Cow' : 'Buffalo';
       int calfCount, heiferCount, milkedCount, dryCount, maleCount;
+      int lastGrpId, lastRFId;
+      int prevBreedCattleCount = 0;
+
+      final results = await Future.wait([
+        CattleUtils.getLastUsedGrpId(uid),
+        CattleUtils.getLastUsedRFId(uid),
+      ]);
+      lastRFId = results[1];
 
       for (int k = 0; k < breedCount; k++) {
         calfCount = int.parse(calfCountController[k].text);
@@ -435,8 +559,24 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
         dryCount = int.parse(dryCountController[k].text);
         maleCount = int.parse(maleCountController[k].text);
         String? breed = (_selectedOption == 'no') ? null : selectedBreeds[k];
-        await createGroups(cattleType, breed, calfCount, heiferCount,
-            milkedCount, dryCount, maleCount);
+
+        lastGrpId = results[0] + (k*5);
+        lastRFId = lastRFId + prevBreedCattleCount;
+
+        futures.add(createGroups(
+          cattleType,
+          breed,
+          calfCount,
+          heiferCount,
+          milkedCount,
+          dryCount,
+          maleCount,
+          lastGrpId,
+          lastRFId,
+        ));
+
+        prevBreedCattleCount =
+        (calfCount + heiferCount + milkedCount + dryCount + maleCount);
       }
       breedCountController.text = '1';
       selectedBreeds = [];
@@ -448,21 +588,25 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
     }
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (index == _pageData.length - 1) {
-      await prefs.setBool('first_launch_$uid', false);
-      userDB.updateIsFirstLaunch(uid, false);
+      futures.add(prefs.setBool('first_launch_$uid', false));
+      futures.add(userDB.updateIsFirstLaunch(uid, false));
 
       if (mounted) {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => WrapperHomePage()));
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => WrapperHomePage()),
+        );
       }
     } else {
       if (_selectedOption == 'no' || (breedCountController.text) == '0') {
         if ((index + 2) > _pageData.length - 1) {
-          await prefs.setBool('first_launch_$uid', false);
-          userDB.updateIsFirstLaunch(uid, false);
+          futures.add(prefs.setBool('first_launch_$uid', false));
+          futures.add(userDB.updateIsFirstLaunch(uid, false));
           if (mounted) {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => WrapperHomePage()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => WrapperHomePage()),
+            );
           }
         } else {
           pageController.jumpToPage(index + 2);
@@ -471,6 +615,9 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
         pageController.jumpToPage(index + 1);
       }
     }
+
+    await Future.wait(futures);
+
     setState(() {
       isButtonDisabled = false;
     });

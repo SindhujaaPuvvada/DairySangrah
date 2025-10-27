@@ -41,7 +41,7 @@ class FeedUtils {
   }) {
     var itemsList = items.entries.toList();
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(color: Colors.black54, fontSize: 14.0),
@@ -61,7 +61,7 @@ class FeedUtils {
     );
   }
 
-  static buildElevatedButton(String label,
+  static ElevatedButton buildElevatedButton(String label,
       {required void Function() onPressed}) {
     return ElevatedButton(
       onPressed: onPressed,
@@ -89,7 +89,7 @@ class FeedUtils {
     return [price, rate];
   }
 
-  static saveFeedDetails(Feed fd) async {
+  static dynamic saveFeedDetails(Feed fd) async {
     String uid = FirebaseAuth.instance.currentUser!.uid;
     DatabaseServicesForFeed fdDB = DatabaseServicesForFeed(uid);
     if (fd.ratePerKg != 0.0) {

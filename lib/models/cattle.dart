@@ -14,6 +14,8 @@ class Cattle {
   final String type;
   bool isPregnant;
   DateTime? dateOfBirth;
+  String? motherInfo;
+  String? fatherInfo;
 
   Cattle(
       {required this.rfid,
@@ -25,7 +27,9 @@ class Cattle {
       this.source = 'Born on Farm',
       required this.type,
       this.isPregnant = false,
-      this.dateOfBirth});
+      this.dateOfBirth,
+      this.motherInfo,
+      this.fatherInfo});
 
   factory Cattle.fromFireStore(DocumentSnapshot<Map<String, dynamic>> snapshot,
       SnapshotOptions? options) {
@@ -42,6 +46,8 @@ class Cattle {
       isPregnant: data?['isPregnant'],
       dateOfBirth:
           (data?['dateOfBirth'] != null) ? data!['dateOfBirth'].toDate() : null,
+      motherInfo: data?['motherInfo'],
+      fatherInfo: data?['fatherInfo'],
     );
   }
 
@@ -56,7 +62,9 @@ class Cattle {
       'source': source,
       'type': type,
       'isPregnant': isPregnant,
-      'dateOfBirth': dateOfBirth
+      'dateOfBirth': dateOfBirth,
+      'motherInfo':motherInfo,
+      'fatherInfo':fatherInfo,
     };
   }
 }

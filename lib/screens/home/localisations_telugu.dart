@@ -371,5 +371,17 @@ class LocalizationTe {
     'please_select_status': 'దయచేసి స్థితి ఎంచుకోండి',
     'cattle_name': 'పేరు / ట్యాగ్ నం.',
     'add_new_cattle': 'కొత్త పశువు జోడించు',
+    "enter_sire_info": "నర పశువు వివరాలు నమోదు చేయండి",
+    "enter_notes": "ఏదైనా గమనికలు ఉంటే నమోదు చేయండి",
+    "enter_mother_info": "తల్లి వివరాలు నమోదు చేయండి",
+    "enter_father_info": "తండ్రి వివరాలు నమోదు చేయండి",
+    "mother_info": "తల్లి సమాచారం",
+    "father_info": "తండ్రి సమాచారం",
+    "calf_entry": "కొత్తగా పుట్టిన దూడ వివరాలు",
+    "would_enter_calf_details": "కొత్తగా పుట్టిన దూడ వివరాలు నమోదు చేసే సమయం వచ్చింది!",
+    "now": "ఇప్పుడే చేయండి",
+    "later": "తరువాత",
+    "notes": "గమనికలు",
+    "sire_info": "నర పశువు :"
   };
 }
