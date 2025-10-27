@@ -40,7 +40,7 @@ class CattleUtils {
   }) {
     var itemsList = items.entries.toList();
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(color: Colors.black54, fontSize: 14.0),
@@ -58,7 +58,7 @@ class CattleUtils {
     );
   }
 
-  static buildElevatedButton(String label,
+  static ElevatedButton buildElevatedButton(String label,
       {required void Function() onPressed}) {
     return ElevatedButton(
         onPressed: onPressed,
@@ -112,13 +112,25 @@ class CattleUtils {
     );
   }
 
+  static Future<int> getLastUsedGrpId(String uid) async {
+    DatabaseServicesForCattleGroups cgrpDB =
+    DatabaseServicesForCattleGroups(uid);
+    int lastGrpId = int.parse(await cgrpDB.getLastUsedGrpIdDB(uid));
+    return lastGrpId;
+  }
+
+  static Future<int> getLastUsedRFId(String uid) async {
+    DatabaseServicesForCattle cattleDB = DatabaseServicesForCattle(uid);
+    int lastRFId = int.parse(await cattleDB.getLastUsedRFIdDB(uid));
+    return lastRFId;
+  }
+  
   static Future<String> addCattleGroupToDB(
-      String cattleType, String? breed, String status) async {
+      String cattleType, String? breed, String status, int lastGrpId) async {
     String uid = FirebaseAuth.instance.currentUser!.uid;
     DatabaseServicesForCattleGroups cgrpDB =
         DatabaseServicesForCattleGroups(uid);
 
-    int lastGrpId = int.parse(await cgrpDB.getLastUsedGrpId(uid));
     bool grpAlrdyExists =
         await cgrpDB.grpCriteriaExists(cattleType, breed, status);
 
@@ -137,12 +149,10 @@ class CattleUtils {
   }
 
   static Future<void> addNewCattleToDB(
-      String cattleType, String? breed, String status,
+      String cattleType, String? breed, String status, int lastRFId,
       [String? sex]) async {
     String uid = FirebaseAuth.instance.currentUser!.uid;
     DatabaseServicesForCattle cattleDB = DatabaseServicesForCattle(uid);
-
-    int lastRFId = int.parse(await cattleDB.getLastUsedRFId(uid));
 
     final cattle = Cattle(
       rfid: (lastRFId + 1).toString().padLeft(4, '0'),

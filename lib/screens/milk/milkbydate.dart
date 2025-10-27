@@ -121,13 +121,25 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 20.0, top: 20.0),
-            child: Text(
-              '${currentLocalization['date']}: ${widget.dateOfMilk!.day}-${widget.dateOfMilk!.month}-${widget.dateOfMilk!.year}                 ${currentLocalization['Total Milk'] ?? 'Total Milk'}: ${_calculateTotalMilk().toStringAsFixed(2)}L',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+            padding: const EdgeInsets.only(top: 20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Text(
+                  '${currentLocalization['date']}: ${widget.dateOfMilk!.day}-${widget.dateOfMilk!.month}-${widget.dateOfMilk!.year}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '${currentLocalization['Total Milk'] ?? 'Total Milk'}: ${_calculateTotalMilk().toStringAsFixed(2)}L',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 10),
@@ -157,7 +169,7 @@ class MilkSearchDelegate extends SearchDelegate<String> {
   ThemeData appBarTheme(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return theme.copyWith(
-      appBarTheme: const AppBarTheme(color: Color.fromRGBO(13, 166, 186, 1)),
+      appBarTheme: const AppBarTheme(backgroundColor: Color.fromRGBO(13, 166, 186, 1)),
       // Customize the search bar's appearance
       inputDecorationTheme: InputDecorationTheme(
         filled: true, // Set to true to add a background color

@@ -335,5 +335,17 @@ class LocalizationEn {
     'please_select_status': 'Please select status',
     'cattle_name': 'Name / Tag No.',
     'add_new_cattle': 'Add New Cattle',
+    'enter_sire_info': 'Enter Sire Information',
+    'enter_notes': 'Enter quick notes if any',
+    'enter_mother_info': 'Enter Mother Information',
+    'enter_father_info': 'Enter Father Information',
+    'mother_info': 'Mother Info.',
+    'father_info': 'Father Info.',
+    'calf_entry': 'New Born Calf Entry',
+    'would_enter_calf_details': "It's time to make the entry for the new born Calf!",
+    'now': 'Proceed Now',
+    'later': 'Later',
+    'notes': 'Notes',
+    'sire_info': 'Sire :',
   };
 }

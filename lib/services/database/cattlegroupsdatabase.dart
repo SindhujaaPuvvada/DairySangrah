@@ -62,7 +62,7 @@ class DatabaseServicesForCattleGroups {
     await cattleGrpDocRef.delete();
   }
 
-  Future<String> getLastUsedGrpId(String uid) async {
+  Future<String> getLastUsedGrpIdDB(String uid) async {
     final FirebaseFirestore db = FirebaseFirestore.instance;
 
     final QuerySnapshot<Map<String, dynamic>> cattleGrpDoc = await db

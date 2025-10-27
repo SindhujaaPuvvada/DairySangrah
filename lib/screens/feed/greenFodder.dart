@@ -172,43 +172,40 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
               const SizedBox(height: 20),
 
               (_selectedSource == 'Purchased')
-                  ? Container(
-                      child: Column(children: [
-                      FeedUtils.buildTextField(_rateController,
-                          currentLocalization['Rate per Unit'] ?? ""),
-                      const SizedBox(height: 20),
-                      FeedUtils.buildTextField(_priceController,
-                          currentLocalization['Total Price'] ?? ""),
-                    ]))
-                  : Container(
-                      child: Column(children: [
-                        FeedUtils.buildTextField(_areaController,
-                            currentLocalization['Land Area(in acres)'] ?? ""),
-                        const SizedBox(height: 20),
-                        FeedUtils.buildTextField(_seedCostController,
-                            currentLocalization['Seed Cost'] ?? ""),
-                        const SizedBox(height: 20),
-                        FeedUtils.buildTextField(_fertilizerCostController,
-                            currentLocalization['Fertilizers Cost'] ?? ""),
-                        const SizedBox(height: 20),
-                        FeedUtils.buildTextField(_inoculantsCostController,
-                            currentLocalization['Inoculants Cost'] ?? ""),
-                        const SizedBox(height: 20),
-                        FeedUtils.buildTextField(_laborCostController,
-                            currentLocalization['Labor Cost'] ?? ""),
-                        const SizedBox(height: 20),
-                        FeedUtils.buildTextField(_dieselCostController,
-                            currentLocalization['Diesel Cost'] ?? ""),
-                        const SizedBox(height: 20),
-                        FeedUtils.buildTextField(
-                            _priceController,
-                            currentLocalization['Total Production Cost'] ?? "",
-                            true),
-                        const SizedBox(height: 20),
-                        FeedUtils.buildTextField(_rateController,
-                            currentLocalization['Rate per Unit'] ?? "", true),
-                      ]),
-                    ),
+                  ? Column(children: [
+                  FeedUtils.buildTextField(_rateController,
+                      currentLocalization['Rate per Unit'] ?? ""),
+                  const SizedBox(height: 20),
+                  FeedUtils.buildTextField(_priceController,
+                      currentLocalization['Total Price'] ?? ""),
+                                      ])
+                  : Column(children: [
+                    FeedUtils.buildTextField(_areaController,
+                        currentLocalization['Land Area(in acres)'] ?? ""),
+                    const SizedBox(height: 20),
+                    FeedUtils.buildTextField(_seedCostController,
+                        currentLocalization['Seed Cost'] ?? ""),
+                    const SizedBox(height: 20),
+                    FeedUtils.buildTextField(_fertilizerCostController,
+                        currentLocalization['Fertilizers Cost'] ?? ""),
+                    const SizedBox(height: 20),
+                    FeedUtils.buildTextField(_inoculantsCostController,
+                        currentLocalization['Inoculants Cost'] ?? ""),
+                    const SizedBox(height: 20),
+                    FeedUtils.buildTextField(_laborCostController,
+                        currentLocalization['Labor Cost'] ?? ""),
+                    const SizedBox(height: 20),
+                    FeedUtils.buildTextField(_dieselCostController,
+                        currentLocalization['Diesel Cost'] ?? ""),
+                    const SizedBox(height: 20),
+                    FeedUtils.buildTextField(
+                        _priceController,
+                        currentLocalization['Total Production Cost'] ?? "",
+                        true),
+                    const SizedBox(height: 20),
+                    FeedUtils.buildTextField(_rateController,
+                        currentLocalization['Rate per Unit'] ?? "", true),
+                  ]),
 
               const SizedBox(height: 40),
 
@@ -267,8 +264,10 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
 
     await FeedUtils.saveFeedDetails(feed);
 
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const FeedPage()));
+    if(mounted) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const FeedPage()));
+    }
   }
 
   void _calculatePrice() {

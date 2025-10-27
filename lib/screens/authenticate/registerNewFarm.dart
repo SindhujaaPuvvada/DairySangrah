@@ -57,6 +57,7 @@ class _RegisterFarmState extends State<RegisterFarm> {
             child: Form(
               key: _formKey,
               child: ListView(
+                scrollDirection: Axis.vertical,
                 children: <Widget>[
                   const SizedBox(height: 20.0),
                   TextFormField(

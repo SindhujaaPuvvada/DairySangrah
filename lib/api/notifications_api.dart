@@ -43,8 +43,8 @@ class NotificationsApi {
         showDialog(
             context: context,
             builder: (_) => AuthUtils.buildAlertDialog(
-                title: message.notification!.title ?? 'Notification',
-                content: message.notification!.body ?? '',
+                title: message.notification?.title ?? 'Notification',
+                content: message.notification?.body ?? '',
                 opt1: 'Proceed',
                 onPressedOpt1: () {
                   Navigator.pop(context);
@@ -67,7 +67,7 @@ class NotificationsApi {
       _handleNotificationTap(message);
     });
 
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage? message) {
       _handleNotificationTap(message);
     });
   }

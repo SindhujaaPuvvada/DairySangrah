@@ -368,5 +368,17 @@ class LocalizationHi {
     'please_select_status': 'कृपया स्थिति चुनें',
     'cattle_name': 'नाम / टैग नंबर',
     'add_new_cattle': 'नया पशु जोड़ें',
+    "enter_sire_info": "नर पशु की जानकारी दर्ज करें",
+    "enter_notes": "यदि कोई संक्षिप्त नोट्स हैं तो दर्ज करें",
+    "enter_mother_info": "माता की जानकारी दर्ज करें",
+    "enter_father_info": "पिता की जानकारी दर्ज करें",
+    "mother_info": "माता की जानकारी",
+    "father_info": "पिता की जानकारी",
+    "calf_entry": "नवजात बछड़े की प्रविष्टि",
+    "would_enter_calf_details": "अब नवजात बछड़े की जानकारी दर्ज करने का समय है!",
+    "now": "अभी करें",
+    "later": "बाद में",
+    "notes": "नोट्स",
+    "sire_info": "नर पशु :"
   };
 }

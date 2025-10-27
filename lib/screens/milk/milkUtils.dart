@@ -10,7 +10,7 @@ class MilkUtils {
   }) {
     var itemsList = items.entries.toList();
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(color: Colors.black),

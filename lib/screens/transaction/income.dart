@@ -21,7 +21,6 @@ class AddIncome extends StatefulWidget {
 }
 
 class _AddIncomeState extends State<AddIncome> {
-
   final log = logger(AddIncome);
   late Map<String, String> currentLocalization = {};
   late String languageCode = 'en';
@@ -66,8 +65,9 @@ class _AddIncomeState extends State<AddIncome> {
   }
 
   Future<void> _addIncome(Sale data) async {
-    await dbSale.infoFromServerSaleOnDate(
-        data.name, data.saleOnMonth).then((doc) async {
+    await dbSale.infoFromServerSaleOnDate(data.name, data.saleOnMonth).then((
+      doc,
+    ) async {
       if (doc.exists) {
         data.value = data.value + doc['value'];
       }
@@ -91,7 +91,8 @@ class _AddIncomeState extends State<AddIncome> {
     try {
       // 🔹 Fetch Excel file as bytes from Firebase Storage
       final storageRef = FirebaseStorage.instance.ref().child(
-          '${_selectedBuyer}_Rates.xlsx');
+        '${_selectedBuyer}_Rates.xlsx',
+      );
       Uint8List? fileBytes = await storageRef.getData();
 
       if (fileBytes == null) {
@@ -108,8 +109,8 @@ class _AddIncomeState extends State<AddIncome> {
       var firstRow = excel.tables[firstSheet]!.rows.first;
 
       for (int i = 0; i < firstRow.length; i++) {
-        double colSnf = double.tryParse(
-            firstRow[i]?.value.toString() ?? '') ?? 0.0;
+        double colSnf =
+            double.tryParse(firstRow[i]?.value.toString() ?? '') ?? 0.0;
         if (snf == colSnf) {
           colIndex = i;
           break;
@@ -120,41 +121,46 @@ class _AddIncomeState extends State<AddIncome> {
         double rowFat = double.tryParse(row[0]?.value.toString() ?? '') ?? 0.0;
         if (fat == rowFat) {
           if (colIndex != 0) {
-            double rowPrice = double.tryParse(
-                row[colIndex]?.value.toString() ?? '') ?? 0.0;
+            double rowPrice =
+                double.tryParse(row[colIndex]?.value.toString() ?? '') ?? 0.0;
 
-            if(rowPrice != 0.0) {
+            if (rowPrice != 0.0) {
               return rowPrice;
-            }
-            else
-              {
+            } else {
+              if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text("${currentLocalization['no_matching_price']} ${currentLocalization['fat']}: $fat, ${currentLocalization['snf']}: $snf!"),
+                    content: Text(
+                      "${currentLocalization['no_matching_price']} ${currentLocalization['fat']}: $fat, ${currentLocalization['snf']}: $snf!",
+                    ),
                   ),
                 );
-                return 0.0;
               }
+              return 0.0;
+            }
           }
         }
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("${currentLocalization['no_matching_price']} ${currentLocalization['fat']}: $fat, ${currentLocalization['snf']}: $snf!"),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "${currentLocalization['no_matching_price']} ${currentLocalization['fat']}: $fat, ${currentLocalization['snf']}: $snf!",
+            ),
+          ),
+        );
+      }
       return 0.0;
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(currentLocalization['Error in Fetch']??''),
-        ),
-      );
-      log.e("Error fetching price",time: DateTime.now(), error: e.toString());
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(currentLocalization['Error in Fetch'] ?? '')),
+        );
+      }
+      log.e("Error fetching price", time: DateTime.now(), error: e.toString());
       return 0.0;
     }
   }
-
 
   void _calculateMilkIncome() async {
     double fat = double.tryParse(_fatController.text) ?? 0.0;
@@ -169,23 +175,25 @@ class _AddIncomeState extends State<AddIncome> {
       });
     }
   }
+
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(currentLocalization["err_msg"]??'Error'),
-          content: Text(currentLocalization[message]??message),
+          title: Text(currentLocalization["err_msg"] ?? 'Error'),
+          content: Text(currentLocalization[message] ?? message),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(currentLocalization["OK"]??'OK'),
+              child: Text(currentLocalization["OK"] ?? 'OK'),
             ),
           ],
         );
       },
     );
   }
+
   void _validateAndSubmit() async {
     if (_dateController.text.isEmpty) {
       _showErrorDialog("please_choose_date");
@@ -204,8 +212,9 @@ class _AddIncomeState extends State<AddIncome> {
         _showErrorDialog('please_sel_milk_buyer');
         return;
       }
-      if(_selectedBuyer != 'D to C') {
-        if (_fatController.text.isEmpty || _snfController.text.isEmpty ||
+      if (_selectedBuyer != 'D to C') {
+        if (_fatController.text.isEmpty ||
+            _snfController.text.isEmpty ||
             _quantityController.text.isEmpty) {
           _showErrorDialog('please_sel_fat_snf_qty');
           return;
@@ -241,26 +250,29 @@ class _AddIncomeState extends State<AddIncome> {
     }
 
     final data = Sale(
-      name: (_selectedCategory != 'Other') ? _selectedCategory.toString() : _categoryTextController.text,
+      name:
+          (_selectedCategory != 'Other')
+              ? _selectedCategory.toString()
+              : _categoryTextController.text,
       value: double.parse(_amountTextController.text),
       saleOnMonth: DateTime.tryParse(_dateController.text),
     );
 
     await _addIncome(data);
-    Navigator.pop(context);
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const TransactionPage(showIncome: true)),
-    );
+    if(mounted) {
+      Navigator.pop(context);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const TransactionPage(showIncome: true),
+        ),
+      );
+    }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
-    languageCode = Provider
-        .of<AppData>(context)
-        .persistentVariable;
+    languageCode = Provider.of<AppData>(context).persistentVariable;
 
     currentLocalization = langFileMap[languageCode]!;
 
@@ -270,7 +282,9 @@ class _AddIncomeState extends State<AddIncome> {
         title: Text(
           '${currentLocalization['new_income']}',
           style: const TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold),
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
@@ -309,19 +323,20 @@ class _AddIncomeState extends State<AddIncome> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(1, 0, 1, 20),
                   child: DropdownButtonFormField<String>(
-                    value: _selectedCategory,
+                    initialValue: _selectedCategory,
                     decoration: InputDecoration(
                       labelText: '${currentLocalization['select_income_type']}',
                       border: const OutlineInputBorder(),
                       filled: true,
                       fillColor: const Color.fromRGBO(240, 255, 255, 1),
                     ),
-                    items: sourceOptions.map((String source) {
-                      return DropdownMenuItem<String>(
-                        value: source,
-                        child: Text('${currentLocalization[source]}'),
-                      );
-                    }).toList(),
+                    items:
+                        sourceOptions.map((String source) {
+                          return DropdownMenuItem<String>(
+                            value: source,
+                            child: Text('${currentLocalization[source]}'),
+                          );
+                        }).toList(),
                     onChanged: (value) {
                       setState(() {
                         _selectedCategory = value;
@@ -330,27 +345,29 @@ class _AddIncomeState extends State<AddIncome> {
                   ),
                 ),
 
-                if (_selectedCategory == 'Milk Sale'
-                ) ...[
+                if (_selectedCategory == 'Milk Sale') ...[
                   Padding(
                     padding: const EdgeInsets.fromLTRB(1, 0, 1, 20),
                     child: DropdownButtonFormField<String>(
-                      value: _selectedBuyer,
+                      initialValue: _selectedBuyer,
                       decoration: InputDecoration(
-                        labelText: currentLocalization['Select Buyer'] ??
+                        labelText:
+                            currentLocalization['Select Buyer'] ??
                             'Select Buyer',
                         border: OutlineInputBorder(),
                         filled: true,
                         fillColor: Color.fromRGBO(240, 255, 255, 1),
                       ),
-                      items: milkOptions.map((String buyer) {
-                        return DropdownMenuItem<String>(
-                          value: buyer,
-                          child: Text(
-                              currentLocalization[buyer.toLowerCase()] ??
-                                  buyer),
-                        );
-                      }).toList(),
+                      items:
+                          milkOptions.map((String buyer) {
+                            return DropdownMenuItem<String>(
+                              value: buyer,
+                              child: Text(
+                                currentLocalization[buyer.toLowerCase()] ??
+                                    buyer,
+                              ),
+                            );
+                          }).toList(),
                       onChanged: (value) {
                         setState(() {
                           _selectedBuyer = value;
@@ -358,16 +375,20 @@ class _AddIncomeState extends State<AddIncome> {
                       },
                     ),
                   ),
-                  if(_selectedBuyer != 'D to C')...[
+                  if (_selectedBuyer != 'D to C') ...[
                     _buildTextField(
-                      _fatController, currentLocalization['Fat Percentage'] ??
-                        'Fat Percentage',),
+                      _fatController,
+                      currentLocalization['Fat Percentage'] ?? 'Fat Percentage',
+                    ),
                     _buildTextField(
-                      _snfController, currentLocalization['SNF Percentage'] ??
-                        'SNF Percentage',),
-                    _buildTextField(_quantityController,
+                      _snfController,
+                      currentLocalization['SNF Percentage'] ?? 'SNF Percentage',
+                    ),
+                    _buildTextField(
+                      _quantityController,
                       currentLocalization['Quantity (Liters)'] ??
-                          'Quantity (Liters)',),
+                          'Quantity (Liters)',
+                    ),
                     Container(
                       alignment: Alignment.center,
                       child: ElevatedButton(
@@ -376,12 +397,19 @@ class _AddIncomeState extends State<AddIncome> {
                         },
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30)),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
                           textStyle: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                           minimumSize: const Size(120, 50),
-                          backgroundColor:
-                          const Color.fromRGBO(13, 166, 186, 1.0),
+                          backgroundColor: const Color.fromRGBO(
+                            13,
+                            166,
+                            186,
+                            1.0,
+                          ),
                           foregroundColor: Colors.white,
                           elevation: 10,
                           // adjust elevation value as desired
@@ -389,10 +417,7 @@ class _AddIncomeState extends State<AddIncome> {
                         ),
                         child: Text(
                           '${currentLocalization['Calculate']}',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 15,
-                          ),
+                          style: TextStyle(color: Colors.black, fontSize: 15),
                         ),
                       ),
                     ),
@@ -401,17 +426,16 @@ class _AddIncomeState extends State<AddIncome> {
                 ],
                 if (_selectedCategory == 'Other')
                   Padding(
-                      padding: const EdgeInsets.fromLTRB(1, 0, 1, 30),
-                      child: TextFormField(
-                          controller: _categoryTextController,
-                          decoration: InputDecoration(
-                            labelText: '${currentLocalization['enter_category']}',
-                            border: OutlineInputBorder(),
-                            filled: true,
-                            fillColor: Color.fromRGBO(240, 255, 255, 1),
-
-                          )
-                      )
+                    padding: const EdgeInsets.fromLTRB(1, 0, 1, 30),
+                    child: TextFormField(
+                      controller: _categoryTextController,
+                      decoration: InputDecoration(
+                        labelText: '${currentLocalization['enter_category']}',
+                        border: OutlineInputBorder(),
+                        filled: true,
+                        fillColor: Color.fromRGBO(240, 255, 255, 1),
+                      ),
+                    ),
                   ),
 
                 Padding(
@@ -419,10 +443,14 @@ class _AddIncomeState extends State<AddIncome> {
                   child: TextFormField(
                     controller: _amountTextController,
                     keyboardType: TextInputType.number,
-                    readOnly: (_selectedCategory == 'Milk Sale' && _selectedBuyer != 'D to C') ? true : false,
+                    readOnly:
+                        (_selectedCategory == 'Milk Sale' &&
+                                _selectedBuyer != 'D to C')
+                            ? true
+                            : false,
                     decoration: InputDecoration(
-                      labelText: currentLocalization['Total Income'] ??
-                          'Total Income',
+                      labelText:
+                          currentLocalization['Total Income'] ?? 'Total Income',
                       border: OutlineInputBorder(),
                       filled: true,
                       fillColor: Color.fromRGBO(240, 255, 255, 1),
@@ -430,23 +458,23 @@ class _AddIncomeState extends State<AddIncome> {
                   ),
                 ),
 
-
                 // SizedBox(height: 10),
                 Container(
                   alignment: Alignment.center,
                   child: ElevatedButton(
-
                     onPressed: () {
                       _validateAndSubmit();
                     },
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30)),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
                       textStyle: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                       minimumSize: const Size(120, 50),
-                      backgroundColor:
-                      const Color.fromRGBO(13, 166, 186, 1.0),
+                      backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
                       foregroundColor: Colors.white,
                       elevation: 10,
                       // adjust elevation value as desired
@@ -454,10 +482,7 @@ class _AddIncomeState extends State<AddIncome> {
                     ),
                     child: Text(
                       '${currentLocalization['submit']}',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 15,
-                      ),
+                      style: TextStyle(color: Colors.black, fontSize: 15),
                     ),
                   ),
                 ),
@@ -475,7 +500,10 @@ class _AddIncomeState extends State<AddIncome> {
       child: TextFormField(
         controller: controller,
         keyboardType: TextInputType.number,
-        decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+        ),
       ),
     );
   }

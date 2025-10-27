@@ -47,4 +47,32 @@ class DatabaseServiceForCattleHistory {
         .doc(historyId)
         .delete();
   }
+
+  Future<String> getLastAISireDetails(String rfid) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+
+    final QuerySnapshot<Map<String, dynamic>> historySnapshot= await db
+        .collection('User')
+        .doc(uid)
+        .collection('Cattle')
+        .doc(rfid)
+        .collection('History')
+        .where('name', isEqualTo: 'Insemination')
+        .get();
+
+    if (historySnapshot.docs.isNotEmpty) {
+      var allAIEvents =
+      historySnapshot.docs.map((doc) => CattleHistory.fromFireStore(doc, null)).toList();
+      allAIEvents.sort((a, b) {
+        // Custom sorting logic here
+        // Example: sort by a field called 'name'
+        DateTime dateA = a.date;
+        DateTime dateB = b.date;
+        return dateB.compareTo(dateA); // descending order
+      });
+      return allAIEvents[0].notes??'';
+    } else {
+      return '';
+    }
+  }
 }

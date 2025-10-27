@@ -20,13 +20,19 @@ android {
         coreLibraryDesugaringEnabled true
     }
 
+    allprojects {
+        tasks.withType(JavaCompile){
+            options.compilerArgs <<"-Xlint:deprecation"
+        }
+    }
+
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17
     }
 
     defaultConfig {
         applicationId = "com.awadh.farm_expense_management_app"
-        minSdk = 23
+        minSdkVersion = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

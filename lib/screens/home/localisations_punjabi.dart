@@ -367,5 +367,17 @@ class LocalizationPun {
     'please_select_status': 'ਕਿਰਪਾ ਕਰਕੇ ਸਥਿਤੀ ਚੁਣੋ',
     'cattle_name': 'ਨਾਮ / ਟੈਗ ਨੰਬਰ',
     'add_new_cattle': 'ਨਵਾਂ ਪਸ਼ੂ ਜੋੜੋ',
+    "enter_sire_info": "ਨਰ ਪਸ਼ੂ ਦੀ ਜਾਣਕਾਰੀ ਦਰਜ ਕਰੋ",
+    "enter_notes": "ਜੇ ਕੋਈ ਤੁਰੰਤ ਨੋਟ ਹਨ ਤਾਂ ਦਰਜ ਕਰੋ",
+    "enter_mother_info": "ਮਾਤਾ ਦੀ ਜਾਣਕਾਰੀ ਦਰਜ ਕਰੋ",
+    "enter_father_info": "ਪਿਤਾ ਦੀ ਜਾਣਕਾਰੀ ਦਰਜ ਕਰੋ",
+    "mother_info": "ਮਾਤਾ ਦੀ ਜਾਣਕਾਰੀ",
+    "father_info": "ਪਿਤਾ ਦੀ ਜਾਣਕਾਰੀ",
+    "calf_entry": "ਨਵੇਂ ਜੰਮੇ ਬੱਛੇ ਦੀ ਐਂਟਰੀ",
+    "would_enter_calf_details": "ਹੁਣ ਨਵੇਂ ਜੰਮੇ ਬੱਛੇ ਦੀ ਜਾਣਕਾਰੀ ਦਰਜ ਕਰਨ ਦਾ ਸਮਾਂ ਹੈ!",
+    "now": "ਹੁਣੇ ਕਰੋ",
+    "later": "ਬਾਅਦ ਵਿੱਚ",
+    "notes": "ਨੋਟਸ",
+    "sire_info": "ਨਰ ਪਸ਼ੂ :"
   };
 }

@@ -13,8 +13,20 @@ class AddNewCattle extends StatefulWidget {
   final String? state;
   final String? breed;
   final String? gender;
+  final String? source;
+  final DateTime? dob;
+  final String? motherInfo;
+  final String? fatherInfo;
   const AddNewCattle(
-      {this.type, this.state, this.breed, this.gender, super.key});
+      {this.type,
+      this.state,
+      this.breed,
+      this.gender,
+      this.source,
+      this.dob,
+      this.motherInfo,
+      this.fatherInfo,
+      super.key});
 
   @override
   State<AddNewCattle> createState() => _AddNewCattleState();
@@ -25,9 +37,14 @@ class _AddNewCattleState extends State<AddNewCattle> {
   late String languageCode = 'en';
 
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _cattleNameTextController = TextEditingController();
+  final TextEditingController _cattleNameTextController =
+      TextEditingController();
   final TextEditingController _weightTextController = TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
+  final TextEditingController _motherInfoTextController =
+      TextEditingController();
+  final TextEditingController _fatherInfoTextController =
+      TextEditingController();
 
   // final TextEditingController _tagNumberController3 = TextEditingController();
 
@@ -68,24 +85,26 @@ class _AddNewCattleState extends State<AddNewCattle> {
   late final DatabaseServicesForCattle cattleDb;
 
   void addNewCattleButton(BuildContext context) async {
-    int lastRFId = int.parse(await cattleDb.getLastUsedRFId(uid));
+    int lastRFId = int.parse(await cattleDb.getLastUsedRFIdDB(uid));
 
     final cattle = Cattle(
-        rfid: (lastRFId + 1).toString().padLeft(4, '0'),
-        nickname: _cattleNameTextController.text,
-        breed: _selectedBreed!,
-        sex: _selectedGender,
-        weight: _weightTextController.text.isNotEmpty
-            ? int.parse(_weightTextController.text)
-            : 0,
-        source: _selectedSource,
-        state: _selectedState != null ? _selectedState! : '',
-        type: _selectedType != null ? _selectedType! : ' ',
-        isPregnant:
-            (_selectedIsPregnant != null && _selectedIsPregnant == 'Yes')
-                ? true
-                : false,
-        dateOfBirth: _birthDate!);
+      rfid: (lastRFId + 1).toString().padLeft(4, '0'),
+      nickname: _cattleNameTextController.text,
+      breed: _selectedBreed!,
+      sex: _selectedGender,
+      weight: _weightTextController.text.isNotEmpty
+          ? int.parse(_weightTextController.text)
+          : 0,
+      source: _selectedSource,
+      state: _selectedState != null ? _selectedState! : '',
+      type: _selectedType != null ? _selectedType! : ' ',
+      isPregnant: (_selectedIsPregnant != null && _selectedIsPregnant == 'Yes')
+          ? true
+          : false,
+      dateOfBirth: _birthDate ?? widget.dob,
+      motherInfo: _motherInfoTextController.text,
+      fatherInfo: _fatherInfoTextController.text,
+    );
 
     await cattleDb.infoToServerSingleCattle(cattle);
 
@@ -105,8 +124,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
       Navigator.pop(context);
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => const GroupList()));
-    }
-    else{
+    } else {
       return;
     }
   }
@@ -121,8 +139,13 @@ class _AddNewCattleState extends State<AddNewCattle> {
       _selectedState = widget.state;
       _selectedBreed = widget.breed;
       _selectedGender = widget.gender;
+      _selectedSource = widget.source;
+      _birthDateController.text =
+          '${widget.dob?.year}-${widget.dob?.month}-${widget.dob?.day}';
       stateOptionsHolder =
           (_selectedGender == 'Female') ? stateOptions : stateOptionsMale;
+      _motherInfoTextController.text = widget.motherInfo??'';
+      _fatherInfoTextController.text = widget.fatherInfo??'';
     });
   }
 
@@ -131,6 +154,8 @@ class _AddNewCattleState extends State<AddNewCattle> {
     _cattleNameTextController.dispose();
     _birthDateController.dispose();
     _weightTextController.dispose();
+    _fatherInfoTextController.dispose();
+    _motherInfoTextController.dispose();
     super.dispose();
   }
 
@@ -185,7 +210,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
                 child: DropdownButtonFormField<String>(
-                  value: _selectedType,
+                  initialValue: _selectedType,
                   decoration: InputDecoration(
                     labelText: '${currentLocalization['Type'] ?? ""}*',
                     border: const OutlineInputBorder(),
@@ -217,7 +242,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
                 child: DropdownButtonFormField<String>(
-                  value: _selectedGender,
+                  initialValue: _selectedGender,
                   decoration: InputDecoration(
                     labelText: '${currentLocalization['gender'] ?? ""}*',
                     border: OutlineInputBorder(),
@@ -234,7 +259,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
                   onChanged: (value) {
                     setState(() {
                       _selectedGender = value;
-                      _selectedState = null;
+                      _selectedState = 'Calf';
                       stateOptionsHolder = (_selectedGender == 'Female')
                           ? stateOptions
                           : stateOptionsMale;
@@ -297,8 +322,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
                   // initialValue: '0',
                   controller: _weightTextController,
                   decoration: InputDecoration(
-                    labelText:
-                        currentLocalization['enter_the_weight'] ?? "",
+                    labelText: currentLocalization['enter_the_weight'] ?? "",
                     border: OutlineInputBorder(),
                     filled: true,
                     fillColor: Color.fromRGBO(240, 255, 255, 0.7),
@@ -309,33 +333,32 @@ class _AddNewCattleState extends State<AddNewCattle> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
                 child: DropdownButtonFormField<String>(
-                    value: _selectedSource,
-                    decoration: InputDecoration(
-                      labelText:
-                          currentLocalization['source_of_cattle'] ?? "",
-                      border: OutlineInputBorder(),
-                      filled: true,
-                      fillColor: Color.fromRGBO(240, 255, 255, 0.7),
-                    ),
-                    items: sourceOptions.map((String source) {
-                      return DropdownMenuItem<String>(
-                        value: source,
-                        child: Text(
-                            currentLocalization[source.toLowerCase()] ?? ""),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedSource = value;
-                      });
-                    },
-                    ),
+                  initialValue: _selectedSource,
+                  decoration: InputDecoration(
+                    labelText: currentLocalization['source_of_cattle'] ?? "",
+                    border: OutlineInputBorder(),
+                    filled: true,
+                    fillColor: Color.fromRGBO(240, 255, 255, 0.7),
+                  ),
+                  items: sourceOptions.map((String source) {
+                    return DropdownMenuItem<String>(
+                      value: source,
+                      child:
+                          Text(currentLocalization[source.toLowerCase()] ?? ""),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedSource = value;
+                    });
+                  },
+                ),
               ),
               // SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 26),
                 child: DropdownButtonFormField<String>(
-                  value: _selectedBreed,
+                  initialValue: _selectedBreed,
                   decoration: InputDecoration(
                     labelText:
                         currentLocalization['select_the_breed'] ?? "" '*',
@@ -366,7 +389,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
                 child: DropdownButtonFormField<String>(
-                  value: _selectedState,
+                  initialValue: _selectedState,
                   decoration: InputDecoration(
                     labelText: "${currentLocalization['status'] ?? ''}*",
                     border: OutlineInputBorder(),
@@ -392,11 +415,35 @@ class _AddNewCattleState extends State<AddNewCattle> {
                   },
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
+                child: TextFormField(
+                  controller: _motherInfoTextController,
+                  decoration: InputDecoration(
+                    labelText: currentLocalization['enter_mother_info'] ?? "",
+                    border: OutlineInputBorder(),
+                    filled: true,
+                    fillColor: Color.fromRGBO(240, 255, 255, 0.7),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
+                child: TextFormField(
+                  controller: _fatherInfoTextController,
+                  decoration: InputDecoration(
+                    labelText: currentLocalization['enter_father_info'] ?? "",
+                    border: OutlineInputBorder(),
+                    filled: true,
+                    fillColor: Color.fromRGBO(240, 255, 255, 0.7),
+                  ),
+                ),
+              ),
               (_selectedGender == 'Female')
                   ? Padding(
                       padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
                       child: DropdownButtonFormField<String>(
-                        value: _selectedIsPregnant,
+                        initialValue: _selectedIsPregnant,
                         decoration: InputDecoration(
                           labelText: currentLocalization['isPregnant'] ?? "",
                           border: OutlineInputBorder(),
