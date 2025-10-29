@@ -52,11 +52,13 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
       bool sel = bool.parse(ntf['isSelected']!);
       if (sel == true) {
         await ntfDb.closeNotification(ntf['id']!);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => const AlertNotificationsPage()),
-        );
+        if(mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const AlertNotificationsPage()),
+          );
+        }
       }
     }
   }

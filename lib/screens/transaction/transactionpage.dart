@@ -169,7 +169,7 @@ class _TransactionPageState extends State<TransactionPage> {
                           bottomLeft: Radius.circular(8),
                         ),
                         boxShadow: showIncome
-                            ? [BoxShadow(color: Colors.grey.withOpacity(1), blurRadius: 4)]
+                            ? [BoxShadow(color: Colors.grey.withValues(alpha: 1), blurRadius: 4)]
                             : [],
                       ),
                       child:  Center(
@@ -199,7 +199,7 @@ class _TransactionPageState extends State<TransactionPage> {
                           topRight: Radius.circular(8),
                           bottomRight: Radius.circular(8),
                         ),
-                        boxShadow: showIncome ? [] : [BoxShadow(color: Colors.grey.withOpacity(0.5), blurRadius: 4)],
+                        boxShadow: showIncome ? [] : [BoxShadow(color: Colors.grey.withValues(alpha: 0.5), blurRadius: 4)],
                       ),
                       child:  Center(
                         child: Text(
@@ -220,33 +220,37 @@ class _TransactionPageState extends State<TransactionPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => (showIncome)
-                  ? AddIncome(
-                onSubmit: () {
-                  _fetchIncome();
-                  _fetchExpense();
-                },
-              )
-                  : AddExpenses(
-                onSubmit: () {
-                  _fetchIncome();
-                  _fetchExpense();
-                },
-              ),
+      floatingActionButton: Builder(
+        builder: (context) {
+          return FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => (showIncome)
+                      ? AddIncome(
+                    onSubmit: () {
+                      _fetchIncome();
+                      _fetchExpense();
+                    },
+                  )
+                      : AddExpenses(
+                    onSubmit: () {
+                      _fetchIncome();
+                      _fetchExpense();
+                    },
+                  ),
+                ),
+              );
+            },
+            backgroundColor: const Color.fromRGBO(13, 166, 186, 1),
+            tooltip: currentLocalization['add_transaction'],
+            child: const Icon(
+              Icons.add,
+              color: Colors.black,
             ),
           );
-        },
-        backgroundColor: const Color.fromRGBO(13, 166, 186, 1),
-        tooltip: currentLocalization['add_transaction'],
-        child: const Icon(
-          Icons.add,
-          color: Colors.black,
-        ),
+        }
       ),
     );
   }
@@ -294,7 +298,7 @@ class _ListTileForSaleState extends State<ListTileForSale> {
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 4.0),
             decoration: BoxDecoration(
-              color: Colors.green.shade500.withOpacity(0.2),
+              color: Colors.green.shade500.withValues(alpha:0.2),
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: ListTile(
@@ -303,7 +307,7 @@ class _ListTileForSaleState extends State<ListTileForSale> {
                     ? currentLocalization['milk_sale'] ?? ''
                     : sale.name == "Cattle Sale"
                     ? currentLocalization['cattle_sale'] ?? ''
-                    : sale.name ?? '',
+                    : sale.name,
                 style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
               ),
               subtitle: Text(
@@ -349,13 +353,13 @@ class _ListTileForExpenseState extends State<ListTileForExpense> {
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 4.0),
             decoration: BoxDecoration(
-              color: Colors.red.shade500.withOpacity(0.2),
+              color: Colors.red.shade500.withValues(alpha:0.2),
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: ListTile(
               title: Text(
                 expense.name != "Feed" && expense.name != "Veterinary" && expense.name != "Labor Costs"&& expense.name != "Equipment and Machinery"
-                    ? expense.name ?? ''
+                    ? expense.name
                     : currentLocalization[expense.name] ?? '',
                 style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
               ),
@@ -495,7 +499,7 @@ class TotalTransactionPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(entry.key!= "Feed" && entry.key != "Veterinary" && entry.key != "Labor Costs"&& entry.key != "Equipment and Machinery"
-                          ? entry.key ?? ''
+                          ? entry.key
                           : currentLocalization[entry.key] ?? '',
                       style: const TextStyle(fontSize: 14)),
                   Text('₹${entry.value.toStringAsFixed(2)}', style: const TextStyle(fontSize: 14)),
