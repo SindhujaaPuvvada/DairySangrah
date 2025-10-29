@@ -58,15 +58,17 @@ class _GroupListState extends State<GroupList>
   Future<void> _fetchCattleGroups() async {
     final snapshot = await cgrpDB.infoFromServerAllCattleGrps(uid);
     setState(() {
-      allCattleGrps = snapshot.docs
-          .map((doc) => CattleGroup.fromFireStore(doc, null))
-          .toList();
+      allCattleGrps =
+          snapshot.docs
+              .map((doc) => CattleGroup.fromFireStore(doc, null))
+              .toList();
     });
   }
 
   Future<void> _fetchCattle() async {
-    final snapshot = await cattleDB
-        .infoFromServerAllCattle(FirebaseAuth.instance.currentUser!.uid);
+    final snapshot = await cattleDB.infoFromServerAllCattle(
+      FirebaseAuth.instance.currentUser!.uid,
+    );
     setState(() {
       allCattle =
           snapshot.docs.map((doc) => Cattle.fromFireStore(doc, null)).toList();
@@ -76,17 +78,21 @@ class _GroupListState extends State<GroupList>
   String fetchCattleCount(String type, String state, String? breed) {
     int count;
     if (breed != 'select' && breed != null && state != '') {
-      count = allCattle
-          .where((cattle) =>
-              cattle.type == type &&
-              cattle.state == state &&
-              cattle.breed == breed)
-          .length;
+      count =
+          allCattle
+              .where(
+                (cattle) =>
+                    cattle.type == type &&
+                    cattle.state == state &&
+                    cattle.breed == breed,
+              )
+              .length;
     } else {
       if (state != '') {
-        count = allCattle
-            .where((cattle) => cattle.type == type && cattle.state == state)
-            .length;
+        count =
+            allCattle
+                .where((cattle) => cattle.type == type && cattle.state == state)
+                .length;
       } else {
         count = allCattle.where((cattle) => cattle.type == type).length;
       }
@@ -103,17 +109,18 @@ class _GroupListState extends State<GroupList>
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(
-            onPressed: () => Navigator.push(
+          onPressed:
+              () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const WrapperHomePage()))),
+                  builder: (context) => const WrapperHomePage(),
+                ),
+              ),
+        ),
         iconTheme: const IconThemeData(color: Colors.black),
         title: Text(
           currentLocalization['Cattle Groups'] ?? 'Cattle Groups',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
         centerTitle: true,
@@ -121,8 +128,10 @@ class _GroupListState extends State<GroupList>
           controller: _tabController,
           labelColor: Colors.black,
           unselectedLabelColor: Colors.black54,
-          labelStyle:
-              const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          labelStyle: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
           // Increased text size
           unselectedLabelStyle: const TextStyle(fontSize: 16),
           tabs: [
@@ -139,20 +148,21 @@ class _GroupListState extends State<GroupList>
           _displayCattleGrpSection('Buffalo'),
         ],
       ),
-      floatingActionButton: (showActionButton)
-          ? FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AddNewCattleGroup(),
-                  ),
-                );
-              },
-              backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
-              child: const Icon(Icons.add),
-            )
-          : Container(),
+      floatingActionButton:
+          (showActionButton)
+              ? FloatingActionButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AddNewCattleGroup(),
+                    ),
+                  );
+                },
+                backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
+                child: const Icon(Icons.add),
+              )
+              : Container(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
@@ -167,100 +177,129 @@ class _GroupListState extends State<GroupList>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                  "${currentLocalization['total_cattle']}: ${fetchCattleCount(type, '', '')}",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              Text("${currentLocalization['total_groups']}: ${groups.length}",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                "${currentLocalization['total_cattle']}: ${fetchCattleCount(type, '', '')}",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                "${currentLocalization['total_groups']}: ${groups.length}",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
             ],
           ),
         ),
         Expanded(
           child: ListView.builder(
-              itemCount: groups.length,
-              itemBuilder: (context, index) {
-                final grp = groups[index];
-                var grpName = (grp.breed == null)
-                    ? currentLocalization[grp.state]
-                    : '${currentLocalization[grp.state]}-${currentLocalization[grp.breed] ?? grp.breed}';
-                String cattleCount =
-                    fetchCattleCount(grp.type, grp.state, grp.breed);
-                return Container(
-                  padding: EdgeInsets.all(10.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AnimalList2(
-                            animalType: type,
-                            section: grp.state,
-                            breed: grp.breed,
-                          ),
-                        ),
-                      );
-                    },
-                    child: ListTile(
-                      title: Text(
-                        grpName!,
-                        style: const TextStyle(
-                            color: Color(0xFF0DA6BA),
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold),
+            itemCount: groups.length,
+            itemBuilder: (context, index) {
+              final grp = groups[index];
+              var grpName =
+                  (grp.breed == null)
+                      ? currentLocalization[grp.state]
+                      : '${currentLocalization[grp.state]}-${currentLocalization[grp.breed] ?? grp.breed}';
+              String cattleCount = fetchCattleCount(
+                grp.type,
+                grp.state,
+                grp.breed,
+              );
+              return Container(
+                padding: EdgeInsets.all(10.0),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => AnimalList2(
+                              animalType: type,
+                              section: grp.state,
+                              breed: grp.breed,
+                            ),
                       ),
-                      subtitle: Text(
-                          "${currentLocalization['grpid']}: ${grp.grpId}\n${currentLocalization['cattle_count']}: $cattleCount",
-                          style: TextStyle(color: Colors.black, fontSize: 14)),
-                      tileColor: Color.fromRGBO(177, 243, 238, 0.4),
-                      leading: Container(
-                        margin: const EdgeInsets.fromLTRB(0, 1, 0, 1),
-                        foregroundDecoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        clipBehavior: Clip.hardEdge,
-                        child: Image.asset(
-                          'asset/${grp.state}.png',
-                          fit: BoxFit.contain,
-                          width: 70,
-                          height: 150,
-                        ),
+                    );
+                  },
+                  child: ListTile(
+                    title: Text(
+                      grpName!,
+                      style: const TextStyle(
+                        color: Color(0xFF0DA6BA),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
-                      trailing: Tooltip(
-                        message: currentLocalization['add_new_cattle'],
-                        preferBelow: true,
-                        textAlign: TextAlign.right,
-                        textStyle: TextStyle(color: Color.fromRGBO(13, 166, 186, 1.0), fontStyle: FontStyle.italic),
+                    ),
+                    subtitle: Text(
+                      "${currentLocalization['grpid']}: ${grp.grpId}\n${currentLocalization['cattle_count']}: $cattleCount",
+                      style: TextStyle(color: Colors.black, fontSize: 14),
+                    ),
+                    tileColor: Color.fromRGBO(177, 243, 238, 0.4),
+                    leading: Container(
+                      margin: const EdgeInsets.fromLTRB(0, 1, 0, 1),
+                      foregroundDecoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      clipBehavior: Clip.hardEdge,
+                      child: Image.asset(
+                        'asset/${grp.state}.png',
+                        fit: BoxFit.contain,
+                        width: 70,
+                        height: 150,
+                      ),
+                    ),
+                    trailing: Tooltip(
+                      message: currentLocalization['add_new_cattle'],
+                      preferBelow: true,
+                      textAlign: TextAlign.right,
+                      textStyle: TextStyle(
+                        color: Color.fromRGBO(13, 166, 186, 1.0),
+                        fontStyle: FontStyle.italic,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white70,
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Container(
+                        width: 20,
+                        height: 20,
                         decoration: BoxDecoration(
+                          border: Border.all(color: Colors.brown,strokeAlign: BorderSide.strokeAlignInside),
                           color: Colors.white70,
-                          borderRadius: BorderRadius.circular(8.0),
+                          borderRadius: BorderRadius.circular(3.5)
                         ),
                         child: IconButton(
-                          icon: const Icon(Icons.more_vert,),
-                          color: Colors.black87,
+                          iconSize: 19,
+                          padding: EdgeInsets.zero,
+                          icon: const Icon(Icons.add_circle),
+                          color: Color.fromRGBO(13, 166, 186, 0.8),
                           onPressed: () {
                             Navigator.pop(context);
                             Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => AddNewCattle(
-                                          type: grp.type,
-                                          state: grp.state,
-                                          breed: grp.breed,
-                                          gender: (grp.state != 'Calf')
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => AddNewCattle(
+                                      type: grp.type,
+                                      state: grp.state,
+                                      breed: grp.breed,
+                                      gender:
+                                          (grp.state != 'Calf')
                                               ? (grp.state != 'Adult Male')
                                                   ? 'Female'
                                                   : 'Male'
                                               : null,
-                                        )));
+                                    ),
+                              ),
+                            );
                           },
                         ),
                       ),
                     ),
                   ),
-                );
-              }),
+                ),
+              );
+            },
+          ),
         ),
       ],
     );
