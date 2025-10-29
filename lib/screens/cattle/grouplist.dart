@@ -268,7 +268,7 @@ class _GroupListState extends State<GroupList>
                           borderRadius: BorderRadius.circular(3.5)
                         ),
                         child: IconButton(
-                          iconSize: 19,
+                          iconSize: 18,
                           padding: EdgeInsets.zero,
                           icon: const Icon(Icons.add_circle),
                           color: Color.fromRGBO(13, 166, 186, 0.8),
