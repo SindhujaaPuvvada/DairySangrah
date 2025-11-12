@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../main.dart';
+import '../../shared/breedService.dart';
 import '../../shared/constants.dart';
 import '../cattle/cattleUtils.dart';
 import 'onboardUtils.dart';
@@ -65,6 +66,18 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
   ];
 
   String? _selectedOption = 'yes';
+
+  late List<String> cowBreed;
+  late List<String> buffaloBreed;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      cowBreed = BreedService().getCowBreeds() as List<String>;
+      buffaloBreed = BreedService().getBuffaloBreeds() as List<String>;
+    });
+  }
 
   @override
   void dispose() {

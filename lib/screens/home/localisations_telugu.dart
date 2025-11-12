@@ -382,6 +382,16 @@ class LocalizationTe {
     "now": "ఇప్పుడే చేయండి",
     "later": "తరువాత",
     "notes": "గమనికలు",
-    "sire_info": "నర పశువు :"
+    "sire_info": "నర పశువు :",
+    'reports': 'రిపోర్టులు',
+    'milk production': 'పాల ఉత్పత్తి',
+    'milk sale': 'పాల విక్రయం',
+    'report_type': 'రిపోర్ట్ రకం',
+    'generate_report': 'రిపోర్ట్ సృష్టించండి',
+    'start_date': 'ప్రారంభ తేదీ',
+    'end_date': 'ముగింపు తేదీ',
+    'please_enter_qty': 'దయచేసి పరిమాణం నమోదు చేయండి',
+    'select_report_type': 'దయచేసి రిపోర్ట్ రకం ఎంచుకోండి',
+    'reports_available': 'ఉపలబ్ధ రిపోర్టులు',
   };
 }

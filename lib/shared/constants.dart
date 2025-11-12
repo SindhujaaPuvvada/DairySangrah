@@ -44,7 +44,7 @@ const langFileMap = {
   'te': LocalizationTe.translations
 };
 
-const cowBreed = [
+/*const cowBreed = [
   'select',
   'jersey',
   'holstein',
@@ -75,5 +75,8 @@ const buffaloBreed = [
   'pandharpuri',
   'banni',
 ];
+*/
 
 const milkEntryTypes = ['whole farm', 'group wise', 'cattle wise'];
+
+const reportTypes = ['transactions','milk production', 'milk sale'];

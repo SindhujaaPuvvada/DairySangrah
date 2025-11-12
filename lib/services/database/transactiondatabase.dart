@@ -53,6 +53,23 @@ class DatabaseForSale {
             "${name.replaceAll(' ', '')}D${saleOnMonth!.day}M${saleOnMonth.month}Y${saleOnMonth.year}")
         .get();
   }
+
+  Future<QuerySnapshot<Map<String, dynamic>>>
+  infoFromSaleByDateRange(DateTime startDate, DateTime endDate) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    Timestamp sDate = Timestamp.fromDate(startDate);
+    Timestamp eDate = Timestamp.fromDate(endDate);
+
+    return await db
+        .collection('User')
+        .doc(uid)
+        .collection('Sale')
+        .where('saleOnMonth', isGreaterThanOrEqualTo: sDate)
+        .where('saleOnMonth', isLessThanOrEqualTo: eDate)
+        //.orderBy('saleOnMonth', descending: true)
+        .get();
+  }
+
 }
 
 class DatabaseForExpense {
@@ -105,6 +122,21 @@ class DatabaseForExpense {
         .collection('Expense')
         .doc(
             "${name.replaceAll(' ', '')}D${expenseOnMonth!.day}M${expenseOnMonth.month}Y${expenseOnMonth.year}")
+        .get();
+  }
+
+  Future<QuerySnapshot<Map<String,dynamic>>> infoFromExpenseByDateRange(DateTime startDate, DateTime endDate) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    Timestamp sDate = Timestamp.fromDate(startDate);
+    Timestamp eDate = Timestamp.fromDate(endDate);
+
+    return await db
+        .collection('User')
+        .doc(uid)
+        .collection('Expense')
+        .where('expenseOnMonth', isGreaterThanOrEqualTo: sDate)
+        .where('expenseOnMonth', isLessThanOrEqualTo: eDate)
+    //.orderBy('saleOnMonth', descending: true)
         .get();
   }
 }

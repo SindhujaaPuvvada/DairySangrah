@@ -242,6 +242,12 @@ class _AddIncomeState extends State<AddIncome> {
           _amountTextController.text = totalPrice.toStringAsFixed(2);
         });
       }
+      else{
+        if (_quantityController.text.isEmpty) {
+          _showErrorDialog('please_enter_qty');
+          return;
+        }
+      }
     }
 
     if (_amountTextController.text.isEmpty) {
@@ -256,6 +262,7 @@ class _AddIncomeState extends State<AddIncome> {
               : _categoryTextController.text,
       value: double.parse(_amountTextController.text),
       saleOnMonth: DateTime.tryParse(_dateController.text),
+      quantity: double.tryParse(_quantityController.text),
     );
 
     await _addIncome(data);
@@ -375,6 +382,11 @@ class _AddIncomeState extends State<AddIncome> {
                       },
                     ),
                   ),
+                  _buildTextField(
+                    _quantityController,
+                    currentLocalization['Quantity (Liters)'] ??
+                        'Quantity (Liters)',
+                  ),
                   if (_selectedBuyer != 'D to C') ...[
                     _buildTextField(
                       _fatController,
@@ -383,11 +395,6 @@ class _AddIncomeState extends State<AddIncome> {
                     _buildTextField(
                       _snfController,
                       currentLocalization['SNF Percentage'] ?? 'SNF Percentage',
-                    ),
-                    _buildTextField(
-                      _quantityController,
-                      currentLocalization['Quantity (Liters)'] ??
-                          'Quantity (Liters)',
                     ),
                     Container(
                       alignment: Alignment.center,

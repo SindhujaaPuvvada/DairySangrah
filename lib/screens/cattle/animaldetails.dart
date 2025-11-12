@@ -9,6 +9,7 @@ import '../../../services/database/cattledatabase.dart';
 import 'package:farm_expense_mangement_app/models/history.dart';
 import 'package:farm_expense_mangement_app/services/database/cattlehistorydatabase.dart';
 import '../../../main.dart';
+import '../../shared/breedService.dart';
 import '../notification/alertnotifications.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 
@@ -793,10 +794,16 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
 
   late final DatabaseServicesForCattle cattleDb;
 
+  late List<String> cowBreed;
+  late List<String> buffaloBreed;
+
   @override
   void initState() {
     super.initState();
-
+    setState(() {
+      cowBreed = BreedService().getCowBreeds() as List<String>;
+      buffaloBreed = BreedService().getBuffaloBreeds() as List<String>;
+    });
     cattleDb = DatabaseServicesForCattle(uid);
     _nameTextController.text = widget.cattle.nickname ?? '';
     _selectedBreed = widget.cattle.breed;

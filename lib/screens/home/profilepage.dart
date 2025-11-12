@@ -30,6 +30,7 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     return AppBar(
       leading: BackButton(
+        color: Colors.white,
         onPressed:
             () => Navigator.push(
               context,
@@ -698,7 +699,9 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                     location: _controllerAddress.text,
                     phoneNo: int.parse(_controllerPhone.text),
                     chosenLanguage: _selectedLanguage,
-                    //appMode: _selectedAppMode,
+                    appMode: widget.farmUser.appMode,
+                    isFirstLaunch: widget.farmUser.isFirstLaunch,
+                    fcmToken: widget.farmUser.fcmToken,
                   );
                   updateUser(farmUser);
                   Provider.of<AppData>(context, listen: false).counter = 0;

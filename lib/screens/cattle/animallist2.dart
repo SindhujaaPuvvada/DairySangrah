@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 import 'package:provider/provider.dart';
 import '../../../main.dart';
+import '../../shared/breedService.dart';
 
 class AnimalList2 extends StatefulWidget {
   final String animalType;
@@ -27,33 +28,29 @@ class _AnimalList2State extends State<AnimalList2> {
   late String languageCode = 'en';
   final TextEditingController _searchController = TextEditingController();
   String? _selectedBreed; // Store the selected breed for filtering
-  List<String> breedList = [];
+  List<String> breedList = ['All'];
+
+  List<String> cowBreed = [];
+  List<String> buffaloBreed = [];
 
   @override
   void initState() {
     super.initState();
+    _getBreeds();
     _selectedBreed = widget.breed;
-    if (widget.animalType == 'Cow') {
-      for (String breed in cowBreed) {
-        if (breed == 'select') {
-          breedList.add('All');
-        } else {
-          breedList.add(breed);
-        }
-      }
-    } else {
-      for (String breed in buffaloBreed) {
-        if (breed == 'select') {
-          breedList.add('All');
-        } else {
-          breedList.add(breed);
-        }
-      }
-    }
     cattleDb =
         DatabaseServicesForCattle(FirebaseAuth.instance.currentUser!.uid);
     _fetchCattle();
     _searchController.addListener(_searchCattle);
+  }
+
+  Future<void> _getBreeds() async {
+    cowBreed = await BreedService().getCowBreeds();
+    buffaloBreed = await BreedService().getBuffaloBreeds();
+    setState(() {
+      cowBreed;
+      buffaloBreed;
+    });
   }
 
   Future<void> _fetchCattle() async {
@@ -138,6 +135,16 @@ class _AnimalList2State extends State<AnimalList2> {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
     currentLocalization = langFileMap[languageCode]!;
+    if (widget.animalType == 'Cow') {
+      for (String breed in cowBreed) {
+        breedList.add(breed);
+      }
+    } else {
+      for (String breed in buffaloBreed) {
+        breedList.add(breed);
+      }
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

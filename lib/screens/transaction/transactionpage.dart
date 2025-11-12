@@ -3,6 +3,7 @@ import 'package:farm_expense_mangement_app/screens/transaction/edittransaction.d
 import 'package:farm_expense_mangement_app/services/database/transactiondatabase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 import 'expenses.dart';
@@ -509,8 +510,8 @@ class TotalTransactionPage extends StatelessWidget {
             const SizedBox(height: 30),
             Text(
               netProfit>=0?
-              '${currentLocalization['net_profit']}:  ₹$netProfit':
-    '${currentLocalization['net_loss']}:  ₹$netProfit',
+              '${currentLocalization['net_profit']}:  ₹${netProfit.toPrecision(2)}':
+    '${currentLocalization['net_loss']}:  ₹${netProfit.toPrecision(2)}',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,

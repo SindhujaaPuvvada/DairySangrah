@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../../main.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 import '../../models/cattle.dart';
+import '../../shared/breedService.dart';
 import 'grouplist.dart';
 
 class AddNewCattleGroup extends StatefulWidget {
@@ -27,7 +28,10 @@ class _AddNewCattleGroupState extends State<AddNewCattleGroup> {
   late final DatabaseServicesForCattleGroups cgrpDB;
   late final DatabaseServicesForCattle cattleDb;
 
+  late List<String> cowBreed;
+  late List<String> buffaloBreed;
   late List<Cattle> allCattle;
+
 
   final TextEditingController _customBreedTextController =
       TextEditingController();
@@ -38,16 +42,15 @@ class _AddNewCattleGroupState extends State<AddNewCattleGroup> {
 
   String _selectedType = 'Cow';
   String _selectedStatus = 'Milked';
-  String _selectedBreed = 'select';
+  String? _selectedBreed;
 
   @override
   void initState() {
     super.initState();
     cgrpDB = DatabaseServicesForCattleGroups(uid);
     cattleDb = DatabaseServicesForCattle(uid);
-    setState(() {
-      _fetchCattle();
-    });
+    _getBreeds();
+    _fetchCattle();
   }
 
   @override
@@ -65,14 +68,28 @@ class _AddNewCattleGroupState extends State<AddNewCattleGroup> {
     });
   }
 
-  String getExistingCattleCount(String type, String state, String breed) {
+  Future<void> _getBreeds() async {
+    cowBreed = await BreedService().getCowBreeds();
+    buffaloBreed = await BreedService().getBuffaloBreeds();
+    setState(() {
+      cowBreed;
+      buffaloBreed;
+    });
+  }
+
+  String getExistingCattleCount(String type, String state, String? breed) {
     int existingCount;
-    existingCount = allCattle
-        .where((cattle) =>
-            cattle.type == type &&
-            cattle.state == state &&
-            cattle.breed == breed)
-        .length;
+    existingCount =
+        allCattle
+            .where(
+              (cattle) =>
+                  cattle.type == type &&
+                          cattle.state == state &&
+                          (breed != null)
+                      ? cattle.breed == breed
+                      : false,
+            )
+            .length;
 
     return existingCount.toString();
   }
@@ -120,8 +137,10 @@ class _AddNewCattleGroupState extends State<AddNewCattleGroup> {
           color: Colors.black,
           onPressed: () {
             Navigator.pop(context);
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => const GroupList()));
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const GroupList()),
+            );
           },
         ),
       ),
@@ -130,159 +149,187 @@ class _AddNewCattleGroupState extends State<AddNewCattleGroup> {
           padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
           child: Form(
             key: _formKey,
-            child: ListView(children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 20, 0, 26),
-                child: Row(
-                  children: [
-                    Flexible(
-                      child: CattleUtils.buildDropdown(
-                        label: '${currentLocalization['Type']}*',
-                        value: _selectedType,
-                        items: typeMap,
-                        onChanged: (newValue) {
-                          setState(() {
-                            _selectedType = newValue!;
-                            _selectedBreed = 'select';
-                            _existingCattleCountController.text =
-                                getExistingCattleCount(_selectedType,
-                                    _selectedStatus, _selectedBreed);
-                          });
-                        },
+            child: ListView(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 20, 0, 26),
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: CattleUtils.buildDropdown(
+                          label: '${currentLocalization['Type']}*',
+                          value: _selectedType,
+                          items: typeMap,
+                          onChanged: (newValue) {
+                            setState(() {
+                              _selectedType = newValue!;
+                              _selectedBreed = null;
+                              _existingCattleCountController
+                                  .text = getExistingCattleCount(
+                                _selectedType,
+                                _selectedStatus,
+                                _selectedBreed,
+                              );
+                            });
+                          },
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 16.0),
-                    Expanded(
-                      child: CattleUtils.buildDropdown(
-                        label: '${currentLocalization['breed']}',
-                        value: _selectedBreed,
-                        items: _selectedType == 'Cow'
-                            ? cowBreedMap
-                            : buffaloBreedMap,
-                        onChanged: (newValue) {
-                          setState(() {
-                            _selectedBreed = newValue!;
-                            _existingCattleCountController.text =
-                                getExistingCattleCount(_selectedType,
-                                    _selectedStatus, _selectedBreed);
-                          });
-                        },
+                      SizedBox(width: 16.0),
+                      Expanded(
+                        child: CattleUtils.buildDropdown(
+                          label: '${currentLocalization['select_the_breed']}',
+                          value: _selectedBreed,
+                          items:
+                              _selectedType == 'Cow'
+                                  ? cowBreedMap
+                                  : buffaloBreedMap,
+                          onChanged: (newValue) {
+                            setState(() {
+                              _selectedBreed = newValue!;
+                              _existingCattleCountController
+                                  .text = getExistingCattleCount(
+                                _selectedType,
+                                _selectedStatus,
+                                _selectedBreed,
+                              );
+                            });
+                          },
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 8, 0, 26),
-                child: CattleUtils.buildDropdown(
-                  label: '${currentLocalization['status']}*',
-                  value: _selectedStatus,
-                  items: statusMap,
-                  onChanged: (newValue) {
-                    setState(() {
-                      _selectedStatus = newValue!;
-                      _existingCattleCountController.text =
-                          getExistingCattleCount(
-                              _selectedType, _selectedStatus, _selectedBreed);
-                    });
-                  },
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 26),
+                  child: CattleUtils.buildDropdown(
+                    label: '${currentLocalization['status']}*',
+                    value: _selectedStatus,
+                    items: statusMap,
+                    onChanged: (newValue) {
+                      setState(() {
+                        _selectedStatus = newValue!;
+                        _existingCattleCountController
+                            .text = getExistingCattleCount(
+                          _selectedType,
+                          _selectedStatus,
+                          _selectedBreed,
+                        );
+                      });
+                    },
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 8, 0, 26),
-                child: CattleUtils.buildReadonlyTextFieldWithController(
-                  controller: _existingCattleCountController,
-                  label: currentLocalization['Existing Cattle Count'] ??
-                      "Existing Cattle Count",
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 26),
+                  child: CattleUtils.buildReadonlyTextFieldWithController(
+                    controller: _existingCattleCountController,
+                    label:
+                        currentLocalization['Existing Cattle Count'] ??
+                        "Existing Cattle Count",
+                  ),
                 ),
-              ),
-              Padding(
+                Padding(
                   padding: const EdgeInsets.fromLTRB(0, 8, 0, 26),
                   child: Text(
                     currentLocalization["want_to_add_more_cattle"] ??
                         'Want to add more cattles to this group?',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 16),
-                  )),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 8, 0, 26),
-                child: CattleUtils.buildTextField(
-                  _cattleCountTextController,
-                  currentLocalization['enter_cattle_count_to_add'] ??
-                      "Enter the number of cattle you wish to add",
-                  true,
-                  currentLocalization['please_enter_value'] ?? '',
+                  ),
                 ),
-              ),
-              Padding(
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 26),
+                  child: CattleUtils.buildTextField(
+                    _cattleCountTextController,
+                    currentLocalization['enter_cattle_count_to_add'] ??
+                        "Enter the number of cattle you wish to add",
+                    true,
+                    currentLocalization['please_enter_value'] ?? '',
+                  ),
+                ),
+                Padding(
                   padding: const EdgeInsets.fromLTRB(0, 8, 0, 26),
                   child: CattleUtils.buildElevatedButton(
-                      currentLocalization['submit'] ?? 'Submit',
-                      onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      if (_selectedBreed == 'select') {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
+                    currentLocalization['submit'] ?? 'Submit',
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        if (_selectedBreed == null) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
                                   currentLocalization['select_the_breed'] ??
-                                      'Select the breed'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
+                                      'Select the breed',
+                                ),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          }
+                          return;
                         }
-                        return;
-                      }
 
-                      final results = await Future.wait([
-                        CattleUtils.getLastUsedGrpId(uid),
-                        CattleUtils.getLastUsedRFId(uid)
-                      ]);
-                      int lastGrpId = results[0];
-                      int lastRFId = results[1];
+                        final results = await Future.wait([
+                          CattleUtils.getLastUsedGrpId(uid),
+                          CattleUtils.getLastUsedRFId(uid),
+                        ]);
+                        int lastGrpId = results[0];
+                        int lastRFId = results[1];
 
-                      String result = await CattleUtils.addCattleGroupToDB(
+                        String result = await CattleUtils.addCattleGroupToDB(
                           _selectedType,
                           _selectedBreed,
                           _selectedStatus,
-                          lastGrpId);
-                      lastGrpId++;
-
-                      String msg = "";
-                      if (result == 'Already Exists') {
-                        msg = 'cattle_grp_exists';
-                      } else {
-                        msg = 'new_cattle_grp_added_successfully';
-                      }
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text(currentLocalization[msg] ?? "")),
+                          lastGrpId,
                         );
-                      }
-                      int newCattleCount =
-                          int.parse(_cattleCountTextController.text);
-                      String? gender;
-                      gender = (_selectedStatus == 'Calf')
-                          ? null
-                          : (_selectedStatus == 'Adult Male')
-                              ? 'Male'
-                              : 'Female';
-                      for (int i = 0; i < newCattleCount; i++) {
-                        CattleUtils.addNewCattleToDB(_selectedType,
-                            _selectedBreed, _selectedStatus, lastRFId, gender);
-                        lastRFId++;
-                      }
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        Navigator.push(
+                        lastGrpId++;
+
+                        String msg = "";
+                        if (result == 'Already Exists') {
+                          msg = 'cattle_grp_exists';
+                        } else {
+                          msg = 'new_cattle_grp_added_successfully';
+                        }
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(currentLocalization[msg] ?? ""),
+                            ),
+                          );
+                        }
+                        int newCattleCount = int.parse(
+                          _cattleCountTextController.text,
+                        );
+                        String? gender;
+                        gender =
+                            (_selectedStatus == 'Calf')
+                                ? null
+                                : (_selectedStatus == 'Adult Male')
+                                ? 'Male'
+                                : 'Female';
+                        for (int i = 0; i < newCattleCount; i++) {
+                          CattleUtils.addNewCattleToDB(
+                            _selectedType,
+                            _selectedBreed,
+                            _selectedStatus,
+                            lastRFId,
+                            gender,
+                          );
+                          lastRFId++;
+                        }
+                        if (context.mounted) {
+                          Navigator.pop(context);
+                          Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const GroupList()));
+                              builder: (context) => const GroupList(),
+                            ),
+                          );
+                        }
                       }
-                    }
-                  })),
-            ]),
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
