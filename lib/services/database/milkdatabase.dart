@@ -6,7 +6,8 @@ class DatabaseForMilk {
   DatabaseForMilk(this.uid);
 
   Future<QuerySnapshot<Map<String, dynamic>>> infoFromServerAllMilk(
-      DateTime date) async {
+    DateTime date,
+  ) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
     return await db
         .collection('User')
@@ -25,7 +26,8 @@ class DatabaseForMilk {
         .doc(uid)
         .collection('Milk')
         .doc(
-            'D${milk.dateOfMilk?.day}M${milk.dateOfMilk?.month}Y${milk.dateOfMilk?.year}')
+          'D${milk.dateOfMilk?.day}M${milk.dateOfMilk?.month}Y${milk.dateOfMilk?.year}',
+        )
         .collection('Store')
         .doc(milk.id)
         .set(milk.toFireStore());
@@ -69,7 +71,8 @@ class DatabaseForMilkByDate {
   }
 
   Future<DocumentSnapshot<Map<String, dynamic>>> infoFromServerMilk(
-      DateTime date) async {
+    DateTime date,
+  ) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
     return await db
         .collection('User')
@@ -87,7 +90,8 @@ class DatabaseForMilkByDate {
         .doc(uid)
         .collection('Milk')
         .doc(
-            'D${milk.dateOfMilk?.day}M${milk.dateOfMilk?.month}Y${milk.dateOfMilk?.year}')
+          'D${milk.dateOfMilk?.day}M${milk.dateOfMilk?.month}Y${milk.dateOfMilk?.year}',
+        )
         .set(milk.toFireStore());
   }
 }

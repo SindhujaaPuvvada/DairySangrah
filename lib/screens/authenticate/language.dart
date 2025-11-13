@@ -19,9 +19,7 @@ class _SignUpPageState extends State<SignUpPage> {
       appBar: AppBar(
         title: Text(
           'Dairy Sangrah',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -29,8 +27,10 @@ class _SignUpPageState extends State<SignUpPage> {
         children: <Widget>[
           Expanded(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,9 +47,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
                     SizedBox(height: 8),
 
-                    Center(
-                      child: Image.asset('asset/lang.jpeg'),
-                    ),
+                    Center(child: Image.asset('asset/lang.jpeg')),
 
                     SizedBox(height: 8),
 
@@ -80,7 +78,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => DairyMitraRegistrationPage()),
+                        builder: (context) => DairyMitraRegistrationPage(),
+                      ),
                     );
                   },
                   child: Text(
@@ -114,9 +113,10 @@ class _SignUpPageState extends State<SignUpPage> {
         padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
         margin: EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
-          color: selectedLanguage == language
-              ? Colors.grey.shade200
-              : Colors.white,
+          color:
+              selectedLanguage == language
+                  ? Colors.grey.shade200
+                  : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.grey.shade300, width: 1.5),
           boxShadow: [
@@ -133,10 +133,7 @@ class _SignUpPageState extends State<SignUpPage> {
             SizedBox(width: 16),
             Text(
               displayName,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w400,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
             ),
             Spacer(),
             if (selectedLanguage == language)
@@ -146,11 +143,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   color: Color(0xFF0EA6BB),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  Icons.check,
-                  size: 20,
-                  color: Colors.white,
-                ),
+                child: Icon(Icons.check, size: 20, color: Colors.white),
               ),
             SizedBox(width: 16),
           ],

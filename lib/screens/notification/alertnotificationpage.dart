@@ -3,7 +3,6 @@ import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../logging.dart';
 import '../../main.dart';
 import '../../services/database/notificationdatabase.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
@@ -23,7 +22,7 @@ class NotificationAppBar extends StatelessWidget
 
     return AppBar(
       leading: BackButton(
-        color: Colors.white ,
+        color: Colors.white,
         onPressed:
             () => Navigator.push(
               context,
@@ -96,11 +95,11 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
         deletedNtfs.add(ntf);
       }
     }
-    for(var dNtf in deletedNtfs){
+    for (var dNtf in deletedNtfs) {
       notifications.remove(dNtf);
     }
     await Future.wait(futures);
-    if(mounted){
+    if (mounted) {
       setState(() {
         _showCheckboxes = false;
       });
@@ -152,7 +151,10 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
     }
 
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Container(
+        color: Colors.white,
+        child: Center(child: CircularProgressIndicator()),
+      );
     } else {
       return Stack(
         children: [
@@ -305,15 +307,20 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
                     onPressed: () {
                       _deleteNotifications();
                     },
-                    backgroundColor: Colors.white ,
+                    backgroundColor: Colors.white,
                     child: Column(
                       children: [
                         Padding(
                           padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                          child: Icon(Icons.delete, color: Color.fromRGBO(13, 166, 186, 1.0),),
+                          child: Icon(
+                            Icons.delete,
+                            color: Color.fromRGBO(13, 166, 186, 1.0),
+                          ),
                         ),
-                        Text(currentLocalization['delete']??'Delete',
-                        style: TextStyle(color: Colors.black, fontSize: 12),)
+                        Text(
+                          currentLocalization['delete'] ?? 'Delete',
+                          style: TextStyle(color: Colors.black, fontSize: 12),
+                        ),
                       ],
                     ),
                   ),

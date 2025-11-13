@@ -322,8 +322,7 @@ class LocalizationPun {
     "enter_cattle_count_to_add": "ਜੋੜਨ ਲਈ ਪਸ਼ੂਆਂ ਦੀ ਗਿਣਤੀ ਦਾਖਲ ਕਰੋ",
     "grpid": "ਸਮੂਹ ਆਈਡੀ",
     "cattle_count": "ਪਸ਼ੂ ਗਿਣਤੀ",
-    "new_cattle_grp_added_successfully":
-        "ਨਵਾਂ ਪਸ਼ੂ ਸਮੂਹ ਸਫਲਤਾ ਨਾਲ ਜੋੜਿਆ ਗਿਆ!!",
+    "new_cattle_grp_added_successfully": "ਨਵਾਂ ਪਸ਼ੂ ਸਮੂਹ ਸਫਲਤਾ ਨਾਲ ਜੋੜਿਆ ਗਿਆ!!",
     "App Mode": "ਐਪ ਮੋਡ",
     "whole farm": "ਪੂਰਾ ਫਾਰਮ",
     "group wise": "ਸਮੂਹ ਅਨੁਸਾਰ",
@@ -374,7 +373,8 @@ class LocalizationPun {
     "mother_info": "ਮਾਤਾ ਦੀ ਜਾਣਕਾਰੀ",
     "father_info": "ਪਿਤਾ ਦੀ ਜਾਣਕਾਰੀ",
     "calf_entry": "ਨਵੇਂ ਜੰਮੇ ਬੱਛੇ ਦੀ ਐਂਟਰੀ",
-    "would_enter_calf_details": "ਹੁਣ ਨਵੇਂ ਜੰਮੇ ਬੱਛੇ ਦੀ ਜਾਣਕਾਰੀ ਦਰਜ ਕਰਨ ਦਾ ਸਮਾਂ ਹੈ!",
+    "would_enter_calf_details":
+        "ਹੁਣ ਨਵੇਂ ਜੰਮੇ ਬੱਛੇ ਦੀ ਜਾਣਕਾਰੀ ਦਰਜ ਕਰਨ ਦਾ ਸਮਾਂ ਹੈ!",
     "now": "ਹੁਣੇ ਕਰੋ",
     "later": "ਬਾਅਦ ਵਿੱਚ",
     "notes": "ਨੋਟਸ",

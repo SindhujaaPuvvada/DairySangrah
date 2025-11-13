@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import '../../../main.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 import '../../models/cattle.dart';
-import '../../shared/breedService.dart';
+import '../../services/breedService.dart';
 import 'grouplist.dart';
 
 class AddNewCattleGroup extends StatefulWidget {
@@ -31,7 +31,6 @@ class _AddNewCattleGroupState extends State<AddNewCattleGroup> {
   late List<String> cowBreed;
   late List<String> buffaloBreed;
   late List<Cattle> allCattle;
-
 
   final TextEditingController _customBreedTextController =
       TextEditingController();
@@ -69,11 +68,10 @@ class _AddNewCattleGroupState extends State<AddNewCattleGroup> {
   }
 
   Future<void> _getBreeds() async {
-    cowBreed = await BreedService().getCowBreeds();
-    buffaloBreed = await BreedService().getBuffaloBreeds();
+    var totBreeds = await BreedService().getBreeds();
     setState(() {
-      cowBreed;
-      buffaloBreed;
+      cowBreed = totBreeds[0];
+      buffaloBreed = totBreeds[1];
     });
   }
 

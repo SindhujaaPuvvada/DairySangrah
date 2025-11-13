@@ -83,13 +83,25 @@ class _HomePageState extends State<HomePage> {
     languageCode = Provider.of<AppData>(context).persistentVariable;
     currentLocalization = langFileMap[languageCode]!;
     //String appMode = Provider.of<AppData>(context).appMode;
-    Color totalCowsColor =
-        const Color.fromRGBO(224, 191, 184, 1.0); // Green color
-    Color milkingCowsColor =
-        const Color.fromRGBO(252, 222, 172, 1.0); // Red color
+    Color totalCowsColor = const Color.fromRGBO(
+      224,
+      191,
+      184,
+      1.0,
+    ); // Green color
+    Color milkingCowsColor = const Color.fromRGBO(
+      252,
+      222,
+      172,
+      1.0,
+    ); // Red color
     Color dryCowsColor = const Color.fromRGBO(88, 148, 120, 1.0); // Blue color
-    Color avgMilkPerCowColor =
-        const Color.fromRGBO(202, 217, 173, 1.0); // Yellow color
+    Color avgMilkPerCowColor = const Color.fromRGBO(
+      202,
+      217,
+      173,
+      1.0,
+    ); // Yellow color
     return Placeholder(
       strokeWidth: 0,
       color: Colors.white70,
@@ -104,12 +116,14 @@ class _HomePageState extends State<HomePage> {
               style: TextStyle(
                 fontSize: 35, // Adjust the size as needed
                 fontWeight: FontWeight.bold,
-                color: Colors
-                    .black87, // You can choose a color that fits your theme
+                color:
+                    Colors
+                        .black87, // You can choose a color that fits your theme
               ),
             ),
             const SizedBox(
-                height: 10), // Space between the text and the content
+              height: 10,
+            ), // Space between the text and the content
             Expanded(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -120,14 +134,18 @@ class _HomePageState extends State<HomePage> {
                       'cattle',
                       'asset/cat.png',
                       totalCowsColor,
-                      () => Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        //if (appMode == 'CGM') {
-                        return const GroupList();
-                        /*} else {
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            //if (appMode == 'CGM') {
+                            return const GroupList();
+                            /*} else {
                           return const AnimalList1();
                         }*/
-                      })),
+                          },
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -140,7 +158,8 @@ class _HomePageState extends State<HomePage> {
                       () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const FeedPage()),
+                          builder: (context) => const FeedPage(),
+                        ),
                       ),
                     ),
                   ),
@@ -161,9 +180,10 @@ class _HomePageState extends State<HomePage> {
                       () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const TransactionPage(
-                                  showIncome: true,
-                                )),
+                          builder:
+                              (context) =>
+                                  const TransactionPage(showIncome: true),
+                        ),
                       ),
                     ),
                   ),
@@ -177,7 +197,8 @@ class _HomePageState extends State<HomePage> {
                       () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const AvgMilkPage()),
+                          builder: (context) => const AvgMilkPage(),
+                        ),
                       ),
                     ),
                   ),
@@ -200,14 +221,12 @@ class _HomePageState extends State<HomePage> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: MediaQuery.of(context).size.height *
+        height:
+            MediaQuery.of(context).size.height *
             0.25, // Keep container size the same
         decoration: BoxDecoration(
           color: const Color.fromRGBO(4, 142, 161, 1.0),
-          border: Border.all(
-            color: Colors.indigo.shade300,
-            width: 3,
-          ),
+          border: Border.all(color: Colors.indigo.shade300, width: 3),
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(32),
             topRight: Radius.circular(16),
@@ -244,9 +263,10 @@ class _HomePageState extends State<HomePage> {
                 softWrap: true,
                 overflow: TextOverflow.visible,
                 style: const TextStyle(
-                    fontSize: 21,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.cyan),
+                  fontSize: 21,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.cyan,
+                ),
                 textAlign: TextAlign.end,
               ),
             ),
@@ -259,8 +279,9 @@ class _HomePageState extends State<HomePage> {
                       imageUrl,
                       height: MediaQuery.of(context).size.height * 0.16,
                       width: MediaQuery.of(context).size.width * 0.45,
-                      fit: BoxFit
-                          .fill, // Ensures the image fits well without overflowing
+                      fit:
+                          BoxFit
+                              .fill, // Ensures the image fits well without overflowing
                     ),
                   ),
                 ],

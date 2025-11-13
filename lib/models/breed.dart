@@ -15,9 +15,6 @@ class Breed {
   }
 
   Map<String, dynamic> toFireStore() {
-    return {
-      'type': type,
-      'breedName': breedName,
-    };
+    return {'type': type, 'breedName': breedName};
   }
 }

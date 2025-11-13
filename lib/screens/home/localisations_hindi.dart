@@ -323,8 +323,7 @@ class LocalizationHi {
     "enter_cattle_count_to_add": "जोड़ने के लिए पशुओं की संख्या दर्ज करें",
     "grpid": "समूह आईडी",
     "cattle_count": "पशु संख्या",
-    "new_cattle_grp_added_successfully":
-        "नया पशु समूह सफलतापूर्वक जोड़ा गया!!",
+    "new_cattle_grp_added_successfully": "नया पशु समूह सफलतापूर्वक जोड़ा गया!!",
     "App Mode": "ऐप मोड",
     "whole farm": "पूरा फार्म",
     "group wise": "समूह अनुसार",
@@ -375,7 +374,8 @@ class LocalizationHi {
     "mother_info": "माता की जानकारी",
     "father_info": "पिता की जानकारी",
     "calf_entry": "नवजात बछड़े की प्रविष्टि",
-    "would_enter_calf_details": "अब नवजात बछड़े की जानकारी दर्ज करने का समय है!",
+    "would_enter_calf_details":
+        "अब नवजात बछड़े की जानकारी दर्ज करने का समय है!",
     "now": "अभी करें",
     "later": "बाद में",
     "notes": "नोट्स",

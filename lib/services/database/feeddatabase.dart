@@ -10,12 +10,13 @@ class DatabaseServicesForFeed {
 
   // Function to add or update feed information in Firestore
   Future<void> infoToServerFeed(Feed feed) async {
-    DocumentSnapshot docSnapshot = await db
-        .collection('User')
-        .doc(uid)
-        .collection('Feed')
-        .doc((fdCategoryId.indexOf(feed.category) + 1).toString())
-        .get();
+    DocumentSnapshot docSnapshot =
+        await db
+            .collection('User')
+            .doc(uid)
+            .collection('Feed')
+            .doc((fdCategoryId.indexOf(feed.category) + 1).toString())
+            .get();
 
     if (!docSnapshot.exists) {
       await docSnapshot.reference.set({'FeedCategory': feed.category});
@@ -33,7 +34,8 @@ class DatabaseServicesForFeed {
 
   // Function to get a particular feed category from Firestore
   Future<QuerySnapshot<Map<String, dynamic>>> infoFromServerForCategory(
-      String category) async {
+    String category,
+  ) async {
     return await db
         .collection('User')
         .doc(uid)

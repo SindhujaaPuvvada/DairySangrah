@@ -41,8 +41,9 @@ class NotificationsApi {
 
       if (context != null && context.mounted && message.notification != null) {
         showDialog(
-            context: context,
-            builder: (_) => AuthUtils.buildAlertDialog(
+          context: context,
+          builder:
+              (_) => AuthUtils.buildAlertDialog(
                 title: message.notification?.title ?? 'Notification',
                 content: message.notification?.body ?? '',
                 opt1: 'Proceed',
@@ -51,7 +52,9 @@ class NotificationsApi {
                   _handleNotificationTap(message);
                 },
                 opt2: 'Not Now',
-                onPressedOpt2: () => Navigator.pop(context)));
+                onPressedOpt2: () => Navigator.pop(context),
+              ),
+        );
       }
     });
 
@@ -84,12 +87,13 @@ class NotificationsApi {
       notification.title,
       notification.body,
       NotificationDetails(
-          android: AndroidNotificationDetails(
-        _androidChannel.id,
-        _androidChannel.name,
-        channelDescription: _androidChannel.description,
-        icon: 'asset/bgscreen.png',
-      )),
+        android: AndroidNotificationDetails(
+          _androidChannel.id,
+          _androidChannel.name,
+          channelDescription: _androidChannel.description,
+          icon: 'asset/bgscreen.png',
+        ),
+      ),
       payload: jsonEncode(message.toMap()),
     );
   }
@@ -98,13 +102,15 @@ class NotificationsApi {
     if (message != null) {
       String? uid = FirebaseAuth.instance.currentUser?.uid;
       if (uid != null) {
-        navigatorKey.currentState?.push(MaterialPageRoute(
-            builder: (_) => AvgMilkPage(
-                  fromNotification: true,
-                )));
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            builder: (_) => AvgMilkPage(fromNotification: true),
+          ),
+        );
       } else {
-        navigatorKey.currentState
-            ?.push(MaterialPageRoute(builder: (_) => SignUpPage()));
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(builder: (_) => SignUpPage()),
+        );
       }
     }
   }

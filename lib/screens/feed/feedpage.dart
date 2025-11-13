@@ -46,31 +46,34 @@ class _FeedState extends State<FeedPage> {
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
       appBar: AppBar(
-          leading: BackButton(
-              onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const WrapperHomePage()))),
-          iconTheme: const IconThemeData(color: Colors.black),
-          title: Text(
-            currentLocalization['Inventory'] ?? "",
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
-            textAlign: TextAlign.center,
-          ),
-          backgroundColor: const Color.fromRGBO(4, 142, 161, 1.0),
-          actions: _showCheckboxes
-              ? <Widget>[
+        leading: BackButton(
+          onPressed:
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const WrapperHomePage(),
+                ),
+              ),
+        ),
+        iconTheme: const IconThemeData(color: Colors.black),
+        title: Text(
+          currentLocalization['Inventory'] ?? "",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+          textAlign: TextAlign.center,
+        ),
+        backgroundColor: const Color.fromRGBO(4, 142, 161, 1.0),
+        actions:
+            _showCheckboxes
+                ? <Widget>[
                   IconButton(
-                      onPressed: () {
-                        _deleteInvEntries();
-                      },
-                      icon: const Icon(
-                        Icons.delete,
-                        color: Colors.white,
-                      )),
+                    onPressed: () {
+                      _deleteInvEntries();
+                    },
+                    icon: const Icon(Icons.delete, color: Colors.white),
+                  ),
                 ]
-              : <Widget>[] // AppBar color
-          ),
+                : <Widget>[], // AppBar color
+      ),
       body: Column(
         children: [
           // The Row for the three sections
@@ -83,9 +86,7 @@ class _FeedState extends State<FeedPage> {
           ),
           const SizedBox(height: 20),
           // Display content based on the selected section
-          Expanded(
-            child: displaySelectedSectionContent(),
-          ),
+          Expanded(child: displaySelectedSectionContent()),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -128,11 +129,15 @@ class _FeedState extends State<FeedPage> {
       future: fdDB.infoFromServerForCategory(sectionType),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return Container(
+            color: Colors.white,
+            child: Center(child: CircularProgressIndicator()),
+          );
         }
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return Center(
-              child: Text(currentLocalization['list_is_empty'] ?? ''));
+            child: Text(currentLocalization['list_is_empty'] ?? ''),
+          );
         }
         final items = snapshot.data!.docs;
 
@@ -148,46 +153,52 @@ class _FeedState extends State<FeedPage> {
                 '${fdDate.day}-${fdDate.month}-${fdDate.year}';
 
             return Container(
-                padding: EdgeInsets.all(10.0),
-                child: ListTile(
-                    title: Text(
-                      currentLocalization[item['feedType']] ?? item['feedType'],
-                      style: TextStyle(
-                        color: const Color(0xFF0DA6BA),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    subtitle: Text(
-                        "${currentLocalization['quantity'] ?? 'Quantity'}: ${item['quantity'] ?? 0} ${currentLocalization['Kg']}"
-                        " | ${currentLocalization['Rate'] ?? 'Rate'}: ₹${item['ratePerKg']} / ${currentLocalization['Kg']}"
-                        " | ${currentLocalization['date'] ?? 'Date'}: $sFdDate"
-                        " | ${currentLocalization['Source'] ?? 'Source'}: ${currentLocalization[item['source'].toLowerCase()]}"),
-                    tileColor: Color.fromRGBO(177, 243, 238, 0.4),
-                    onLongPress: () {
-                      setState(() {
-                        _showCheckboxes = true;
-                      });
-                    },
-                    trailing:
-                        Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                      _showCheckboxes
-                          ? Checkbox(
-                              value: selectedEntries.contains(docId),
-                              checkColor: Colors.white,
-                              activeColor: const Color(0xFF0DA6BA),
-                              shape: const CircleBorder(),
-                              // Tealish blue
-                              onChanged: (val) {
-                                setState(() {
-                                  if (val!) {
-                                    selectedEntries.add(docId);
-                                  } else {
-                                    selectedEntries.remove(docId);
-                                  }
-                                });
-                              })
-                          : Container(),
-                    ])));
+              padding: EdgeInsets.all(10.0),
+              child: ListTile(
+                title: Text(
+                  currentLocalization[item['feedType']] ?? item['feedType'],
+                  style: TextStyle(
+                    color: const Color(0xFF0DA6BA),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                subtitle: Text(
+                  "${currentLocalization['quantity'] ?? 'Quantity'}: ${item['quantity'] ?? 0} ${currentLocalization['Kg']}"
+                  " | ${currentLocalization['Rate'] ?? 'Rate'}: ₹${item['ratePerKg']} / ${currentLocalization['Kg']}"
+                  " | ${currentLocalization['date'] ?? 'Date'}: $sFdDate"
+                  " | ${currentLocalization['Source'] ?? 'Source'}: ${currentLocalization[item['source'].toLowerCase()]}",
+                ),
+                tileColor: Color.fromRGBO(177, 243, 238, 0.4),
+                onLongPress: () {
+                  setState(() {
+                    _showCheckboxes = true;
+                  });
+                },
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    _showCheckboxes
+                        ? Checkbox(
+                          value: selectedEntries.contains(docId),
+                          checkColor: Colors.white,
+                          activeColor: const Color(0xFF0DA6BA),
+                          shape: const CircleBorder(),
+                          // Tealish blue
+                          onChanged: (val) {
+                            setState(() {
+                              if (val!) {
+                                selectedEntries.add(docId);
+                              } else {
+                                selectedEntries.remove(docId);
+                              }
+                            });
+                          },
+                        )
+                        : Container(),
+                  ],
+                ),
+              ),
+            );
           },
         );
       },
@@ -206,9 +217,10 @@ class _FeedState extends State<FeedPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
         decoration: BoxDecoration(
-          color: isSelected
-              ? Colors.grey[500] // Dark grey when selected
-              : Colors.grey[200], // Light grey when unselected
+          color:
+              isSelected
+                  ? Colors.grey[500] // Dark grey when selected
+                  : Colors.grey[200], // Light grey when unselected
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(0), // No curves for rectangular shape
             topRight: Radius.circular(0),
@@ -238,6 +250,8 @@ class _FeedState extends State<FeedPage> {
     }
 
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const FeedPage()));
+      context,
+      MaterialPageRoute(builder: (context) => const FeedPage()),
+    );
   }
 }

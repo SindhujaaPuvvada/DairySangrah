@@ -5,8 +5,11 @@ import '../../models/feed.dart';
 import '../../services/database/feeddatabase.dart';
 
 class FeedUtils {
-  static Widget buildTextField(TextEditingController controller, String label,
-      [bool? isReadOnly]) {
+  static Widget buildTextField(
+    TextEditingController controller,
+    String label, [
+    bool? isReadOnly,
+  ]) {
     return TextField(
       controller: controller,
       readOnly: isReadOnly ?? false,
@@ -15,9 +18,7 @@ class FeedUtils {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(color: Colors.black54),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
           borderSide: const BorderSide(color: Colors.black),
@@ -26,8 +27,10 @@ class FeedUtils {
           borderRadius: BorderRadius.circular(12.0),
           borderSide: const BorderSide(color: Colors.black),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 10.0,
+          horizontal: 12.0,
+        ),
       ),
       style: const TextStyle(fontSize: 14.0),
     );
@@ -45,42 +48,43 @@ class FeedUtils {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(color: Colors.black54, fontSize: 14.0),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 10.0,
+          horizontal: 12.0,
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
       ),
-      items: itemsList.map((item) {
-        return DropdownMenuItem<String>(
-          value: item.key,
-          child: Text(item.value),
-        );
-      }).toList(),
+      items:
+          itemsList.map((item) {
+            return DropdownMenuItem<String>(
+              value: item.key,
+              child: Text(item.value),
+            );
+          }).toList(),
       onChanged: onChanged,
     );
   }
 
-  static ElevatedButton buildElevatedButton(String label,
-      {required void Function() onPressed}) {
+  static ElevatedButton buildElevatedButton(
+    String label, {
+    required void Function() onPressed,
+  }) {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color.fromRGBO(4, 142, 161, 1.0),
         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
       ),
-      child: Text(
-        label,
-        style: TextStyle(color: Colors.white),
-      ),
+      child: Text(label, style: TextStyle(color: Colors.white)),
     );
   }
 
   static List<double> calRateOrPrice(
-      double price, double rate, double quantity) {
+    double price,
+    double rate,
+    double quantity,
+  ) {
     if (rate != 0.0) {
       price = rate * quantity;
     } else if (price != 0.0 && quantity != 0.0) {

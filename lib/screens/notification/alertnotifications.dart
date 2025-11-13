@@ -35,8 +35,9 @@ class AlertNotifications {
     switch (newHistory.name) {
       case "Insemination":
         //creating PTA
-        nDate = newHistory.date
-            .add(const Duration(days: 15)); // Scheduled after 15 days
+        nDate = newHistory.date.add(
+          const Duration(days: 15),
+        ); // Scheduled after 15 days
         _createNTF(cattle, altTitle['PTA']!, altDesc['PTA']!, nDate);
 
         // TODO: verify this part
@@ -119,11 +120,14 @@ class AlertNotifications {
 
   void _createNTF(Cattle cattle, String nTitle, String nDesc, DateTime nDate) {
     CattleNotification ntf = CattleNotification(
-        ntId: DateTime.now().microsecondsSinceEpoch.toString(),
-        ntTitle: nTitle,
-        ntDetails: (cattle.nickname != null) ?"${cattle.type} ${cattle.rfid}(${cattle.nickname??''}) $nDesc": "${cattle.type} ${cattle.rfid} $nDesc",
-        ntShowDate: nDate // scheduled after 15 days
-        );
+      ntId: DateTime.now().microsecondsSinceEpoch.toString(),
+      ntTitle: nTitle,
+      ntDetails:
+          (cattle.nickname != null)
+              ? "${cattle.type} ${cattle.rfid}(${cattle.nickname ?? ''}) $nDesc"
+              : "${cattle.type} ${cattle.rfid} $nDesc",
+      ntShowDate: nDate, // scheduled after 15 days
+    );
     _updateSingleNotification(ntf);
   }
 

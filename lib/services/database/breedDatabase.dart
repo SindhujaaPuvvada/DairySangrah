@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/breed.dart';
 
 class DatabaseServicesForBreed {
-
   DatabaseServicesForBreed();
 
   Future<void> infoToServerSingleBreed(Breed breed) async {

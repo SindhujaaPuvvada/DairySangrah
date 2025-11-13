@@ -104,7 +104,7 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                                       'Completed Sucessfully!',
                                       time: DateTime.now(),
                                     );
-                                    if(context.mounted) {
+                                    if (context.mounted) {
                                       ScaffoldMessenger.of(
                                         context,
                                       ).hideCurrentSnackBar();
@@ -112,7 +112,7 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                                         MaterialPageRoute(
                                           builder: (context) => SignUpPage(),
                                         ),
-                                            (Route<dynamic> route) => false,
+                                        (Route<dynamic> route) => false,
                                       );
                                     }
                                   });
@@ -288,7 +288,10 @@ class _ProfilePageState extends State<ProfilePage> {
       future: _futureController,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return Container(
+            color: Colors.white,
+            child: Center(child: CircularProgressIndicator()),
+          );
         } else if (snapshot.hasData) {
           farmUser = FarmUser.fromFireStore(snapshot.requireData, null);
 

@@ -12,7 +12,8 @@ class DatabaseServicesForUser {
   }
 
   Future<DocumentSnapshot<Map<String, dynamic>>> infoFromServer(
-      String uid) async {
+    String uid,
+  ) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
     return await db.collection('User').doc(uid).get();
@@ -22,9 +23,7 @@ class DatabaseServicesForUser {
     FirebaseFirestore db = FirebaseFirestore.instance;
     final DocumentReference docRef = db.collection('User').doc(uid);
 
-    await docRef.update({
-      'appMode': modePref,
-    });
+    await docRef.update({'appMode': modePref});
     return;
   }
 
@@ -40,16 +39,14 @@ class DatabaseServicesForUser {
     FirebaseFirestore db = FirebaseFirestore.instance;
     final DocumentReference docRef = db.collection('User').doc(uid);
 
-    await docRef.update({
-      'isFirstLaunch': firstLaunch,
-    });
+    await docRef.update({'isFirstLaunch': firstLaunch});
     return;
   }
 
   Future<bool> getIsFirstLaunch(String uid) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
     final DocumentSnapshot<Map<String, dynamic>> snapshot =
-    await db.collection('User').doc(uid).get();
+        await db.collection('User').doc(uid).get();
 
     return snapshot.data()?['isFirstLaunch'] ?? true;
   }
@@ -57,7 +54,7 @@ class DatabaseServicesForUser {
   Future<String> getChosenLanguage(String uid) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
     final DocumentSnapshot<Map<String, dynamic>> snapshot =
-    await db.collection('User').doc(uid).get();
+        await db.collection('User').doc(uid).get();
 
     return snapshot.data()?['chosenLanguage'] ?? 'en';
   }
@@ -66,9 +63,7 @@ class DatabaseServicesForUser {
     FirebaseFirestore db = FirebaseFirestore.instance;
     final DocumentReference docRef = db.collection('User').doc(uid);
 
-    await docRef.update({
-      'fcmToken': fcmToken,
-    });
+    await docRef.update({'fcmToken': fcmToken});
     return;
   }
 }

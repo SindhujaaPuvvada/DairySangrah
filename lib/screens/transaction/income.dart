@@ -241,8 +241,7 @@ class _AddIncomeState extends State<AddIncome> {
         setState(() {
           _amountTextController.text = totalPrice.toStringAsFixed(2);
         });
-      }
-      else{
+      } else {
         if (_quantityController.text.isEmpty) {
           _showErrorDialog('please_enter_qty');
           return;
@@ -266,7 +265,7 @@ class _AddIncomeState extends State<AddIncome> {
     );
 
     await _addIncome(data);
-    if(mounted) {
+    if (mounted) {
       Navigator.pop(context);
       Navigator.pushReplacement(
         context,

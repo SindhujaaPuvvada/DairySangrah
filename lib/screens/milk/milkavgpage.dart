@@ -39,9 +39,10 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
   Future<void> _fetchAllMilkByDate() async {
     final snapshot = await db.infoFromServerAllMilk();
     setState(() {
-      _originalMilkByDate = snapshot.docs
-          .map((doc) => MilkByDate.fromFireStore(doc, null))
-          .toList();
+      _originalMilkByDate =
+          snapshot.docs
+              .map((doc) => MilkByDate.fromFireStore(doc, null))
+              .toList();
       _allMilkByDate = _originalMilkByDate;
       if (_allMilkByDate.isNotEmpty) {
         totalMilkAcrossAllDates = (_originalMilkByDate
@@ -84,9 +85,10 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
 
   void _filterMilkByDate(DateTime selectedDate) {
     setState(() {
-      _allMilkByDate = _originalMilkByDate
-          .where((milk) => milk.dateOfMilk == selectedDate)
-          .toList();
+      _allMilkByDate =
+          _originalMilkByDate
+              .where((milk) => milk.dateOfMilk == selectedDate)
+              .toList();
     });
   }
 
@@ -98,9 +100,10 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
 
     if (widget.fromNotification != null && widget.fromNotification == true) {
       return AddMilkDataPage(
-          onMilkRecordAdded: () {
-            _fetchAllMilkByDate();
-          });
+        onMilkRecordAdded: () {
+          _fetchAllMilkByDate();
+        },
+      );
     }
 
     return Scaffold(
@@ -128,62 +131,64 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
         ],
         leading: IconButton(
           color: Colors.black,
-          icon: const Icon(
-            Icons.arrow_back,
-          ),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
       ),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    "${currentLocalization['Total Milk'] ?? 'Total Milk'}: $totalMilkAcrossAllDates ${currentLocalization['Litres']}",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+      body:
+          _isLoading
+              ? Container(
+                color: Colors.white,
+                child: Center(child: CircularProgressIndicator()),
+              )
+              : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      "${currentLocalization['Total Milk'] ?? 'Total Milk'}: $totalMilkAcrossAllDates ${currentLocalization['Litres']}",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: _allMilkByDate.isEmpty
-                      ? Center(
-                          child: Text(
-                            currentLocalization['no_entries_for_sel_date'] ??
-                                '',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        )
-                      : ListView.builder(
-                          itemCount: _allMilkByDate.length,
-                          itemBuilder: (context, index) {
-                            return MilkDataRowByDate(
-                              data: _allMilkByDate[index],
-                            );
-                          },
-                        ),
-                ),
-              ],
-            ),
+                  Expanded(
+                    child:
+                        _allMilkByDate.isEmpty
+                            ? Center(
+                              child: Text(
+                                currentLocalization['no_entries_for_sel_date'] ??
+                                    '',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            )
+                            : ListView.builder(
+                              itemCount: _allMilkByDate.length,
+                              itemBuilder: (context, index) {
+                                return MilkDataRowByDate(
+                                  data: _allMilkByDate[index],
+                                );
+                              },
+                            ),
+                  ),
+                ],
+              ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AddMilkDataPage(
-                onMilkRecordAdded: () {
-                  _fetchAllMilkByDate();
-                },
-              ),
+              builder:
+                  (context) => AddMilkDataPage(
+                    onMilkRecordAdded: () {
+                      _fetchAllMilkByDate();
+                    },
+                  ),
             ),
           );
         },
@@ -236,12 +241,14 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
   Future<void> _fetchCattleGroup() async {
     final snapshot = await cgrpDb.infoFromServerAllCattleGrps(uid);
     setState(() {
-      var allCattleGrps = snapshot.docs
-          .map((doc) => CattleGroup.fromFireStore(doc, null))
-          .toList();
-      milkedCattleGrps = allCattleGrps
-          .where((cattleGrp) => cattleGrp.state == 'Milked')
-          .toList();
+      var allCattleGrps =
+          snapshot.docs
+              .map((doc) => CattleGroup.fromFireStore(doc, null))
+              .toList();
+      milkedCattleGrps =
+          allCattleGrps
+              .where((cattleGrp) => cattleGrp.state == 'Milked')
+              .toList();
       //allMilkedGrpIds = milkedGrpId.map((cattleGrp) => cattleGrp.grpId).toList();
     });
   }
@@ -276,7 +283,8 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
     final double totalMilk =
         (milkByDate.totalMilk + data.morning + data.evening).toPrecision(2);
     await dbByDate.infoToServerMilk(
-        MilkByDate(dateOfMilk: data.dateOfMilk, totalMilk: totalMilk));
+      MilkByDate(dateOfMilk: data.dateOfMilk, totalMilk: totalMilk),
+    );
   }
 
   @override
@@ -346,22 +354,26 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
                 const SizedBox(height: 20.0),
                 (selectedEntryType != "whole farm")
                     ? MilkUtils.buildDropdown(
-                        label: (selectedEntryType == 'group wise')
-                            ? currentLocalization['select_grpid'] ?? ""
-                            : currentLocalization['select_rfid'] ?? "",
-                        value: selectedId,
-                        valMsg: (selectedEntryType == 'group wise')
-                            ? currentLocalization['please_select_grp_id'] ?? ""
-                            : currentLocalization['please_select_rfid'] ?? "",
-                        items: selectedEntryType == 'group wise'
-                            ? milkedGrpIdsMap
-                            : milkedCattleIdsMap,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedId = value;
-                          });
-                        },
-                      )
+                      label:
+                          (selectedEntryType == 'group wise')
+                              ? currentLocalization['select_grpid'] ?? ""
+                              : currentLocalization['select_rfid'] ?? "",
+                      value: selectedId,
+                      valMsg:
+                          (selectedEntryType == 'group wise')
+                              ? currentLocalization['please_select_grp_id'] ??
+                                  ""
+                              : currentLocalization['please_select_rfid'] ?? "",
+                      items:
+                          selectedEntryType == 'group wise'
+                              ? milkedGrpIdsMap
+                              : milkedCattleIdsMap,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedId = value;
+                        });
+                      },
+                    )
                     : Container(),
                 const SizedBox(height: 20.0),
                 _buildInputBox(
@@ -382,7 +394,7 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
                       border: InputBorder.none,
                     ),
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r"[0-9.]"))
+                      FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
                     ],
                   ),
                 ),
@@ -405,7 +417,7 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
                       border: InputBorder.none,
                     ),
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r"[0-9.]"))
+                      FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
                     ],
                   ),
                 ),
@@ -429,9 +441,10 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
                       child: TextFormField(
                         readOnly: true,
                         controller: TextEditingController(
-                          text: milkingDate != null
-                              ? '${milkingDate!.year}-${milkingDate!.month}-${milkingDate!.day}'
-                              : '',
+                          text:
+                              milkingDate != null
+                                  ? '${milkingDate!.year}-${milkingDate!.month}-${milkingDate!.day}'
+                                  : '',
                         ),
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         validator: (value) {
@@ -443,11 +456,11 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
                           }
                         },
                         decoration: InputDecoration(
-                            labelText:
-                                currentLocalization['milking_date'] ?? "",
-                            labelStyle: const TextStyle(color: Colors.black),
-                            suffixIcon: Icon(Icons.calendar_today),
-                            border: InputBorder.none),
+                          labelText: currentLocalization['milking_date'] ?? "",
+                          labelStyle: const TextStyle(color: Colors.black),
+                          suffixIcon: Icon(Icons.calendar_today),
+                          border: InputBorder.none,
+                        ),
                       ),
                     ),
                   ),
@@ -464,9 +477,10 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
                         if (selectedEntryType == 'whole farm') {
                           idVal = "whole farm";
                         } else {
-                          idVal = (selectedEntryType == 'group wise')
-                              ? "GPID-${selectedId!}"
-                              : "CTID-${selectedId!}";
+                          idVal =
+                              (selectedEntryType == 'group wise')
+                                  ? "GPID-${selectedId!}"
+                                  : "CTID-${selectedId!}";
                         }
                         final Milk newMilkData = Milk(
                           id: idVal,
@@ -489,11 +503,14 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
                     },
                     child: Padding(
                       padding: EdgeInsets.all(4.0),
-                      child: Text(currentLocalization['add'] ?? "",
-                          style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold)),
+                      child: Text(
+                        currentLocalization['add'] ?? "",
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -533,8 +550,8 @@ class _MilkDataRowByDateState extends State<MilkDataRowByDate> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            MilkByDatePage(dateOfMilk: (widget.data.dateOfMilk)),
+        builder:
+            (context) => MilkByDatePage(dateOfMilk: (widget.data.dateOfMilk)),
       ),
     );
   }
@@ -555,15 +572,10 @@ class _MilkDataRowByDateState extends State<MilkDataRowByDate> {
         elevation: 8,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(25),
-          side: const BorderSide(
-            color: Colors.white,
-            width: 3,
-          ),
+          side: const BorderSide(color: Colors.white, width: 3),
         ),
         child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-          ),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
           child: ListTile(
             leading: Padding(
               padding: const EdgeInsets.all(5),

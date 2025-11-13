@@ -5,12 +5,13 @@ class DatabaseServicesForCattle {
   final String uid;
   DatabaseServicesForCattle(this.uid);
   Future<bool> checkIfRFIDExists(String rfid) async {
-    final doc = await FirebaseFirestore.instance
-        .collection('User')
-        .doc(uid)
-        .collection('Cattle')
-        .doc(rfid)
-        .get();
+    final doc =
+        await FirebaseFirestore.instance
+            .collection('User')
+            .doc(uid)
+            .collection('Cattle')
+            .doc(rfid)
+            .get();
 
     return doc.exists;
   }
@@ -26,7 +27,8 @@ class DatabaseServicesForCattle {
   }
 
   Future<DocumentSnapshot<Map<String, dynamic>>> infoFromServer(
-      String rfid) async {
+    String rfid,
+  ) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
     return await db
@@ -38,7 +40,8 @@ class DatabaseServicesForCattle {
   }
 
   Future<QuerySnapshot<Map<String, dynamic>>> infoFromServerAllCattle(
-      String uid) async {
+    String uid,
+  ) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
     return await db
@@ -53,8 +56,11 @@ class DatabaseServicesForCattle {
     final FirebaseFirestore db = FirebaseFirestore.instance;
 
     // Reference to the specific cattle document
-    final DocumentReference cattleDocRef =
-        db.collection('User').doc(uid).collection('Cattle').doc(rfid);
+    final DocumentReference cattleDocRef = db
+        .collection('User')
+        .doc(uid)
+        .collection('Cattle')
+        .doc(rfid);
 
     // Delete all documents in the 'History' subcollection
     final QuerySnapshot historyDocs =
@@ -71,13 +77,14 @@ class DatabaseServicesForCattle {
   Future<String> getLastUsedRFIdDB(String uid) async {
     final FirebaseFirestore db = FirebaseFirestore.instance;
 
-    final QuerySnapshot<Map<String, dynamic>> cattleDoc = await db
-        .collection('User')
-        .doc(uid)
-        .collection('Cattle')
-        .orderBy("rfid", descending: true)
-        .limit(1)
-        .get();
+    final QuerySnapshot<Map<String, dynamic>> cattleDoc =
+        await db
+            .collection('User')
+            .doc(uid)
+            .collection('Cattle')
+            .orderBy("rfid", descending: true)
+            .limit(1)
+            .get();
 
     if (cattleDoc.docs.isNotEmpty) {
       var cattle = Cattle.fromFireStore(cattleDoc.docs[0], null);

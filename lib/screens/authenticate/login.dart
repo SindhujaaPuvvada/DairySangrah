@@ -23,87 +23,85 @@ class _SignInState extends State<SignIn> {
   bool loading = false;
 
   void forgotPasswordPage(BuildContext context) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const ForgotPasswordPage()));
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        home: Scaffold(
-            // backgroundColor: Colors.transparent,
-            body: Stack(children: [
-      Positioned.fill(
-        child: Image.asset(
-          'asset/bgscreen.png',
-          fit: BoxFit.fitHeight,
-        ),
-      ),
-      Container(
-          color: Colors.black.withValues(alpha: 0.5),
-          // Set opacity level here
-
-          child: ListView(children: [
+      home: Scaffold(
+        // backgroundColor: Colors.transparent,
+        body: Stack(
+          children: [
+            Positioned.fill(
+              child: Image.asset('asset/bgscreen.png', fit: BoxFit.fitHeight),
+            ),
             Container(
-              padding: const EdgeInsets.only(top: 0.0),
-              color: Colors.transparent,
-              child: AppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                actions: <Widget>[
-                  TextButton.icon(
-                    icon: const Icon(
-                      Icons.person,
-                      color: Colors.black,
-                    ),
-                    label: const Text(
-                      'Register',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
+              color: Colors.black.withValues(alpha: 0.5),
+
+              // Set opacity level here
+              child: ListView(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.only(top: 0.0),
+                    color: Colors.transparent,
+                    child: AppBar(
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      actions: <Widget>[
+                        TextButton.icon(
+                          icon: const Icon(Icons.person, color: Colors.black),
+                          label: const Text(
+                            'Register',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                          onPressed: () => widget.toggleView(),
+                        ),
+                      ],
+                      // centerTitle: true,
+                      title: const Text(
+                        ' Mobile Dairy',
+                        style: TextStyle(
+                          fontSize: 27,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
-                    onPressed: () => widget.toggleView(),
                   ),
-                ],
-                // centerTitle: true,
-                title: const Text(
-                  ' Mobile Dairy',
-                  style: TextStyle(
-                    fontSize: 27,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
-            // centerTitle: true,
-            // title: const Text(
-            //   ' Mobile Dairy',
-            //   style: TextStyle(
-            //     fontSize: 25,
-            //     fontWeight: FontWeight.bold,
-            //     color: Colors.black,
-            //   ),
-            // ),
-            const SizedBox(
-              height: 30,
-            ),
-            Padding(
-                padding: const EdgeInsets.all(50.0),
-                child: Container(
-                    width: 300,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.black.withValues(
-                          alpha: 0.4), // Set container color with opacity
-                    ),
-                    child: Padding(
+                  // centerTitle: true,
+                  // title: const Text(
+                  //   ' Mobile Dairy',
+                  //   style: TextStyle(
+                  //     fontSize: 25,
+                  //     fontWeight: FontWeight.bold,
+                  //     color: Colors.black,
+                  //   ),
+                  // ),
+                  const SizedBox(height: 30),
+                  Padding(
+                    padding: const EdgeInsets.all(50.0),
+                    child: Container(
+                      width: 300,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.black.withValues(
+                          alpha: 0.4,
+                        ), // Set container color with opacity
+                      ),
+                      child: Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: Form(
-                            key: _formKey,
-                            child: Column(children: <Widget>[
+                          key: _formKey,
+                          child: Column(
+                            children: <Widget>[
                               const SizedBox(height: 20.0),
                               TextFormField(
                                 decoration: textInputDecoration.copyWith(
@@ -117,7 +115,8 @@ class _SignInState extends State<SignIn> {
                               TextFormField(
                                 obscureText: true,
                                 decoration: textInputDecoration.copyWith(
-                                    hintText: 'password'),
+                                  hintText: 'password',
+                                ),
                                 onChanged: (val) {
                                   setState(() => password = val);
                                 },
@@ -129,9 +128,11 @@ class _SignInState extends State<SignIn> {
                                 ),
                                 onPressed: () async {
                                   if (_formKey.currentState!.validate()) {
-                                    dynamic result =
-                                        await _auth.signInWithEmailAndPassword(
-                                            email, password);
+                                    dynamic result = await _auth
+                                        .signInWithEmailAndPassword(
+                                          email,
+                                          password,
+                                        );
                                     if (result == null) {
                                       setState(() {
                                         error =
@@ -146,18 +147,31 @@ class _SignInState extends State<SignIn> {
                                 ),
                               ),
                               TextButton(
-                                  onPressed: () {
-                                    // Add your 'Forgot Password' action here
-                                    // For example, you can navigate to a new screen for password reset
-                                    forgotPasswordPage(context);
-                                  },
-                                  child: const Text('Forgot Password?',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      )))
-                            ])))))
-          ]))
-    ])));
+                                onPressed: () {
+                                  // Add your 'Forgot Password' action here
+                                  // For example, you can navigate to a new screen for password reset
+                                  forgotPasswordPage(context);
+                                },
+                                child: const Text(
+                                  'Forgot Password?',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

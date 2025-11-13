@@ -8,7 +8,9 @@ class DatabaseServiceForCattleHistory {
   DatabaseServiceForCattleHistory({required this.uid});
 
   Future<void> historyToServerSingleCattle(
-      Cattle cattle, CattleHistory cattleHistory) async {
+    Cattle cattle,
+    CattleHistory cattleHistory,
+  ) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
     return await db
         .collection('User')
@@ -23,7 +25,8 @@ class DatabaseServiceForCattleHistory {
   }
 
   Future<QuerySnapshot<Map<String, dynamic>>> historyFromServer(
-      String rfid) async {
+    String rfid,
+  ) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
     return await db
@@ -51,18 +54,21 @@ class DatabaseServiceForCattleHistory {
   Future<String> getLastAISireDetails(String rfid) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
-    final QuerySnapshot<Map<String, dynamic>> historySnapshot= await db
-        .collection('User')
-        .doc(uid)
-        .collection('Cattle')
-        .doc(rfid)
-        .collection('History')
-        .where('name', isEqualTo: 'Insemination')
-        .get();
+    final QuerySnapshot<Map<String, dynamic>> historySnapshot =
+        await db
+            .collection('User')
+            .doc(uid)
+            .collection('Cattle')
+            .doc(rfid)
+            .collection('History')
+            .where('name', isEqualTo: 'Insemination')
+            .get();
 
     if (historySnapshot.docs.isNotEmpty) {
       var allAIEvents =
-      historySnapshot.docs.map((doc) => CattleHistory.fromFireStore(doc, null)).toList();
+          historySnapshot.docs
+              .map((doc) => CattleHistory.fromFireStore(doc, null))
+              .toList();
       allAIEvents.sort((a, b) {
         // Custom sorting logic here
         // Example: sort by a field called 'name'
@@ -70,7 +76,7 @@ class DatabaseServiceForCattleHistory {
         DateTime dateB = b.date;
         return dateB.compareTo(dateA); // descending order
       });
-      return allAIEvents[0].notes??'';
+      return allAIEvents[0].notes ?? '';
     } else {
       return '';
     }

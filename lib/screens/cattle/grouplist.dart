@@ -263,9 +263,12 @@ class _GroupListState extends State<GroupList>
                         width: 20,
                         height: 20,
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black54,strokeAlign: BorderSide.strokeAlignInside),
+                          border: Border.all(
+                            color: Colors.black54,
+                            strokeAlign: BorderSide.strokeAlignInside,
+                          ),
                           color: Colors.white70,
-                          borderRadius: BorderRadius.circular(3.5)
+                          borderRadius: BorderRadius.circular(3.5),
                         ),
                         child: IconButton(
                           iconSize: 18,

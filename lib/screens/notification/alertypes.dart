@@ -11,7 +11,7 @@ class AlertsConstants {
         "is due for Insemination", // Artificial Insemination alert for Heifers
     "DWV": "is due for deworming vaccination", //Deworming vaccination alert
     "BRV": "is due for brucellosis vaccination", //Brucellosis vaccination alert
-    "MTV": "is due for modified theileriosis vaccination"
+    "MTV": "is due for modified theileriosis vaccination",
   };
 
   static Map<String, List<String>> alertsForEvents = {
@@ -32,6 +32,6 @@ class AlertsConstants {
     "AIA": "AI Alert", // Artificial Insemination alert for Heifers
     "DWV": "Deworming Vax Alert",
     "BRV": "Brucellosis Vax Alert",
-    "MTV": "Modified Theileriosis Vax Alert"
+    "MTV": "Modified Theileriosis Vax Alert",
   };
 }

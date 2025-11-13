@@ -342,7 +342,8 @@ class LocalizationEn {
     'mother_info': 'Mother Info.',
     'father_info': 'Father Info.',
     'calf_entry': 'New Born Calf Entry',
-    'would_enter_calf_details': "It's time to make the entry for the new born Calf!",
+    'would_enter_calf_details':
+        "It's time to make the entry for the new born Calf!",
     'now': 'Proceed Now',
     'later': 'Later',
     'notes': 'Notes',

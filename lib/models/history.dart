@@ -8,8 +8,9 @@ class CattleHistory {
   CattleHistory({required this.name, required this.date, this.notes});
 
   factory CattleHistory.fromFireStore(
-      DocumentSnapshot<Map<String, dynamic>> snapshot,
-      SnapshotOptions? options) {
+    DocumentSnapshot<Map<String, dynamic>> snapshot,
+    SnapshotOptions? options,
+  ) {
     final data = snapshot.data();
     final name = data?['name'];
     final date = (data?['date'] != null) ? data!['date'].toDate() : null;

@@ -39,10 +39,9 @@ void main() async {
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  runApp(ChangeNotifierProvider(
-    create: (context) => AppData(),
-    child: MyApp(),
-  ));
+  runApp(
+    ChangeNotifierProvider(create: (context) => AppData(), child: MyApp()),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -55,40 +54,46 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       navigatorKey: navigatorKey,
       home: UpgradeAlert(
-          showIgnore: false,
-          showLater: true,
-          upgrader: Upgrader(
-            countryCode: 'in',
-            languageCode: 'en',
-            //For testing
-            /*debugDisplayAlways: true,
+        showIgnore: false,
+        showLater: true,
+        upgrader: Upgrader(
+          countryCode: 'in',
+          languageCode: 'en',
+          //For testing
+          /*debugDisplayAlways: true,
             debugDisplayOnce: false,
             minAppVersion: '1.0.0(9)', // Simulated minimum version
             debugLogging: true,*/
-          ),
-          child: StreamBuilder<User?>(
-              stream: FirebaseAuth.instance.authStateChanges(),
-              builder: (context, snapshot) {
-                final user = snapshot.data;
-                if (user == null) {
-                  return SignUpPage();
-                  //Authenticate();
-                } else {
-                  log.i('Already logged in!!!');
-                  return FutureBuilder(
-                      future: checkForFirstLaunch(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          bool showOnboarding = snapshot.data!;
-                          return showOnboarding
-                              ? OnBoardingScreens()
-                              : const WrapperHomePage();
-                        } else {
-                          return Container(color: Colors.white,);
-                        }
-                      });
-                }
-              })),
+        ),
+        child: StreamBuilder<User?>(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            final user = snapshot.data;
+            if (user == null) {
+              return SignUpPage();
+              //Authenticate();
+            } else {
+              log.i('Already logged in!!!');
+              return FutureBuilder(
+                future: checkForFirstLaunch(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    bool showOnboarding = snapshot.data!;
+                    return showOnboarding
+                        ? OnBoardingScreens()
+                        : const WrapperHomePage();
+                  } else {
+                    return Container(
+                      color: Colors.white,
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                },
+              );
+            }
+          },
+        ),
+      ),
     );
   }
 

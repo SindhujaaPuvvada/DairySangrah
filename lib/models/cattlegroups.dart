@@ -14,8 +14,9 @@ class CattleGroup {
   });
 
   factory CattleGroup.fromFireStore(
-      DocumentSnapshot<Map<String, dynamic>> snapshot,
-      SnapshotOptions? options) {
+    DocumentSnapshot<Map<String, dynamic>> snapshot,
+    SnapshotOptions? options,
+  ) {
     final data = snapshot.data();
     return CattleGroup(
       grpId: data?['grpId'],
@@ -26,11 +27,6 @@ class CattleGroup {
   }
 
   Map<String, dynamic> toFireStore() {
-    return {
-      'grpId': grpId,
-      'type': type,
-      'breed': breed,
-      'state': state,
-    };
+    return {'grpId': grpId, 'type': type, 'breed': breed, 'state': state};
   }
 }

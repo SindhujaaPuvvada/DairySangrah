@@ -43,33 +43,23 @@ class _DairyMitraRegistrationPageState
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             SizedBox(height: 20), // Spacing from the top
-
             // "DairyMitra Registration" text
             Text(
               currentLocalization['Dairy Sangrah Registration'] ?? "",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
 
             SizedBox(height: 10), // Space between title and subtitle
-
             // Subtitle text
             Text(
-              currentLocalization[
-                      'Get started with your farm management journey'] ??
+              currentLocalization['Get started with your farm management journey'] ??
                   "",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.normal,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
               textAlign: TextAlign.center,
             ),
 
             SizedBox(height: 40), // Space before the buttons
-
             // "Register a New Farm" button
             GestureDetector(
               onTap: () {
@@ -82,9 +72,10 @@ class _DairyMitraRegistrationPageState
                 padding: EdgeInsets.symmetric(vertical: 16.0),
                 margin: EdgeInsets.only(bottom: 20), // Space between buttons
                 decoration: BoxDecoration(
-                  color: selectedOption == 'Register a New Farm'
-                      ? Colors.grey.shade200
-                      : Colors.white,
+                  color:
+                      selectedOption == 'Register a New Farm'
+                          ? Colors.grey.shade200
+                          : Colors.white,
                   borderRadius: BorderRadius.circular(12), // Curved edges
                   border: Border.all(color: Colors.grey.shade300, width: 1.5),
                   boxShadow: [
@@ -137,9 +128,10 @@ class _DairyMitraRegistrationPageState
                 width: double.infinity, // Full width
                 padding: EdgeInsets.symmetric(vertical: 16.0),
                 decoration: BoxDecoration(
-                  color: selectedOption == 'Get into Existing Farm'
-                      ? Colors.grey.shade200
-                      : Colors.white,
+                  color:
+                      selectedOption == 'Get into Existing Farm'
+                          ? Colors.grey.shade200
+                          : Colors.white,
                   borderRadius: BorderRadius.circular(12), // Curved edges
                   border: Border.all(color: Colors.grey.shade300, width: 1.5),
                   boxShadow: [
@@ -188,8 +180,9 @@ class _DairyMitraRegistrationPageState
                   width: double.infinity, // Full width
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Color(0xFF0EA6BB), // Confirm button color
+                      backgroundColor: Color(
+                        0xFF0EA6BB,
+                      ), // Confirm button color
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12), // Curved edges
                       ),

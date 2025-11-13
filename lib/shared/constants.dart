@@ -34,14 +34,14 @@ const langCodeMap = {
   'en': 'English',
   'hi': 'Hindi',
   'pa': 'Punjabi',
-  'te': 'Telugu'
+  'te': 'Telugu',
 };
 
 const langFileMap = {
   'en': LocalizationEn.translations,
   'hi': LocalizationHi.translations,
   'pa': LocalizationPun.translations,
-  'te': LocalizationTe.translations
+  'te': LocalizationTe.translations,
 };
 
 /*const cowBreed = [
@@ -79,4 +79,4 @@ const buffaloBreed = [
 
 const milkEntryTypes = ['whole farm', 'group wise', 'cattle wise'];
 
-const reportTypes = ['transactions','milk production', 'milk sale'];
+const reportTypes = ['transactions', 'milk production', 'milk sale'];

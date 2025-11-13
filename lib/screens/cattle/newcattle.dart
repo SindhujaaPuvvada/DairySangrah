@@ -1,6 +1,6 @@
 import 'package:farm_expense_mangement_app/models/cattle.dart';
 import 'package:farm_expense_mangement_app/screens/notification/alertnotifications.dart';
-import 'package:farm_expense_mangement_app/shared/breedService.dart';
+import 'package:farm_expense_mangement_app/services/breedService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -162,11 +162,10 @@ class _AddNewCattleState extends State<AddNewCattle> {
   }
 
   Future<void> _getBreeds() async {
-    cowBreed = await BreedService().getCowBreeds();
-    buffaloBreed = await BreedService().getBuffaloBreeds();
+    var totBreeds = await BreedService().getBreeds();
     setState(() {
-      cowBreed;
-      buffaloBreed;
+      cowBreed = totBreeds[0];
+      buffaloBreed = totBreeds[1];
     });
   }
 
