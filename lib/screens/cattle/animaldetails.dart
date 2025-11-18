@@ -11,7 +11,7 @@ import 'package:farm_expense_mangement_app/services/database/cattlehistorydataba
 import '../../../main.dart';
 import '../../services/breedService.dart';
 import '../notification/alertnotifications.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 import 'grouplist.dart';
 
@@ -24,7 +24,7 @@ class AnimalDetails extends StatefulWidget {
 }
 
 class _AnimalDetailsState extends State<AnimalDetails> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   final user = FirebaseAuth.instance.currentUser;
@@ -113,7 +113,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
     Widget buildWidget(CattleHistory event) {
       // String eventName = (event['name'] as String).toLowerCase();
       if (event.name == currentLocalization['abortion']) {
@@ -778,7 +778,7 @@ class EditAnimalDetail extends StatefulWidget {
 }
 
 class _EditAnimalDetailState extends State<EditAnimalDetail> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameTextController = TextEditingController();
@@ -813,7 +813,8 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
   @override
   void initState() {
     super.initState();
-    _getBreeds();
+    cowBreed = BreedService().cowBreeds;
+    buffaloBreed = BreedService().buffaloBreeds;
     cattleDb = DatabaseServicesForCattle(uid);
     _nameTextController.text = widget.cattle.nickname ?? '';
     _selectedBreed = widget.cattle.breed;
@@ -821,17 +822,9 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
     _selectedSource = widget.cattle.source;
     _selectedGender = widget.cattle.sex;
     _birthDateController.text =
-        '${widget.cattle.dateOfBirth?.year}-${widget.cattle.dateOfBirth?.month}-${widget.cattle.dateOfBirth?.day}';
+        '${widget.cattle.dateOfBirth?.year ?? '0000'}-${widget.cattle.dateOfBirth?.month ?? '00'}-${widget.cattle.dateOfBirth?.day ?? '00'}';
     _motherInfoTextController.text = widget.cattle.motherInfo ?? '';
     _fatherInfoTextController.text = widget.cattle.fatherInfo ?? '';
-  }
-
-  Future<void> _getBreeds() async {
-    var totBreeds = await BreedService().getBreeds();
-    setState(() {
-      cowBreed = totBreeds[0];
-      buffaloBreed = totBreeds[1];
-    });
   }
 
   void updateCattleButton(BuildContext context) {
@@ -872,7 +865,7 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
 
     var breedList = (widget.cattle.type == 'Cow') ? cowBreed : buffaloBreed;
 
@@ -1061,7 +1054,7 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
                         breedList.map((String breed) {
                           return DropdownMenuItem<String>(
                             value: breed,
-                            child: Text(currentLocalization[breed] ?? 'breed'),
+                            child: Text(currentLocalization[breed] ?? breed),
                           );
                         }).toList(),
                     onChanged: (value) {
@@ -1178,7 +1171,7 @@ class _AddEventPopupState extends State<AddEventPopup> {
   List<String> eventOptions = [];
   DateTime? selectedDate;
   late AlertNotifications alerts;
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
   TextEditingController notesTextController = TextEditingController();
 
@@ -1236,7 +1229,7 @@ class _AddEventPopupState extends State<AddEventPopup> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),

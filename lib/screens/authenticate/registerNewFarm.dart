@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../logging.dart';
 import '../../main.dart';
 import '../../services/database/userdatabase.dart';
+import '../../services/localizationService.dart';
 import '../../shared/constants.dart';
 import '../onboarding/onboard.dart';
 import '../onboarding/onboardUtils.dart';
@@ -19,7 +20,7 @@ class RegisterFarm extends StatefulWidget {
 }
 
 class _RegisterFarmState extends State<RegisterFarm> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
   final _formKey = GlobalKey<FormState>();
 
@@ -37,7 +38,7 @@ class _RegisterFarmState extends State<RegisterFarm> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
 
     return MaterialApp(
       home: Scaffold(

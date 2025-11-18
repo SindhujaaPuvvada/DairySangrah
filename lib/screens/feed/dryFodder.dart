@@ -5,7 +5,7 @@ import '../../models/feed.dart';
 import 'feedpage.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 class DryFodderPage extends StatefulWidget {
   const DryFodderPage({super.key});
@@ -27,7 +27,7 @@ class _DryFodderPageState extends State<DryFodderPage> {
   String _selectedType = 'Wheat Straw';
   String _selectedSource = 'Purchased';
   String _selectedUnit = 'Kg';
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late Map<String, String> typeMap;
   late Map<String, String> sourceMap;
   late Map<String, String> unitMap;
@@ -47,7 +47,7 @@ class _DryFodderPageState extends State<DryFodderPage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
 
     typeMap = {
       'Wheat Straw': currentLocalization['Wheat Straw'] ?? 'Wheat Straw',

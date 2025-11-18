@@ -3,7 +3,7 @@ import 'package:farm_expense_mangement_app/screens/cattle/animaldetails.dart';
 import 'package:farm_expense_mangement_app/services/database/cattledatabase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 import 'package:provider/provider.dart';
 import '../../../main.dart';
 import '../../services/breedService.dart';
@@ -28,7 +28,7 @@ class _AnimalList2State extends State<AnimalList2> {
   late DatabaseServicesForCattle cattleDb;
   late List<Cattle> allCattle = [];
   List<Cattle> filteredCattle = [];
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
   final TextEditingController _searchController = TextEditingController();
   String? _selectedBreed; // Store the selected breed for filtering
@@ -37,35 +37,26 @@ class _AnimalList2State extends State<AnimalList2> {
   late List<String> cowBreed;
   late List<String> buffaloBreed;
 
-  late Future<void> _breedsFuture;
-
   @override
   void initState() {
     super.initState();
-    _breedsFuture = _getBreeds();
+    cowBreed = BreedService().cowBreeds;
+    buffaloBreed = BreedService().buffaloBreeds;
     _selectedBreed = widget.breed;
     cattleDb = DatabaseServicesForCattle(
       FirebaseAuth.instance.currentUser!.uid,
     );
     _fetchCattle();
     _searchController.addListener(_searchCattle);
-  }
-
-  Future<void> _getBreeds() async {
-    var totBreeds = await BreedService().getBreeds();
-    setState(() {
-      cowBreed = totBreeds[0];
-      buffaloBreed = totBreeds[1];
-      if (widget.animalType == 'Cow') {
-        for (String breed in cowBreed) {
-          breedList.add(breed);
-        }
-      } else {
-        for (String breed in buffaloBreed) {
-          breedList.add(breed);
-        }
+    if (widget.animalType == 'Cow') {
+      for (String breed in cowBreed) {
+        breedList.add(breed);
       }
-    });
+    } else {
+      for (String breed in buffaloBreed) {
+        breedList.add(breed);
+      }
+    }
   }
 
   Future<void> _fetchCattle() async {
@@ -152,224 +143,198 @@ class _AnimalList2State extends State<AnimalList2> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
 
-    return FutureBuilder<void>(
-      future: _breedsFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Container(
-            color: Colors.white,
-            child: Center(child: CircularProgressIndicator()),
-          );
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else {
-          return Scaffold(
-            backgroundColor: Colors.white,
-            appBar: AppBar(
-              iconTheme: const IconThemeData(color: Colors.black),
-              title: Text(
-                '${currentLocalization[widget.animalType] ?? widget.animalType} - ${currentLocalization[widget.section] ?? widget.section}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        iconTheme: const IconThemeData(color: Colors.black),
+        title: Text(
+          '${currentLocalization[widget.animalType] ?? widget.animalType} - ${currentLocalization[widget.section] ?? widget.section}',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            fontSize: 20,
+          ),
+          textAlign: TextAlign.start,
+        ),
+        backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
+        leading: IconButton(
+          color: Colors.black,
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        actions: [
+          // Filter Dropdown on AppBar
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: DropdownButton<String>(
+              value: _selectedBreed,
+              hint: Text(
+                _selectedBreed ?? currentLocalization['all'] ?? 'All',
+                style: TextStyle(
                   color: Colors.black,
-                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
-                textAlign: TextAlign.start,
               ),
-              backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
-              leading: IconButton(
-                color: Colors.black,
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-              actions: [
-                // Filter Dropdown on AppBar
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: DropdownButton<String>(
-                    value: _selectedBreed,
-                    hint: Text(
-                      _selectedBreed ?? currentLocalization['all'] ?? 'All',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
+              icon: const Icon(Icons.arrow_drop_down, color: Colors.black),
+              onChanged: (String? newValue) {
+                _filterByBreed(newValue);
+              },
+              items:
+                  breedList.map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(
+                        currentLocalization[value.toLowerCase()] ?? value,
+                        style: TextStyle(
+                          color:
+                              _selectedBreed == value
+                                  ? Colors.black
+                                  : Colors.black,
+                          fontWeight:
+                              _selectedBreed == value
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                        ),
                       ),
-                    ),
-                    icon: const Icon(
-                      Icons.arrow_drop_down,
-                      color: Colors.black,
-                    ),
-                    onChanged: (String? newValue) {
-                      _filterByBreed(newValue);
-                    },
-                    items:
-                        breedList.map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(
-                              currentLocalization[value.toLowerCase()] ?? value,
-                              style: TextStyle(
-                                color:
-                                    _selectedBreed == value
-                                        ? Colors.black
-                                        : Colors.black,
-                                fontWeight:
-                                    _selectedBreed == value
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                  ),
-                ),
-              ],
+                    );
+                  }).toList(),
             ),
-            body: Column(
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Search bar with reduced height and border
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
               children: [
-                // Search bar with reduced height and border
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          decoration: InputDecoration(
-                            labelText:
-                                currentLocalization['Search Cattle'] ??
-                                'Search Cattle',
-                            hintText:
-                                currentLocalization['RF ID'] ??
-                                'Filter by Cattle ID',
-                            prefixIcon: const Icon(Icons.search),
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 10,
-                            ),
-                            // Reduced height
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: Colors.black38,
-                                width: 1,
-                              ), // Border
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: Colors.black38,
-                                width: 1,
-                              ),
-                            ),
-                          ),
-                          onChanged: (value) {
-                            _filterCattle();
-                          },
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: _clearSearch,
-                      ),
-                    ],
-                  ),
-                ),
-                // Cattle List
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: filteredCattle.length,
-                    itemBuilder: (context, index) {
-                      final cattleInfo = filteredCattle[index];
-                      return GestureDetector(
-                        onTap: () => _viewCattleDetail(cattleInfo),
-                        child: Card(
-                          margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                          color: Colors.white,
-                          elevation: 1,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                            side: const BorderSide(
-                              color: Colors.white,
-                              width: 3,
-                            ),
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(1),
-                            ),
-                            child: ListTile(
-                              leading: Padding(
-                                padding: const EdgeInsets.all(5),
-                                child: //cattleInfo.sex == 'Female'?
-                                    Container(
-                                  margin: const EdgeInsets.fromLTRB(0, 1, 0, 1),
-                                  foregroundDecoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(50),
-                                    color: Color.fromRGBO(2, 48, 32, 1.0),
-                                  ),
-                                  clipBehavior: Clip.hardEdge,
-                                  child: Image.asset(
-                                    'asset/${cattleInfo.state}.png',
-                                    fit: BoxFit.contain,
-                                    width: 70,
-                                    height: 70,
-                                  ),
-                                ),
-                              ),
-                              title: Text(
-                                "${currentLocalization['RF ID'] ?? 'Cattle ID'}: ${cattleInfo.rfid}",
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "${currentLocalization['breed'] ?? 'Breed'}: ${currentLocalization[cattleInfo.breed?.toLowerCase()] ?? ''}",
-                                  ),
-                                  Text(
-                                    "${currentLocalization['sex'] ?? 'Sex'}: ${currentLocalization[cattleInfo.sex?.toLowerCase()] ?? ''}",
-                                  ),
-                                ],
-                              ),
-                              trailing: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  (cattleInfo.nickname != null)
-                                      ? Text(
-                                        currentLocalization['cattle_name'] ??
-                                            'Name',
-                                      )
-                                      : Text(""),
-                                  Text(
-                                    cattleInfo.nickname ?? '',
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      labelText:
+                          currentLocalization['Search Cattle'] ??
+                          'Search Cattle',
+                      hintText:
+                          currentLocalization['RF ID'] ?? 'Filter by Cattle ID',
+                      prefixIcon: const Icon(Icons.search),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                      // Reduced height
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Colors.black38,
+                          width: 1,
+                        ), // Border
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Colors.black38,
+                          width: 1,
                         ),
-                      );
+                      ),
+                    ),
+                    onChanged: (value) {
+                      _filterCattle();
                     },
                   ),
                 ),
+                IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: _clearSearch,
+                ),
               ],
             ),
-          );
-        }
-      },
+          ),
+          // Cattle List
+          Expanded(
+            child: ListView.builder(
+              itemCount: filteredCattle.length,
+              itemBuilder: (context, index) {
+                final cattleInfo = filteredCattle[index];
+                return GestureDetector(
+                  onTap: () => _viewCattleDetail(cattleInfo),
+                  child: Card(
+                    margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                    color: Colors.white,
+                    elevation: 1,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      side: const BorderSide(color: Colors.white, width: 3),
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(1),
+                      ),
+                      child: ListTile(
+                        leading: Padding(
+                          padding: const EdgeInsets.all(5),
+                          child: //cattleInfo.sex == 'Female'?
+                              Container(
+                            margin: const EdgeInsets.fromLTRB(0, 1, 0, 1),
+                            foregroundDecoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(50),
+                              color: Color.fromRGBO(2, 48, 32, 1.0),
+                            ),
+                            clipBehavior: Clip.hardEdge,
+                            child: Image.asset(
+                              'asset/${cattleInfo.state}.png',
+                              fit: BoxFit.contain,
+                              width: 70,
+                              height: 70,
+                            ),
+                          ),
+                        ),
+                        title: Text(
+                          "${currentLocalization['RF ID'] ?? 'Cattle ID'}: ${cattleInfo.rfid}",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "${currentLocalization['breed'] ?? 'Breed'}: ${currentLocalization[cattleInfo.breed?.toLowerCase()] ?? ''}",
+                            ),
+                            Text(
+                              "${currentLocalization['sex'] ?? 'Sex'}: ${currentLocalization[cattleInfo.sex?.toLowerCase()] ?? ''}",
+                            ),
+                          ],
+                        ),
+                        trailing: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            (cattleInfo.nickname != null)
+                                ? Text(
+                                  currentLocalization['cattle_name'] ?? 'Name',
+                                )
+                                : Text(""),
+                            Text(
+                              cattleInfo.nickname ?? '',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

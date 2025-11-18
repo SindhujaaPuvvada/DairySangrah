@@ -7,7 +7,7 @@ import 'package:farm_expense_mangement_app/screens/cattle/newcattle.dart';
 import 'package:provider/provider.dart';
 import '../../../main.dart';
 import '../wrappers/wrapperhome.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 class AnimalList1 extends StatefulWidget {
   const AnimalList1({super.key});
@@ -24,7 +24,7 @@ class _AnimalList1State extends State<AnimalList1>
   int dryCount = 0;
   int milkedCount = 0;
   int heiferCount = 0;
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   @override
@@ -74,7 +74,7 @@ class _AnimalList1State extends State<AnimalList1>
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(

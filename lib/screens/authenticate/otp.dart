@@ -1,7 +1,7 @@
 import 'package:farm_expense_mangement_app/screens/authenticate/authUtils.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/registerNewFarm.dart';
 import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
@@ -26,7 +26,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   //final AuthService _auth = AuthService();
   late String languageCode = 'en';
   final log = logger(OtpVerificationPage);
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
 
   @override
   void initState() {
@@ -59,7 +59,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     languageCode = Provider.of<AppData>(context).persistentVariable;
     //print(languageCode);
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(

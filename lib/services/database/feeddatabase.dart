@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
 import '../../models/feed.dart';
+import '../../shared/constants.dart';
 
 class DatabaseServicesForFeed {
   final String uid;

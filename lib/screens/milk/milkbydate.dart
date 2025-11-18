@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import '../../../main.dart';
 import '../../../models/milk.dart';
 import '../../../services/database/milkdatabase.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 class MilkByDatePage extends StatefulWidget {
   final DateTime? dateOfMilk;
@@ -19,7 +19,7 @@ class MilkByDatePage extends StatefulWidget {
 }
 
 class _MilkByDatePageState extends State<MilkByDatePage> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   final user = FirebaseAuth.instance.currentUser;
@@ -79,7 +79,7 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
@@ -275,7 +275,7 @@ class MilkDataRow extends StatefulWidget {
 }
 
 class _MilkDataRowState extends State<MilkDataRow> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
   void editDetail() {
     Navigator.push(
@@ -289,7 +289,7 @@ class _MilkDataRowState extends State<MilkDataRow> {
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
 
     String id = '';
     String idVal = '';
@@ -426,7 +426,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
   final uid = FirebaseAuth.instance.currentUser!.uid;
   late DatabaseForMilk db;
   late DatabaseForMilkByDate dbByDate;
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   double? milkInMorning;
@@ -466,7 +466,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
 
     String id = '';
     String idVal = '';

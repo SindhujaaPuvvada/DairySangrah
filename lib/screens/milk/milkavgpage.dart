@@ -10,9 +10,10 @@ import '../../../models/cattle.dart';
 import '../../../models/milk.dart';
 import '../../../services/database/cattledatabase.dart';
 import '../../../services/database/milkdatabase.dart';
+import '../../shared/constants.dart';
 import 'milkbydate.dart';
 import '../../../main.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 class AvgMilkPage extends StatefulWidget {
   final bool? fromNotification;
@@ -23,7 +24,7 @@ class AvgMilkPage extends StatefulWidget {
 }
 
 class _AvgMilkPageState extends State<AvgMilkPage> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   final user = FirebaseAuth.instance.currentUser;
@@ -96,7 +97,7 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
 
     if (widget.fromNotification != null && widget.fromNotification == true) {
       return AddMilkDataPage(
@@ -209,7 +210,7 @@ class AddMilkDataPage extends StatefulWidget {
 }
 
 class _AddMilkDataPageState extends State<AddMilkDataPage> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   final user = FirebaseAuth.instance.currentUser;
@@ -290,7 +291,7 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
 
     for (var entryType in milkEntryTypes) {
       milkEntryOptsMap[entryType] = currentLocalization[entryType] ?? entryType;
@@ -544,7 +545,7 @@ class MilkDataRowByDate extends StatefulWidget {
 }
 
 class _MilkDataRowByDateState extends State<MilkDataRowByDate> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
   void viewMilkByDate() {
     Navigator.push(
@@ -560,7 +561,7 @@ class _MilkDataRowByDateState extends State<MilkDataRowByDate> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
 
     return GestureDetector(
       onTap: () {

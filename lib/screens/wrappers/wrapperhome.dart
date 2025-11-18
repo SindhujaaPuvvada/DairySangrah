@@ -1,5 +1,5 @@
 import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -22,9 +22,9 @@ class LanguagePopup {
   static void showLanguageOptions(BuildContext context) {
     var languageCode =
         Provider.of<AppData>(context, listen: false).persistentVariable;
-    Map<String, String> currentLocalization = {};
+    Map<String, dynamic> currentLocalization = {};
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
 
     showDialog(
       context: context,

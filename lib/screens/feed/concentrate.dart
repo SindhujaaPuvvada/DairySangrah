@@ -5,7 +5,7 @@ import '../../models/feed.dart';
 import 'feedpage.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 class ConcentratePage extends StatefulWidget {
   const ConcentratePage({super.key});
@@ -31,7 +31,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
 
   String _selectedType = 'Homemade'; // Default value
   String _selectedUnit = 'Kg';
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late Map<String, String> sourceMap;
   late Map<String, String> unitMap;
   late String languageCode = 'en';
@@ -79,7 +79,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
 
     sourceMap = {
       'Purchased': currentLocalization['purchased'] ?? 'Purchased',

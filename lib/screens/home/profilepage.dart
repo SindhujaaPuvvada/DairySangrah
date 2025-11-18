@@ -4,12 +4,13 @@ import 'package:farm_expense_mangement_app/logging.dart';
 import 'package:farm_expense_mangement_app/main.dart';
 import 'package:farm_expense_mangement_app/models/user.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/language.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import '../../services/database/userdatabase.dart';
+import '../../shared/constants.dart';
 import '../authenticate/authUtils.dart';
 import '../wrappers/wrapperhome.dart';
 
@@ -21,12 +22,12 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    Map<String, String> currentLocalization = {};
+    Map<String, dynamic> currentLocalization = {};
     String languageCode = 'en';
 
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
 
     return AppBar(
       leading: BackButton(
@@ -248,7 +249,7 @@ class ProfilePage extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
   late String appVersion;
   late String appBuildNumber;
@@ -282,7 +283,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
 
     return FutureBuilder(
       future: _futureController,
@@ -555,7 +556,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   final user = FirebaseAuth.instance.currentUser;
   final uid = FirebaseAuth.instance.currentUser!.uid;
 
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -586,7 +587,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
 
     return Scaffold(
       appBar: AppBar(

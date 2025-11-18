@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
 import '../../services/database/notificationdatabase.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 class NotificationAppBar extends StatelessWidget
     implements PreferredSizeWidget {
@@ -13,12 +13,12 @@ class NotificationAppBar extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    Map<String, String> currentLocalization = {};
+    Map<String, dynamic> currentLocalization = {};
     String languageCode = 'en';
 
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
 
     return AppBar(
       leading: BackButton(
@@ -52,7 +52,7 @@ class AlertNotificationsPage extends StatefulWidget {
 }
 
 class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   List<Map<String, String>> notifications = [];
@@ -119,7 +119,7 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
 
     String localizeSentence(String sentence) {
       List<String> parts = sentence.split(' ');

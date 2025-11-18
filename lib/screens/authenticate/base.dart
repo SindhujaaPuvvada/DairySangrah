@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/phoneno.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 import 'package:provider/provider.dart';
 import 'package:farm_expense_mangement_app/main.dart';
 
@@ -15,7 +15,7 @@ class DairyMitraRegistrationPage extends StatefulWidget {
 class _DairyMitraRegistrationPageState
     extends State<DairyMitraRegistrationPage> {
   String? selectedOption;
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   @override
@@ -23,7 +23,7 @@ class _DairyMitraRegistrationPageState
     languageCode = Provider.of<AppData>(context).persistentVariable;
     //print(languageCode);
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
     //print(currentLocalization["Register a new farm"]);
     return Scaffold(
       appBar: AppBar(

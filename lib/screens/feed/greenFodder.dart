@@ -5,7 +5,7 @@ import 'feedUtils.dart';
 import 'feedpage.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 class GreenFodderPage extends StatefulWidget {
   const GreenFodderPage({super.key});
@@ -41,7 +41,7 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
   late String _selectedSource = 'Purchased';
   bool _isCustomType = false;
   String _selectedUnit = 'Kg';
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
   late Map<String, String> typeMap;
   late Map<String, String> sourceMap;
@@ -66,7 +66,7 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
     typeMap = {
       'Maize': currentLocalization['Maize'] ?? 'Maize',
       'Barley': currentLocalization['Barley'] ?? 'Barley',

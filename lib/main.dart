@@ -3,6 +3,8 @@ import 'package:farm_expense_mangement_app/screens/authenticate/authentication.d
 import 'package:farm_expense_mangement_app/screens/onboarding/onboard.dart';
 import 'package:farm_expense_mangement_app/screens/onboarding/onboardUtils.dart';
 import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
+import 'package:farm_expense_mangement_app/services/breedService.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +38,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await NotificationsApi().initNotifications();
+  await Localization().init();
+  await BreedService().init();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 

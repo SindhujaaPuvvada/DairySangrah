@@ -1,6 +1,6 @@
 import 'package:farm_expense_mangement_app/screens/feed/feedpage.dart';
 //import 'package:farm_expense_mangement_app/screens/cattle/animallist1.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
@@ -67,21 +67,21 @@ class HomePage extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   @override
   void initState() {
     super.initState();
     setState(() {
-      currentLocalization = langFileMap['en']!;
+      currentLocalization = Localization().translations['en']!;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
     //String appMode = Provider.of<AppData>(context).appMode;
     Color totalCowsColor = const Color.fromRGBO(
       224,

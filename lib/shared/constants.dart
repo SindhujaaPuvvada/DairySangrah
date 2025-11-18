@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import '../screens/home/localisations_en.dart';
-import '../screens/home/localisations_hindi.dart';
-import '../screens/home/localisations_punjabi.dart';
-import '../screens/home/localisations_telugu.dart';
 
 const textInputDecoration = InputDecoration(
   fillColor: Colors.white,
@@ -37,12 +33,14 @@ const langCodeMap = {
   'te': 'Telugu',
 };
 
-const langFileMap = {
+/*const langFileMap = {
   'en': LocalizationEn.translations,
   'hi': LocalizationHi.translations,
   'pa': LocalizationPun.translations,
   'te': LocalizationTe.translations,
-};
+};*/
+
+const langCodes = ['en', 'hi', 'pa', 'te'];
 
 /*const cowBreed = [
   'select',

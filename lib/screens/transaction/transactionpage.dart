@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'expenses.dart';
 import 'income.dart';
 import '../../main.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 class TransactionPage extends StatefulWidget {
   final bool showIncome; // New parameter
@@ -20,7 +20,7 @@ class TransactionPage extends StatefulWidget {
 }
 
 class _TransactionPageState extends State<TransactionPage> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
   final user = FirebaseAuth.instance.currentUser;
   final uid = FirebaseAuth.instance.currentUser!.uid;
@@ -93,7 +93,7 @@ class _TransactionPageState extends State<TransactionPage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
       appBar: AppBar(
@@ -305,13 +305,13 @@ class ListTileForSale extends StatefulWidget {
 }
 
 class _ListTileForSaleState extends State<ListTileForSale> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
     return ListView.builder(
       itemCount: widget.data.length,
       itemBuilder: (context, index) {
@@ -373,13 +373,13 @@ class ListTileForExpense extends StatefulWidget {
 }
 
 class _ListTileForExpenseState extends State<ListTileForExpense> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
     return ListView.builder(
       itemCount: widget.data.length,
       itemBuilder: (context, index) {
@@ -434,7 +434,7 @@ class _ListTileForExpenseState extends State<ListTileForExpense> {
 }
 
 class TotalTransactionPage extends StatelessWidget {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   final DateTime? selectedStartDate;
@@ -454,7 +454,7 @@ class TotalTransactionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
     // Calculate total income
     final totalIncome = incomeTransactions
         .where(

@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 //import 'package:farm_expense_mangement_app/services/auth.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/otp.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 import 'package:provider/provider.dart';
 import 'package:farm_expense_mangement_app/main.dart';
 
@@ -17,11 +17,11 @@ class SignUpPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Map<String, String> currentLocalization = {};
+    Map<String, dynamic> currentLocalization = {};
     String languageCode = 'en';
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(

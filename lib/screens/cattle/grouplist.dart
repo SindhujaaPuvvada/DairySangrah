@@ -7,7 +7,7 @@ import '../../main.dart';
 import '../../models/cattle.dart';
 import '../../models/cattlegroups.dart';
 import '../../services/database/cattledatabase.dart';
-import '../../shared/constants.dart';
+import '../../services/localizationService.dart';
 import '../wrappers/wrapperhome.dart';
 import 'animallist2.dart';
 import 'newcattle.dart';
@@ -23,7 +23,7 @@ class GroupList extends StatefulWidget {
 class _GroupListState extends State<GroupList>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   final user = FirebaseAuth.instance.currentUser;
@@ -105,7 +105,7 @@ class _GroupListState extends State<GroupList>
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(

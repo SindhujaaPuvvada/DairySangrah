@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../main.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 import '../../models/cattle.dart';
 import '../../services/breedService.dart';
 import 'grouplist.dart';
@@ -18,7 +18,7 @@ class AddNewCattleGroup extends StatefulWidget {
 }
 
 class _AddNewCattleGroupState extends State<AddNewCattleGroup> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   final _formKey = GlobalKey<FormState>();
@@ -48,7 +48,8 @@ class _AddNewCattleGroupState extends State<AddNewCattleGroup> {
     super.initState();
     cgrpDB = DatabaseServicesForCattleGroups(uid);
     cattleDb = DatabaseServicesForCattle(uid);
-    _getBreeds();
+    cowBreed = BreedService().cowBreeds;
+    buffaloBreed = BreedService().buffaloBreeds;
     _fetchCattle();
   }
 
@@ -64,14 +65,6 @@ class _AddNewCattleGroupState extends State<AddNewCattleGroup> {
     setState(() {
       allCattle =
           snapshot.docs.map((doc) => Cattle.fromFireStore(doc, null)).toList();
-    });
-  }
-
-  Future<void> _getBreeds() async {
-    var totBreeds = await BreedService().getBreeds();
-    setState(() {
-      cowBreed = totBreeds[0];
-      buffaloBreed = totBreeds[1];
     });
   }
 
@@ -96,7 +89,7 @@ class _AddNewCattleGroupState extends State<AddNewCattleGroup> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]!;
 
     Map<String, String> typeMap = {
       'Cow': currentLocalization['Cow']!,
