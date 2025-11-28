@@ -74,14 +74,14 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     setState(() {
-      currentLocalization = Localization().translations['en']!;
+      currentLocalization = Localization().translations['en'] ?? {};
     });
   }
 
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode] ?? {};
     //String appMode = Provider.of<AppData>(context).appMode;
     Color totalCowsColor = const Color.fromRGBO(
       224,

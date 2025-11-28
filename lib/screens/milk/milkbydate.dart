@@ -79,7 +79,7 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
@@ -289,7 +289,7 @@ class _MilkDataRowState extends State<MilkDataRow> {
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     String id = '';
     String idVal = '';
@@ -466,7 +466,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     String id = '';
     String idVal = '';

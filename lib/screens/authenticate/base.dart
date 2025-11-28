@@ -23,7 +23,7 @@ class _DairyMitraRegistrationPageState
     languageCode = Provider.of<AppData>(context).persistentVariable;
     //print(languageCode);
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
     //print(currentLocalization["Register a new farm"]);
     return Scaffold(
       appBar: AppBar(
@@ -46,7 +46,7 @@ class _DairyMitraRegistrationPageState
             // "DairyMitra Registration" text
             Text(
               currentLocalization['Dairy Sangrah Registration'] ?? "",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,),
               textAlign: TextAlign.center,
             ),
 
@@ -58,8 +58,9 @@ class _DairyMitraRegistrationPageState
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
               textAlign: TextAlign.center,
             ),
-
-            SizedBox(height: 40), // Space before the buttons
+            SizedBox(height: 20),
+            //Center(child: Image.asset('asset/app.jpeg',)),
+            SizedBox(height: 20), // Space before the buttons
             // "Register a New Farm" button
             GestureDetector(
               onTap: () {

@@ -24,7 +24,7 @@ class LanguagePopup {
         Provider.of<AppData>(context, listen: false).persistentVariable;
     Map<String, dynamic> currentLocalization = {};
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     showDialog(
       context: context,
@@ -202,6 +202,7 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               FloatingActionButton(
+                heroTag: 'profile_tag',
                 onPressed: () {
                   profile(context);
                 },
@@ -214,6 +215,7 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
                 ),
               ),
               FloatingActionButton(
+                heroTag: 'language_tag',
                 onPressed: () {
                   LanguagePopup.showLanguageOptions(context);
                 },
@@ -226,6 +228,7 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
                 ),
               ),
               FloatingActionButton(
+                heroTag: 'home_tag',
                 onPressed: () {
                   home(context);
                 },
@@ -238,6 +241,7 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
                 ),
               ),
               FloatingActionButton(
+                heroTag: 'notifications_tag',
                 onPressed: () {
                   notifications(context);
                 },
@@ -250,6 +254,7 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
                 ),
               ),
               FloatingActionButton(
+                heroTag: 'reports_tag',
                 onPressed: () {
                   reports(context);
                 },

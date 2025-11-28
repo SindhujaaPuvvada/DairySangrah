@@ -74,7 +74,7 @@ class _AnimalList1State extends State<AnimalList1>
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(

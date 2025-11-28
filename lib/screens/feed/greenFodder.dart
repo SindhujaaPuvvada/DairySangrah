@@ -66,7 +66,7 @@ class _GreenFodderPageState extends State<GreenFodderPage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
     typeMap = {
       'Maize': currentLocalization['Maize'] ?? 'Maize',
       'Barley': currentLocalization['Barley'] ?? 'Barley',

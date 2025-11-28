@@ -110,7 +110,7 @@ class _AddExpensesState extends State<AddExpenses> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     Map<String, String> categoryMap = {
       'Feed': currentLocalization['feed']!,
@@ -252,10 +252,10 @@ class _AddExpensesState extends State<AddExpenses> {
                                     10,
                                     20,
                                   ),
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.vertical,
-                                    child: SizedBox(
-                                      height: 200,
+                                  child: SizedBox(
+                                    height: 200,
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.vertical,
                                       child: Column(
                                         mainAxisSize: MainAxisSize.max,
                                         mainAxisAlignment:

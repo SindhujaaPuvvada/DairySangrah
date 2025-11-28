@@ -9,16 +9,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../screens/authenticate/language.dart';
 import '../screens/milk/milkavgpage.dart';
 
+Future<void> handleBackgroundMessage(RemoteMessage message) async {
+  NotificationService().showNotification(message);
+}
+
 class NotificationsApi {
   final _firebaseMessaging = FirebaseMessaging.instance;
-  final _androidChannel = const AndroidNotificationChannel(
-    'high_importance_channel',
-    'High_importance_notifications',
-    description: 'This channel is used for important notifications',
-    importance: Importance.defaultImportance,
-  );
-  final _localNotifications = FlutterLocalNotificationsPlugin();
-
   Future<void> initNotifications() async {
     NotificationSettings notificationsSettings =
         await _firebaseMessaging.requestPermission();
@@ -49,7 +45,7 @@ class NotificationsApi {
                 opt1: 'Proceed',
                 onPressedOpt1: () {
                   Navigator.pop(context);
-                  _handleNotificationTap(message);
+                  NotificationService()._handleNotificationTap(message);
                 },
                 opt2: 'Not Now',
                 onPressedOpt2: () => Navigator.pop(context),
@@ -67,17 +63,27 @@ class NotificationsApi {
     });
 
     _firebaseMessaging.getInitialMessage().then((RemoteMessage? message) {
-      _handleNotificationTap(message);
+      NotificationService()._handleNotificationTap(message);
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage? message) {
-      _handleNotificationTap(message);
+      NotificationService()._handleNotificationTap(message);
     });
   }
+}
 
-  Future<void> handleBackgroundMessage(RemoteMessage message) async {
-    showNotification(message);
-  }
+class NotificationService {
+  static final NotificationService _instance = NotificationService._internal();
+  factory NotificationService() => _instance;
+  NotificationService._internal(); // private constructor
+
+  final _localNotifications = FlutterLocalNotificationsPlugin();
+  final _androidChannel = const AndroidNotificationChannel(
+    'high_importance_channel',
+    'High_importance_notifications',
+    description: 'This channel is used for important notifications',
+    importance: Importance.defaultImportance,
+  );
 
   void showNotification(RemoteMessage message) {
     final notification = message.notification;

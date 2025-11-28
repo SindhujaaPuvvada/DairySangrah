@@ -38,7 +38,7 @@ class _RegisterFarmState extends State<RegisterFarm> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     return MaterialApp(
       home: Scaffold(

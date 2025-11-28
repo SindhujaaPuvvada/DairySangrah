@@ -105,7 +105,7 @@ class _GroupListState extends State<GroupList>
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode] ?? {};
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(
@@ -194,8 +194,8 @@ class _GroupListState extends State<GroupList>
               final grp = groups[index];
               var grpName =
                   (grp.breed == null)
-                      ? currentLocalization[grp.state]
-                      : '${currentLocalization[grp.state]}-${currentLocalization[grp.breed] ?? grp.breed}';
+                      ? currentLocalization[grp.state] ?? grp.state
+                      : '${currentLocalization[grp.state] ?? grp.state}-${currentLocalization[grp.breed] ?? grp.breed}';
               String cattleCount = fetchCattleCount(
                 grp.type,
                 grp.state,
@@ -227,7 +227,7 @@ class _GroupListState extends State<GroupList>
                       ),
                     ),
                     subtitle: Text(
-                      "${currentLocalization['grpid']}: ${grp.grpId}\n${currentLocalization['cattle_count']}: $cattleCount",
+                      "${currentLocalization['grpid'] ?? 'Group Id'}: ${grp.grpId}\n${currentLocalization['cattle_count'] ?? 'Cattle count'}: $cattleCount",
                       style: TextStyle(color: Colors.black, fontSize: 14),
                     ),
                     tileColor: Color.fromRGBO(177, 243, 238, 0.4),
@@ -248,7 +248,9 @@ class _GroupListState extends State<GroupList>
                       ),
                     ),
                     trailing: Tooltip(
-                      message: currentLocalization['add_new_cattle'],
+                      message:
+                          currentLocalization['add_new_cattle'] ??
+                          'Add New Cattle',
                       preferBelow: true,
                       textAlign: TextAlign.right,
                       textStyle: TextStyle(

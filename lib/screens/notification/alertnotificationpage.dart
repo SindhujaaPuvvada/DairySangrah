@@ -18,7 +18,7 @@ class NotificationAppBar extends StatelessWidget
 
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     return AppBar(
       leading: BackButton(
@@ -119,7 +119,7 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     String localizeSentence(String sentence) {
       List<String> parts = sentence.split(' ');

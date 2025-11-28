@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/phoneno.dart';
+import 'package:farm_expense_mangement_app/screens/authenticate/language.dart' as first_screen;
 import '../../logging.dart';
 import '../../main.dart';
 import 'package:provider/provider.dart';
@@ -59,7 +60,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     languageCode = Provider.of<AppData>(context).persistentVariable;
     //print(languageCode);
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -215,7 +216,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                                     Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => MyApp(),
+                                        builder: (context) => first_screen.SignUpPage(),
                                       ),
                                     );
                                   }

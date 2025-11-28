@@ -89,19 +89,19 @@ class _AddNewCattleGroupState extends State<AddNewCattleGroup> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     Map<String, String> typeMap = {
-      'Cow': currentLocalization['Cow']!,
-      'Buffalo': currentLocalization['Buffalo']!,
+      'Cow': currentLocalization['Cow'] ?? 'Cow',
+      'Buffalo': currentLocalization['Buffalo'] ?? 'Buffalo',
     };
 
     Map<String, String> statusMap = {
-      'Milked': currentLocalization['Milked']!,
-      'Heifer': currentLocalization['Heifer']!,
-      'Calf': currentLocalization['Calf']!,
-      'Dry': currentLocalization['Dry']!,
-      'Adult Male': currentLocalization['Adult Male']!,
+      'Milked': currentLocalization['Milked'] ?? 'Milked',
+      'Heifer': currentLocalization['Heifer'] ?? 'Heifer',
+      'Calf': currentLocalization['Calf'] ?? 'Calf',
+      'Dry': currentLocalization['Dry'] ?? 'Dry',
+      'Adult Male': currentLocalization['Adult Male'] ?? 'Adult Male',
     };
 
     Map<String, String> cowBreedMap = {};

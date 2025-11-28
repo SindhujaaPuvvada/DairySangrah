@@ -5,8 +5,10 @@ import 'package:farm_expense_mangement_app/screens/onboarding/onboardUtils.dart'
 import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
 import 'package:farm_expense_mangement_app/services/breedService.dart';
 import 'package:farm_expense_mangement_app/services/localizationService.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -37,15 +39,35 @@ class AppData with ChangeNotifier {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  await NotificationsApi().initNotifications();
-  await Localization().init();
-  await BreedService().init();
+  List<Future<void>> futures = [];
+  futures.add(Localization().init());
+  /*if (kDebugMode) {
+    await FirebaseAppCheck.instance.activate(
+      providerAndroid: AndroidDebugProvider(
+        debugToken: '3C62A0C0-28DB-4D51-8E8F-71DDC4A7D89E',
+      ), // for development
+      //providerAndroid: AndroidPlayIntegrityProvider(), // for production
+    );
+  } else {
+    await FirebaseAppCheck.instance.activate(
+      //providerAndroid: AndroidDebugProvider(debugToken: '3C62A0C0-28DB-4D51-8E8F-71DDC4A7D89E') // for development
+      providerAndroid: AndroidPlayIntegrityProvider(), // for production
+    );
+  }
+  final t = await FirebaseAppCheck.instance.getToken();
+  print("DEBUG TOKEN: ${t}");*/
+
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   runApp(
     ChangeNotifierProvider(create: (context) => AppData(), child: MyApp()),
   );
+
+  futures.add(NotificationsApi().initNotifications());
+  futures.add(BreedService().init());
+  await Future.wait(futures);
+
 }
 
 class MyApp extends StatelessWidget {

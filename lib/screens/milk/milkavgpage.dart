@@ -97,7 +97,7 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     if (widget.fromNotification != null && widget.fromNotification == true) {
       return AddMilkDataPage(
@@ -291,7 +291,7 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     for (var entryType in milkEntryTypes) {
       milkEntryOptsMap[entryType] = currentLocalization[entryType] ?? entryType;
@@ -561,7 +561,7 @@ class _MilkDataRowByDateState extends State<MilkDataRowByDate> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     return GestureDetector(
       onTap: () {

@@ -21,6 +21,7 @@ class _SignUpPageState extends State<SignUpPage> {
           'Dairy Sangrah',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
+        automaticallyImplyLeading: false,
         centerTitle: true,
       ),
       body: Column(
@@ -36,7 +37,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     SizedBox(height: 8),
-
                     Text(
                       'Language',
                       style: TextStyle(
@@ -44,13 +44,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
-                    SizedBox(height: 8),
-
                     Center(child: Image.asset('asset/lang.jpeg')),
-
-                    SizedBox(height: 8),
-
                     // Language Options
                     languageOption('ENGLISH', 'en', 'ENGLISH'),
                     languageOption('हिन्दी', 'hi', 'हिन्दी'),
@@ -63,7 +57,7 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
           if (selectedLanguage != null)
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 35),
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

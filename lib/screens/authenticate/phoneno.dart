@@ -21,7 +21,7 @@ class SignUpPage extends StatelessWidget {
     String languageCode = 'en';
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(

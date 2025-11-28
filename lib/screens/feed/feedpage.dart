@@ -41,7 +41,7 @@ class _FeedState extends State<FeedPage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),

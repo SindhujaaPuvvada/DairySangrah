@@ -93,7 +93,7 @@ class _TransactionPageState extends State<TransactionPage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
       appBar: AppBar(
@@ -311,7 +311,7 @@ class _ListTileForSaleState extends State<ListTileForSale> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
     return ListView.builder(
       itemCount: widget.data.length,
       itemBuilder: (context, index) {
@@ -379,7 +379,7 @@ class _ListTileForExpenseState extends State<ListTileForExpense> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
     return ListView.builder(
       itemCount: widget.data.length,
       itemBuilder: (context, index) {
@@ -454,7 +454,7 @@ class TotalTransactionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
     // Calculate total income
     final totalIncome = incomeTransactions
         .where(

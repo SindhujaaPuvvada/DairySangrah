@@ -47,7 +47,7 @@ class _DryFodderPageState extends State<DryFodderPage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     typeMap = {
       'Wheat Straw': currentLocalization['Wheat Straw'] ?? 'Wheat Straw',

@@ -28,7 +28,7 @@ class ReportsAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     return AppBar(
       leading: BackButton(
@@ -86,7 +86,7 @@ class _ReportsPageState extends State<ReportsPage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     Map<String, String> reportTypesMap = {};
     for (var report in reportTypes) {
@@ -235,7 +235,15 @@ class _ReportsPageState extends State<ReportsPage> {
                                   width: 35,
                                   height: 35,
                                 ),
-                                Text(fileName, style: TextStyle(fontSize: 12)),
+                                Expanded(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      fileName,
+                                      style: TextStyle(fontSize: 12),
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                           ),

@@ -95,7 +95,7 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     Map<String, String> cowBreedMap = {};
     cowBreedMap['select'] = currentLocalization['select'] ?? 'select';

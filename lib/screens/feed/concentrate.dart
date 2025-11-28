@@ -79,7 +79,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     sourceMap = {
       'Purchased': currentLocalization['purchased'] ?? 'Purchased',

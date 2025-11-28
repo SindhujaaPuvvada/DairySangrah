@@ -27,7 +27,7 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     return AppBar(
       leading: BackButton(
@@ -99,24 +99,23 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                                       context,
                                     ).showSnackBar(snackBar);
                                   }
-                                  callDeleteFarmData().then((val) async {
-                                    isDeleting = false;
-                                    log.i(
-                                      'Completed Sucessfully!',
-                                      time: DateTime.now(),
+                                  await callDeleteFarmData();
+                                  isDeleting = false;
+                                  log.i(
+                                    'Completed Sucessfully!',
+                                    time: DateTime.now(),
+                                  );
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(
+                                      context,
+                                    ).hideCurrentSnackBar();
+                                    FirebaseAuth.instance.signOut();
+                                    Navigator.of(context).pushReplacement(
+                                      MaterialPageRoute(
+                                        builder: (context) => SignUpPage(),
+                                      ),
                                     );
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).hideCurrentSnackBar();
-                                      Navigator.of(context).pushAndRemoveUntil(
-                                        MaterialPageRoute(
-                                          builder: (context) => SignUpPage(),
-                                        ),
-                                        (Route<dynamic> route) => false,
-                                      );
-                                    }
-                                  });
+                                  }
                                 } catch (error) {
                                   log.e(
                                     'Encountered error',
@@ -283,7 +282,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     return FutureBuilder(
       future: _futureController,
@@ -352,179 +351,189 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 const SizedBox(height: 25),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12.0, 0, 12, 0),
-                  child: Container(
-                    color: Colors.blueGrey[100],
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(8.0, 18, 8, 18),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              const SizedBox(
-                                child: Icon(
-                                  Icons.home,
-                                  color: Color.fromRGBO(13, 166, 186, 1),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              SizedBox(
-                                width: 120,
-                                child: Text(
-                                  currentLocalization["Farm Name"] ?? '',
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                              ),
-                              const SizedBox(width: 40),
-                              Text(
-                                farmUser.farmName,
-                                style: const TextStyle(fontSize: 18),
-                              ),
-                            ],
-                          ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(12.0, 0, 12, 0),
+                          child: Container(
+                            color: Colors.blueGrey[100],
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(8.0, 18, 8, 18),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const SizedBox(
+                                        child: Icon(
+                                          Icons.home,
+                                          color: Color.fromRGBO(13, 166, 186, 1),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      SizedBox(
+                                        width: 120,
+                                        child: Text(
+                                          currentLocalization["Farm Name"] ?? '',
+                                          style: TextStyle(fontSize: 18),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 40),
+                                      Text(
+                                        farmUser.farmName,
+                                        style: const TextStyle(fontSize: 18),
+                                      ),
+                                    ],
+                                  ),
 
-                          // SizedBox(height: 20,),
-                          const SizedBox(height: 25),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.phone,
-                                color: Color.fromRGBO(13, 166, 186, 1),
+                                  // SizedBox(height: 20,),
+                                  const SizedBox(height: 25),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.phone,
+                                        color: Color.fromRGBO(13, 166, 186, 1),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      SizedBox(
+                                        width: 120,
+                                        child: Text(
+                                          currentLocalization["Phone No."] ?? '',
+                                          style: TextStyle(fontSize: 18),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 40),
+                                      Expanded(
+                                        child: Text(
+                                          "${farmUser.phoneNo}",
+                                          style: const TextStyle(fontSize: 18),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 25),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.location_pin,
+                                        color: Color.fromRGBO(13, 166, 186, 1),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      SizedBox(
+                                        width: 120,
+                                        child: Text(
+                                          currentLocalization["Farm Address"] ?? '',
+                                          style: TextStyle(fontSize: 18),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 40),
+                                      Expanded(
+                                        child: Text(
+                                          farmUser.location,
+                                          style: const TextStyle(fontSize: 18),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 25),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.language,
+                                        color: Color.fromRGBO(13, 166, 186, 1),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      SizedBox(
+                                        width: 120,
+                                        child: Text(
+                                          currentLocalization["Preferred Language"] ??
+                                              'Preferred Language',
+                                          style: TextStyle(fontSize: 18),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 40),
+                                      Expanded(
+                                        child: Text(
+                                          currentLocalization[langCodeMap[farmUser
+                                                  .chosenLanguage]] ??
+                                              farmUser.chosenLanguage,
+                                          style: const TextStyle(fontSize: 18),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 25),
+                                  /*Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.star,
+                                        color: Color.fromRGBO(13, 166, 186, 1),
+                                      ),
+                                      const SizedBox(
+                                        width: 16,
+                                      ),
+                                      SizedBox(
+                                          width: 120,
+                                          child: Text(
+                                            currentLocalization["App Mode"] ??
+                                                'App Mode',
+                                            style: TextStyle(fontSize: 18),
+                                          )),
+                                      const SizedBox(
+                                        width: 40,
+                                      ),
+                                      Expanded(
+                                          child: Text(
+                                        currentLocalization[farmUser.appMode] ??
+                                            farmUser.appMode,
+                                        style: const TextStyle(fontSize: 18),
+                                      )),
+                                    ],
+                                  ),*/
+                                ],
                               ),
-                              const SizedBox(width: 16),
-                              SizedBox(
-                                width: 120,
-                                child: Text(
-                                  currentLocalization["Phone No."] ?? '',
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                              ),
-                              const SizedBox(width: 40),
-                              Expanded(
-                                child: Text(
-                                  "${farmUser.phoneNo}",
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
-                          const SizedBox(height: 25),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.location_pin,
-                                color: Color.fromRGBO(13, 166, 186, 1),
-                              ),
-                              const SizedBox(width: 16),
-                              SizedBox(
-                                width: 120,
-                                child: Text(
-                                  currentLocalization["Farm Address"] ?? '',
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                              ),
-                              const SizedBox(width: 40),
-                              Expanded(
-                                child: Text(
-                                  farmUser.location,
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                              ),
-                            ],
+                        ),
+                        const SizedBox(height: 40),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromRGBO(13, 166, 186, 0.9),
+                            foregroundColor: Colors.white,
                           ),
-                          const SizedBox(height: 25),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.language,
-                                color: Color.fromRGBO(13, 166, 186, 1),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => ProfileEditPage(
+                                      farmUser: farmUser,
+                                      refresh: () {
+                                        setState(() {
+                                          final snapshot1 =
+                                              userDb.infoFromServer(uid)
+                                                  as AsyncSnapshot<
+                                                    DocumentSnapshot<
+                                                      Map<String, dynamic>
+                                                    >
+                                                  >;
+                                          farmUser = FarmUser.fromFireStore(
+                                            snapshot1.requireData,
+                                            null,
+                                          );
+                                        });
+                                      },
+                                    ),
                               ),
-                              const SizedBox(width: 16),
-                              SizedBox(
-                                width: 120,
-                                child: Text(
-                                  currentLocalization["Preferred Language"] ??
-                                      'Preferred Language',
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                              ),
-                              const SizedBox(width: 40),
-                              Expanded(
-                                child: Text(
-                                  currentLocalization[langCodeMap[farmUser
-                                      .chosenLanguage]]!,
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 25),
-                          /*Row(
-                            children: [
-                              const Icon(
-                                Icons.star,
-                                color: Color.fromRGBO(13, 166, 186, 1),
-                              ),
-                              const SizedBox(
-                                width: 16,
-                              ),
-                              SizedBox(
-                                  width: 120,
-                                  child: Text(
-                                    currentLocalization["App Mode"] ??
-                                        'App Mode',
-                                    style: TextStyle(fontSize: 18),
-                                  )),
-                              const SizedBox(
-                                width: 40,
-                              ),
-                              Expanded(
-                                  child: Text(
-                                currentLocalization[farmUser.appMode] ??
-                                    farmUser.appMode,
-                                style: const TextStyle(fontSize: 18),
-                              )),
-                            ],
-                          ),*/
-                        ],
-                      ),
+                            );
+                          },
+                          child: Text(currentLocalization['Edit Profile'] ?? ''),
+                        ),
+                        SizedBox(height: 20,),
+                      ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 40),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromRGBO(13, 166, 186, 0.9),
-                    foregroundColor: Colors.white,
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => ProfileEditPage(
-                              farmUser: farmUser,
-                              refresh: () {
-                                setState(() {
-                                  final snapshot1 =
-                                      userDb.infoFromServer(uid)
-                                          as AsyncSnapshot<
-                                            DocumentSnapshot<
-                                              Map<String, dynamic>
-                                            >
-                                          >;
-                                  farmUser = FarmUser.fromFireStore(
-                                    snapshot1.requireData,
-                                    null,
-                                  );
-                                });
-                              },
-                            ),
-                      ),
-                    );
-                  },
-                  child: Text(currentLocalization['Edit Profile'] ?? ''),
                 ),
               ],
             ),
@@ -587,7 +596,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     return Scaffold(
       appBar: AppBar(

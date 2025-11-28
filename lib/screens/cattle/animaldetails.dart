@@ -113,7 +113,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
     Widget buildWidget(CattleHistory event) {
       // String eventName = (event['name'] as String).toLowerCase();
       if (event.name == currentLocalization['abortion']) {
@@ -737,8 +737,8 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                       width: 115,
                                       child: Text(
                                         (_cattle.isPregnant)
-                                            ? currentLocalization['yes']!
-                                            : currentLocalization['no']!,
+                                            ? currentLocalization['yes']??'Yes'
+                                            : currentLocalization['no']??'No',
                                         style: const TextStyle(
                                           fontWeight: FontWeight.w600,
                                           color: Colors.white,
@@ -865,7 +865,7 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     var breedList = (widget.cattle.type == 'Cow') ? cowBreed : buffaloBreed;
 
@@ -1229,7 +1229,7 @@ class _AddEventPopupState extends State<AddEventPopup> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
