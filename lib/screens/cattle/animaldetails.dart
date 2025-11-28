@@ -9,8 +9,9 @@ import '../../../services/database/cattledatabase.dart';
 import 'package:farm_expense_mangement_app/models/history.dart';
 import 'package:farm_expense_mangement_app/services/database/cattlehistorydatabase.dart';
 import '../../../main.dart';
+import '../../services/breedService.dart';
 import '../notification/alertnotifications.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 import 'grouplist.dart';
 
@@ -23,7 +24,7 @@ class AnimalDetails extends StatefulWidget {
 }
 
 class _AnimalDetailsState extends State<AnimalDetails> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   final user = FirebaseAuth.instance.currentUser;
@@ -112,7 +113,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
     Widget buildWidget(CattleHistory event) {
       // String eventName = (event['name'] as String).toLowerCase();
       if (event.name == currentLocalization['abortion']) {
@@ -263,7 +264,12 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                     ),
                                   ),
                                   child: Padding(
-                                    padding: const EdgeInsets.fromLTRB(7,9,7,9),
+                                    padding: const EdgeInsets.fromLTRB(
+                                      7,
+                                      9,
+                                      7,
+                                      9,
+                                    ),
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceAround,
@@ -281,9 +287,8 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                             height: 60,
                                             alignment: Alignment.centerLeft,
                                             decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(
-                                                12,
-                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                             ),
                                             child: buildWidget(event),
                                           ),
@@ -291,7 +296,8 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                         Expanded(
                                           flex: 12,
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 " ${capitalizeFirstLetterOfEachWord(currentLocalization[event.name.toLowerCase()] ?? "")}",
@@ -303,13 +309,21 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                                   color: Colors.black,
                                                 ),
                                               ),
-                                              if (event.notes != '' && event.notes != null) ...[
+                                              if (event.notes != '' &&
+                                                  event.notes != null) ...[
                                                 Padding(
-                                                  padding: const EdgeInsets.fromLTRB(3,0,0,0),
+                                                  padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                        3,
+                                                        0,
+                                                        0,
+                                                        0,
+                                                      ),
                                                   child: Text(
                                                     "${(event.name == 'Insemination') ? currentLocalization['sire_info'] : ''} ${event.notes ?? ''}",
                                                     textAlign: TextAlign.left,
-                                                    overflow: TextOverflow.ellipsis,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                     style: const TextStyle(
                                                       fontSize: 12,
                                                       color: Colors.black87,
@@ -415,7 +429,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 110,
+                                  width: 115,
                                   child: Text(
                                     (_cattle.nickname == null)
                                         ? ''
@@ -451,7 +465,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 110,
+                                  width: 115,
                                   child: Text(
                                     (_cattle.dateOfBirth == null)
                                         ? ''
@@ -487,7 +501,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 100,
+                                  width: 115,
                                   child: Text(
                                     currentLocalization[_cattle.sex
                                             ?.toLowerCase()] ??
@@ -521,7 +535,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 100,
+                                  width: 115,
                                   child: Text(
                                     "${_cattle.weight}",
                                     style: const TextStyle(
@@ -553,7 +567,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 100,
+                                  width: 115,
                                   child: Text(
                                     currentLocalization[_cattle.breed
                                             ?.toLowerCase()] ??
@@ -587,7 +601,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 100,
+                                  width: 115,
                                   child: Text(
                                     currentLocalization[_cattle.state] ?? "",
                                     style: const TextStyle(
@@ -620,7 +634,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 100,
+                                  width: 115,
                                   child: Text(
                                     currentLocalization[_cattle.source
                                             ?.toLowerCase()] ??
@@ -654,7 +668,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 100,
+                                  width: 115,
                                   child: Text(
                                     _cattle.motherInfo ?? '',
                                     style: const TextStyle(
@@ -686,7 +700,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 100,
+                                  width: 115,
                                   child: Text(
                                     _cattle.fatherInfo ?? '',
                                     style: const TextStyle(
@@ -720,11 +734,11 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                       ),
                                     ),
                                     SizedBox(
-                                      width: 100,
+                                      width: 115,
                                       child: Text(
                                         (_cattle.isPregnant)
-                                            ? currentLocalization['yes']!
-                                            : currentLocalization['no']!,
+                                            ? currentLocalization['yes']??'Yes'
+                                            : currentLocalization['no']??'No',
                                         style: const TextStyle(
                                           fontWeight: FontWeight.w600,
                                           color: Colors.white,
@@ -764,7 +778,7 @@ class EditAnimalDetail extends StatefulWidget {
 }
 
 class _EditAnimalDetailState extends State<EditAnimalDetail> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameTextController = TextEditingController();
@@ -793,10 +807,14 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
 
   late final DatabaseServicesForCattle cattleDb;
 
+  late List<String> cowBreed;
+  late List<String> buffaloBreed;
+
   @override
   void initState() {
     super.initState();
-
+    cowBreed = BreedService().cowBreeds;
+    buffaloBreed = BreedService().buffaloBreeds;
     cattleDb = DatabaseServicesForCattle(uid);
     _nameTextController.text = widget.cattle.nickname ?? '';
     _selectedBreed = widget.cattle.breed;
@@ -804,7 +822,7 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
     _selectedSource = widget.cattle.source;
     _selectedGender = widget.cattle.sex;
     _birthDateController.text =
-        '${widget.cattle.dateOfBirth?.year}-${widget.cattle.dateOfBirth?.month}-${widget.cattle.dateOfBirth?.day}';
+        '${widget.cattle.dateOfBirth?.year ?? '0000'}-${widget.cattle.dateOfBirth?.month ?? '00'}-${widget.cattle.dateOfBirth?.day ?? '00'}';
     _motherInfoTextController.text = widget.cattle.motherInfo ?? '';
     _fatherInfoTextController.text = widget.cattle.fatherInfo ?? '';
   }
@@ -847,7 +865,7 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     var breedList = (widget.cattle.type == 'Cow') ? cowBreed : buffaloBreed;
 
@@ -1036,7 +1054,7 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
                         breedList.map((String breed) {
                           return DropdownMenuItem<String>(
                             value: breed,
-                            child: Text(currentLocalization[breed] ?? 'breed'),
+                            child: Text(currentLocalization[breed] ?? breed),
                           );
                         }).toList(),
                     onChanged: (value) {
@@ -1153,7 +1171,7 @@ class _AddEventPopupState extends State<AddEventPopup> {
   List<String> eventOptions = [];
   DateTime? selectedDate;
   late AlertNotifications alerts;
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
   TextEditingController notesTextController = TextEditingController();
 
@@ -1211,7 +1229,7 @@ class _AddEventPopupState extends State<AddEventPopup> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),

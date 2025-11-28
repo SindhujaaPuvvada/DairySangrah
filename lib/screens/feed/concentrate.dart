@@ -5,7 +5,7 @@ import '../../models/feed.dart';
 import 'feedpage.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 class ConcentratePage extends StatefulWidget {
   const ConcentratePage({super.key});
@@ -18,8 +18,9 @@ class _ConcentratePageState extends State<ConcentratePage> {
   // TextEditingControllers to handle input
   final TextEditingController _quantityController =
       TextEditingController.fromValue(TextEditingValue(text: '0.0'));
-  final TextEditingController _rateController =
-      TextEditingController.fromValue(TextEditingValue(text: '0.0'));
+  final TextEditingController _rateController = TextEditingController.fromValue(
+    TextEditingValue(text: '0.0'),
+  );
   final TextEditingController _priceController =
       TextEditingController.fromValue(TextEditingValue(text: '0.0'));
   final TextEditingController _customHomemadeController =
@@ -30,7 +31,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
 
   String _selectedType = 'Homemade'; // Default value
   String _selectedUnit = 'Kg';
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late Map<String, String> sourceMap;
   late Map<String, String> unitMap;
   late String languageCode = 'en';
@@ -59,8 +60,9 @@ class _ConcentratePageState extends State<ConcentratePage> {
   void initState() {
     super.initState();
     for (var ing in _homemadeIngredients) {
-      TextEditingController txtCntrlr =
-          TextEditingController.fromValue(TextEditingValue(text: '0.0'));
+      TextEditingController txtCntrlr = TextEditingController.fromValue(
+        TextEditingValue(text: '0.0'),
+      );
       _ingControllers[ing] = txtCntrlr;
     }
   }
@@ -77,7 +79,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     sourceMap = {
       'Purchased': currentLocalization['purchased'] ?? 'Purchased',
@@ -86,7 +88,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
 
     unitMap = {
       'Kg': currentLocalization['Kg'] ?? 'Kg',
-      'Quintal': currentLocalization['Quintal'] ?? 'Quintal'
+      'Quintal': currentLocalization['Quintal'] ?? 'Quintal',
     };
 
     return Scaffold(
@@ -99,9 +101,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
         ),
         title: Text(
           currentLocalization['Concentrate'] ?? "",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color.fromRGBO(4, 142, 161, 1.0),
       ),
@@ -133,27 +133,32 @@ class _ConcentratePageState extends State<ConcentratePage> {
               ),
               const SizedBox(height: 20),
               if (_selectedType == 'Homemade') ...[
-                FeedUtils.buildTextField(_customHomemadeController,
-                    currentLocalization['Enter Custom Homemade Type'] ?? ""),
+                FeedUtils.buildTextField(
+                  _customHomemadeController,
+                  currentLocalization['Enter Custom Homemade Type'] ?? "",
+                ),
                 const SizedBox(height: 20),
                 Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(
-                        currentLocalization['Select Ingredients:'] ?? "",
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: const Color.fromRGBO(4, 142, 161, 1.0)),
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(
+                      currentLocalization['Select Ingredients:'] ?? "",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: const Color.fromRGBO(4, 142, 161, 1.0),
                       ),
-                    ]),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 20),
                 SizedBox(
                   height: 160,
                   child: Container(
                     decoration: BoxDecoration(
-                        border: Border.all(),
-                        borderRadius: BorderRadius.circular(12.0)),
+                      border: Border.all(),
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: SingleChildScrollView(
@@ -163,43 +168,46 @@ class _ConcentratePageState extends State<ConcentratePage> {
                           children: <Widget>[
                             for (String item in _homemadeIngredients) ...[
                               Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Checkbox(
-                                        checkColor: Colors.white,
-                                        activeColor: const Color(0xFF0DA6BA),
-                                        value:
-                                            _selectedIngredients.contains(item),
-                                        onChanged: (isSelected) {
-                                          if (isSelected == true) {
-                                            _selectedIngredients.add(item);
-                                          } else if (isSelected == false) {
-                                            _selectedIngredients.remove(item);
-                                          }
-                                          setState(() {});
-                                        }),
-                                    SizedBox(
-                                        width:
-                                            MediaQuery.of(context).size.width *
-                                                0.20,
-                                        child: Text(
-                                            currentLocalization[item] ?? "")),
-                                    SizedBox(width: 20),
-                                    (_selectedIngredients.contains(item))
-                                        ? Expanded(
-                                            child: TextField(
-                                              controller: _ingControllers[item],
-                                              textAlign: TextAlign.center,
-                                              decoration: InputDecoration(
-                                                labelText: currentLocalization[
-                                                        'Enter its cost'] ??
-                                                    "",
-                                              ),
-                                            ),
-                                          )
-                                        : Text('')
-                                  ]),
-                            ]
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Checkbox(
+                                    checkColor: Colors.white,
+                                    activeColor: const Color(0xFF0DA6BA),
+                                    value: _selectedIngredients.contains(item),
+                                    onChanged: (isSelected) {
+                                      if (isSelected == true) {
+                                        _selectedIngredients.add(item);
+                                      } else if (isSelected == false) {
+                                        _selectedIngredients.remove(item);
+                                      }
+                                      setState(() {});
+                                    },
+                                  ),
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width *
+                                        0.20,
+                                    child: Text(
+                                      currentLocalization[item] ?? "",
+                                    ),
+                                  ),
+                                  SizedBox(width: 20),
+                                  (_selectedIngredients.contains(item))
+                                      ? Expanded(
+                                        child: TextField(
+                                          controller: _ingControllers[item],
+                                          textAlign: TextAlign.center,
+                                          decoration: InputDecoration(
+                                            labelText:
+                                                currentLocalization['Enter its cost'] ??
+                                                "",
+                                          ),
+                                        ),
+                                      )
+                                      : Text(''),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -207,8 +215,10 @@ class _ConcentratePageState extends State<ConcentratePage> {
                   ),
                 ),
               ] else if (_selectedType == 'Purchased') ...[
-                FeedUtils.buildTextField(_customPurchasedController,
-                    currentLocalization['Enter Custom Purchased Type'] ?? ""),
+                FeedUtils.buildTextField(
+                  _customPurchasedController,
+                  currentLocalization['Enter Custom Purchased Type'] ?? "",
+                ),
               ],
               const SizedBox(height: 20),
               const SizedBox(height: 20),
@@ -218,51 +228,56 @@ class _ConcentratePageState extends State<ConcentratePage> {
                 children: [
                   Expanded(
                     flex: 2,
-                    child: FeedUtils.buildTextField(_quantityController,
-                        currentLocalization['Quantity'] ?? ""),
+                    child: FeedUtils.buildTextField(
+                      _quantityController,
+                      currentLocalization['Quantity'] ?? "",
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     flex: 1,
                     child: FeedUtils.buildDropdown(
-                        label: currentLocalization['Unit'] ?? "",
-                        value: _selectedUnit,
-                        items: unitMap,
-                        onChanged: (newValue) {
-                          setState(() {
-                            _selectedUnit = newValue!;
-                          });
-                        }),
+                      label: currentLocalization['Unit'] ?? "",
+                      value: _selectedUnit,
+                      items: unitMap,
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedUnit = newValue!;
+                        });
+                      },
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 20),
               FeedUtils.buildTextField(
-                  _rateController,
-                  currentLocalization['Rate per Unit'] ?? "",
-                  _selectedType == 'Homemade' ? true : false),
+                _rateController,
+                currentLocalization['Rate per Unit'] ?? "",
+                _selectedType == 'Homemade' ? true : false,
+              ),
               const SizedBox(height: 20),
               FeedUtils.buildTextField(
-                  _priceController,
-                  currentLocalization['Total Price'] ?? "",
-                  _selectedType == 'Homemade' ? true : false),
+                _priceController,
+                currentLocalization['Total Price'] ?? "",
+                _selectedType == 'Homemade' ? true : false,
+              ),
               const SizedBox(height: 40),
               Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     FeedUtils.buildElevatedButton(
-                        currentLocalization['Calculate'] ?? "",
-                        onPressed: () => _calculatePrice()),
+                      currentLocalization['Calculate'] ?? "",
+                      onPressed: () => _calculatePrice(),
+                    ),
                     FeedUtils.buildElevatedButton(
-                        currentLocalization['Save'] ?? "",
-                        onPressed: () => _submitData()),
+                      currentLocalization['Save'] ?? "",
+                      onPressed: () => _submitData(),
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(
-                height: 20,
-              )
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -272,9 +287,10 @@ class _ConcentratePageState extends State<ConcentratePage> {
 
   // Method to handle form submission
   void _submitData() {
-    final type = (_selectedType == 'Homemade')
-        ? _customHomemadeController.text
-        : _customPurchasedController.text;
+    final type =
+        (_selectedType == 'Homemade')
+            ? _customHomemadeController.text
+            : _customPurchasedController.text;
     double quantity = double.parse(_quantityController.text);
     final source = _selectedType;
     double rate = double.parse(_rateController.text);
@@ -283,8 +299,10 @@ class _ConcentratePageState extends State<ConcentratePage> {
     if (type.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(
-                currentLocalization['Custom Type cannot be empty!'] ?? '')),
+          content: Text(
+            currentLocalization['Custom Type cannot be empty!'] ?? '',
+          ),
+        ),
       );
       return;
     }
@@ -306,19 +324,24 @@ class _ConcentratePageState extends State<ConcentratePage> {
     FeedUtils.saveFeedDetails(feed);
 
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const FeedPage()));
+      context,
+      MaterialPageRoute(builder: (context) => const FeedPage()),
+    );
   }
 
   void _calculatePrice() {
-    double quantity = (_quantityController.text.isNotEmpty)
-        ? double.parse(_quantityController.text)
-        : 0.0;
-    double rate = (_rateController.text.isNotEmpty)
-        ? double.parse(_rateController.text)
-        : 0.0;
-    double price = (_priceController.text.isNotEmpty)
-        ? double.parse(_priceController.text)
-        : 0.0;
+    double quantity =
+        (_quantityController.text.isNotEmpty)
+            ? double.parse(_quantityController.text)
+            : 0.0;
+    double rate =
+        (_rateController.text.isNotEmpty)
+            ? double.parse(_rateController.text)
+            : 0.0;
+    double price =
+        (_priceController.text.isNotEmpty)
+            ? double.parse(_priceController.text)
+            : 0.0;
 
     setState(() {
       if (_selectedType == 'Purchased') {

@@ -1,11 +1,12 @@
 import 'package:farm_expense_mangement_app/screens/authenticate/authUtils.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/registerNewFarm.dart';
 import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/phoneno.dart';
+import 'package:farm_expense_mangement_app/screens/authenticate/language.dart' as first_screen;
 import '../../logging.dart';
 import '../../main.dart';
 import 'package:provider/provider.dart';
@@ -26,7 +27,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   //final AuthService _auth = AuthService();
   late String languageCode = 'en';
   final log = logger(OtpVerificationPage);
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
 
   @override
   void initState() {
@@ -59,7 +60,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     languageCode = Provider.of<AppData>(context).persistentVariable;
     //print(languageCode);
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -92,14 +93,10 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             // "Enter OTP" text (bold)
             Text(
               currentLocalization['Enter OTP'] ?? "",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
 
             SizedBox(height: 20), // Space between the text and OTP boxes
-
             // Centered Row for OTP input boxes
             Center(
               child: Row(
@@ -109,7 +106,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 children: List.generate(6, (index) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0), // Spacing between boxes
+                      horizontal: 8.0,
+                    ), // Spacing between boxes
                     child: _buildOtpBox(
                       controller: _controllers[index],
                       focusNode: _focusNodes[index],
@@ -122,9 +120,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             ),
 
             SizedBox(
-                height:
-                    20), // Space between the OTP boxes and the continue button
-
+              height: 20,
+            ), // Space between the OTP boxes and the continue button
             // Continue button (same style as sign-up button)
             SizedBox(
               width: double.infinity, // Full width
@@ -132,11 +129,13 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF0EA6BB), // Continue button color
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(10), // More curve for the button
+                    borderRadius: BorderRadius.circular(
+                      10,
+                    ), // More curve for the button
                   ),
                   padding: EdgeInsets.symmetric(
-                      vertical: 14.0), // Slightly smaller height
+                    vertical: 14.0,
+                  ), // Slightly smaller height
                 ),
                 onPressed: () async {
                   String otp =
@@ -146,13 +145,17 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   try {
                     PhoneAuthCredential credential =
                         PhoneAuthProvider.credential(
-                            verificationId: SignUpPage.verify, smsCode: otp);
-                    await FirebaseAuth.instance
-                        .signInWithCredential(credential);
+                          verificationId: SignUpPage.verify,
+                          smsCode: otp,
+                        );
+                    await FirebaseAuth.instance.signInWithCredential(
+                      credential,
+                    );
 
                     String uid = FirebaseAuth.instance.currentUser!.uid;
-                    DatabaseServicesForUser userDb =
-                        DatabaseServicesForUser(uid);
+                    DatabaseServicesForUser userDb = DatabaseServicesForUser(
+                      uid,
+                    );
 
                     final snapshot = await userDb.infoFromServer(uid);
 
@@ -160,9 +163,11 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       //print("in register block");
                       if (context.mounted) {
                         Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => RegisterFarm()));
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RegisterFarm(),
+                          ),
+                        );
                       }
                     } else {
                       if (snapshot.exists) {
@@ -170,53 +175,64 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                         checkForFirstLaunch().then((bool value) {
                           bool showOnboarding = value;
                           if (context.mounted) {
-                            Navigator.pushReplacement(context,
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) {
-                              return showOnboarding
-                                  ? OnBoardingScreens()
-                                  : const WrapperHomePage();
-                            }));
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (BuildContext context) {
+                                  return showOnboarding
+                                      ? OnBoardingScreens()
+                                      : const WrapperHomePage();
+                                },
+                              ),
+                            );
                           }
                         });
                       } else {
                         if (context.mounted) {
                           showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AuthUtils.buildAlertDialog(
-                                    title: currentLocalization[
-                                            'No existing Farm!'] ??
-                                        '',
-                                    content: currentLocalization[
-                                            'Not Registered Content'] ??
-                                        '',
-                                    opt1: currentLocalization['register'] ?? '',
-                                    onPressedOpt1: () {
-                                      Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  RegisterFarm()));
-                                    },
-                                    opt2: currentLocalization['cancel'] ?? '',
-                                    onPressedOpt2: () async {
-                                      await FirebaseAuth.instance.currentUser!
-                                          .delete();
-                                      if (context.mounted) {
-                                        Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) => MyApp()));
-                                      }
-                                    });
-                              });
+                            context: context,
+                            builder: (context) {
+                              return AuthUtils.buildAlertDialog(
+                                title:
+                                    currentLocalization['No existing Farm!'] ??
+                                    '',
+                                content:
+                                    currentLocalization['Not Registered Content'] ??
+                                    '',
+                                opt1: currentLocalization['register'] ?? '',
+                                onPressedOpt1: () {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => RegisterFarm(),
+                                    ),
+                                  );
+                                },
+                                opt2: currentLocalization['cancel'] ?? '',
+                                onPressedOpt2: () async {
+                                  await FirebaseAuth.instance.currentUser!
+                                      .delete();
+                                  if (context.mounted) {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => first_screen.SignUpPage(),
+                                      ),
+                                    );
+                                  }
+                                },
+                              );
+                            },
+                          );
                         }
                       }
                     }
                   } catch (e) {
-                    log.e("Encountered error!!",
-                        time: DateTime.now(), error: e.toString());
+                    log.e(
+                      "Encountered error!!",
+                      time: DateTime.now(),
+                      error: e.toString(),
+                    );
                   }
                 },
                 child: Text(
@@ -231,9 +247,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             ),
 
             SizedBox(
-                height:
-                    20), // Space between the continue button and the next section
-
+              height: 20,
+            ), // Space between the continue button and the next section
             // "Didn't receive code?" and "Resend OTP" button
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -262,9 +277,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             ),
 
             SizedBox(
-                height:
-                    20), // Space between the resend OTP section and the terms text
-
+              height: 20,
+            ), // Space between the resend OTP section and the terms text
             // Terms and conditions text
             // Center(
             //   child: Text(
@@ -318,12 +332,14 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         onChanged: (text) {
           if (text.length == 1) {
             if (!isLast) {
-              FocusScope.of(context).requestFocus(
-                  _focusNodes[_focusNodes.indexOf(focusNode) + 1]);
+              FocusScope.of(
+                context,
+              ).requestFocus(_focusNodes[_focusNodes.indexOf(focusNode) + 1]);
             }
           } else if (text.isEmpty && !isFirst) {
-            FocusScope.of(context)
-                .requestFocus(_focusNodes[_focusNodes.indexOf(focusNode) - 1]);
+            FocusScope.of(
+              context,
+            ).requestFocus(_focusNodes[_focusNodes.indexOf(focusNode) - 1]);
           }
         },
       ),

@@ -7,13 +7,18 @@ import '../../services/database/cattledatabase.dart';
 import '../../services/database/cattlegroupsdatabase.dart';
 
 class CattleUtils {
-  static Widget buildTextField(TextEditingController controller, String label,
-      [bool? allowNumOnly, String? validatorMsg]) {
+  static Widget buildTextField(
+    TextEditingController controller,
+    String label, [
+    bool? allowNumOnly,
+    String? validatorMsg,
+  ]) {
     return TextFormField(
       controller: controller,
-      inputFormatters: allowNumOnly == true
-          ? [FilteringTextInputFormatter.allow(RegExp(r"[0-9]"))]
-          : null,
+      inputFormatters:
+          allowNumOnly == true
+              ? [FilteringTextInputFormatter.allow(RegExp(r"[0-9]"))]
+              : null,
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(),
@@ -48,73 +53,80 @@ class CattleUtils {
         filled: true,
         fillColor: Color.fromRGBO(240, 255, 255, 1),
       ),
-      items: itemsList.map((item) {
-        return DropdownMenuItem<String>(
-          value: item.key,
-          child: Text(item.value),
-        );
-      }).toList(),
+      items:
+          itemsList.map((item) {
+            return DropdownMenuItem<String>(
+              value: item.key,
+              child: Text(item.value),
+            );
+          }).toList(),
       onChanged: onChanged,
     );
   }
 
-  static ElevatedButton buildElevatedButton(String label,
-      {required void Function() onPressed}) {
+  static ElevatedButton buildElevatedButton(
+    String label, {
+    required void Function() onPressed,
+  }) {
     return ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-          textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          minimumSize: const Size(120, 50),
-          backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
-          foregroundColor: Colors.white,
-          elevation: 10,
-          // adjust elevation value as desired
-          side: const BorderSide(color: Colors.grey, width: 2),
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        minimumSize: const Size(120, 50),
+        backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
+        foregroundColor: Colors.white,
+        elevation: 10,
+        // adjust elevation value as desired
+        side: const BorderSide(color: Colors.grey, width: 2),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: 15,
         ),
-        child: Text(label,
-            style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 15)));
+      ),
+    );
   }
 
-  static Widget buildReadonlyTextField(
-      {required String initialValue, required String label}) {
+  static Widget buildReadonlyTextField({
+    required String initialValue,
+    required String label,
+  }) {
     return TextFormField(
       readOnly: true,
       enabled: false,
       style: TextStyle(fontSize: 15, color: Colors.black),
       initialValue: initialValue,
       decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(
-            fontSize: 15,
-            color: Colors.black,
-          )),
+        labelText: label,
+        labelStyle: const TextStyle(fontSize: 15, color: Colors.black),
+      ),
     );
   }
 
-  static Widget buildReadonlyTextFieldWithController(
-      {required TextEditingController controller, required String label}) {
+  static Widget buildReadonlyTextFieldWithController({
+    required TextEditingController controller,
+    required String label,
+  }) {
     return TextFormField(
       readOnly: true,
       enabled: false,
       style: TextStyle(fontSize: 15, color: Colors.black),
       controller: controller,
       decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(
-            fontSize: 15,
-            color: Colors.black,
-          )),
+        labelText: label,
+        labelStyle: const TextStyle(fontSize: 15, color: Colors.black),
+      ),
     );
   }
 
   static Future<int> getLastUsedGrpId(String uid) async {
-    DatabaseServicesForCattleGroups cgrpDB =
-    DatabaseServicesForCattleGroups(uid);
+    DatabaseServicesForCattleGroups cgrpDB = DatabaseServicesForCattleGroups(
+      uid,
+    );
     int lastGrpId = int.parse(await cgrpDB.getLastUsedGrpIdDB(uid));
     return lastGrpId;
   }
@@ -124,15 +136,23 @@ class CattleUtils {
     int lastRFId = int.parse(await cattleDB.getLastUsedRFIdDB(uid));
     return lastRFId;
   }
-  
-  static Future<String> addCattleGroupToDB(
-      String cattleType, String? breed, String status, int lastGrpId) async {
-    String uid = FirebaseAuth.instance.currentUser!.uid;
-    DatabaseServicesForCattleGroups cgrpDB =
-        DatabaseServicesForCattleGroups(uid);
 
-    bool grpAlrdyExists =
-        await cgrpDB.grpCriteriaExists(cattleType, breed, status);
+  static Future<String> addCattleGroupToDB(
+    String cattleType,
+    String? breed,
+    String status,
+    int lastGrpId,
+  ) async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    DatabaseServicesForCattleGroups cgrpDB = DatabaseServicesForCattleGroups(
+      uid,
+    );
+
+    bool grpAlrdyExists = await cgrpDB.grpCriteriaExists(
+      cattleType,
+      breed,
+      status,
+    );
 
     if (!grpAlrdyExists) {
       final cattleGrp = CattleGroup(
@@ -149,8 +169,12 @@ class CattleUtils {
   }
 
   static Future<void> addNewCattleToDB(
-      String cattleType, String? breed, String status, int lastRFId,
-      [String? sex]) async {
+    String cattleType,
+    String? breed,
+    String status,
+    int lastRFId, [
+    String? sex,
+  ]) async {
     String uid = FirebaseAuth.instance.currentUser!.uid;
     DatabaseServicesForCattle cattleDB = DatabaseServicesForCattle(uid);
 

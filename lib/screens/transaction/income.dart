@@ -7,7 +7,7 @@ import '../../logging.dart';
 import '../../models/transaction.dart';
 import '../../services/database/transactiondatabase.dart';
 import '../../main.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:excel/excel.dart';
 import 'dart:typed_data';
@@ -22,7 +22,7 @@ class AddIncome extends StatefulWidget {
 
 class _AddIncomeState extends State<AddIncome> {
   final log = logger(AddIncome);
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   final user = FirebaseAuth.instance.currentUser;
@@ -241,6 +241,11 @@ class _AddIncomeState extends State<AddIncome> {
         setState(() {
           _amountTextController.text = totalPrice.toStringAsFixed(2);
         });
+      } else {
+        if (_quantityController.text.isEmpty) {
+          _showErrorDialog('please_enter_qty');
+          return;
+        }
       }
     }
 
@@ -256,10 +261,11 @@ class _AddIncomeState extends State<AddIncome> {
               : _categoryTextController.text,
       value: double.parse(_amountTextController.text),
       saleOnMonth: DateTime.tryParse(_dateController.text),
+      quantity: double.tryParse(_quantityController.text),
     );
 
     await _addIncome(data);
-    if(mounted) {
+    if (mounted) {
       Navigator.pop(context);
       Navigator.pushReplacement(
         context,
@@ -274,7 +280,7 @@ class _AddIncomeState extends State<AddIncome> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
@@ -375,6 +381,11 @@ class _AddIncomeState extends State<AddIncome> {
                       },
                     ),
                   ),
+                  _buildTextField(
+                    _quantityController,
+                    currentLocalization['Quantity (Liters)'] ??
+                        'Quantity (Liters)',
+                  ),
                   if (_selectedBuyer != 'D to C') ...[
                     _buildTextField(
                       _fatController,
@@ -383,11 +394,6 @@ class _AddIncomeState extends State<AddIncome> {
                     _buildTextField(
                       _snfController,
                       currentLocalization['SNF Percentage'] ?? 'SNF Percentage',
-                    ),
-                    _buildTextField(
-                      _quantityController,
-                      currentLocalization['Quantity (Liters)'] ??
-                          'Quantity (Liters)',
                     ),
                     Container(
                       alignment: Alignment.center,

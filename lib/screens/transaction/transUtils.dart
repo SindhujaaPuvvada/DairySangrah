@@ -1,19 +1,20 @@
-
-
 import 'package:flutter/material.dart';
 
-class TransUtils{
-
-  static Widget buildTextField(TextEditingController controller, String label,[bool? isReadOnly]) {
+class TransUtils {
+  static Widget buildTextField(
+    TextEditingController controller,
+    String label, [
+    bool? isReadOnly,
+  ]) {
     return TextField(
-        controller: controller,
-        readOnly: isReadOnly ?? false,
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(),
-          filled: true,
-          fillColor: Color.fromRGBO(240, 255, 255, 1),
-        )
+      controller: controller,
+      readOnly: isReadOnly ?? false,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(),
+        filled: true,
+        fillColor: Color.fromRGBO(240, 255, 255, 1),
+      ),
     );
   }
 
@@ -32,42 +33,38 @@ class TransUtils{
         filled: true,
         fillColor: Color.fromRGBO(240, 255, 255, 1),
       ),
-      items: items.map((String item) {
-        return DropdownMenuItem<String>(
-          value: item,
-          child: Text(item),
-        );
-      }).toList(),
+      items:
+          items.map((String item) {
+            return DropdownMenuItem<String>(value: item, child: Text(item));
+          }).toList(),
       onChanged: onChanged,
     );
   }
 
-  static ElevatedButton buildElevatedButton(String label, {required void Function() onPressed}) {
+  static ElevatedButton buildElevatedButton(
+    String label, {
+    required void Function() onPressed,
+  }) {
     return ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30)),
-          textStyle: const TextStyle(
-              fontSize: 18, fontWeight: FontWeight.bold),
-          minimumSize: const Size(120, 50),
-          backgroundColor:
-          const Color.fromRGBO(13, 166, 186, 1.0),
-          foregroundColor: Colors.white,
-          elevation: 10,
-          // adjust elevation value as desired
-          side: const BorderSide(color: Colors.grey, width: 2),
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        minimumSize: const Size(120, 50),
+        backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
+        foregroundColor: Colors.white,
+        elevation: 10,
+        // adjust elevation value as desired
+        side: const BorderSide(color: Colors.grey, width: 2),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: 15,
         ),
-        child: Text(
-            label,
-            style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 15
-            )
-        )
+      ),
     );
   }
-
-
 }

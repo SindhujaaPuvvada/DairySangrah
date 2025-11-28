@@ -38,36 +38,42 @@ class _RegisterState extends State<Register> {
             Container(
               decoration: const BoxDecoration(
                 image: DecorationImage(
-                    image: AssetImage(
-                        'asset/bgscreen.png'), // Background image path
-                    fit: BoxFit.fitHeight),
+                  image: AssetImage(
+                    'asset/bgscreen.png',
+                  ), // Background image path
+                  fit: BoxFit.fitHeight,
+                ),
               ),
             ),
             // Content container with opacity
             Container(
-              color:
-                  Colors.black.withValues(alpha: 0.5), // Set opacity level here
+              color: Colors.black.withValues(
+                alpha: 0.5,
+              ), // Set opacity level here
               child: Column(
                 children: [
                   // App bar with transparent background
                   Container(
                     padding: const EdgeInsets.only(
-                        top:
-                            0), // Adjust top padding to account for system status bar
+                      top: 0,
+                    ), // Adjust top padding to account for system status bar
                     height: 110, // Set app bar height
-                    color: Colors
-                        .transparent, // Make app bar background transparent
+                    color:
+                        Colors
+                            .transparent, // Make app bar background transparent
                     child: AppBar(
-                      backgroundColor: Colors
-                          .transparent, // Make app bar background transparent
+                      backgroundColor:
+                          Colors
+                              .transparent, // Make app bar background transparent
                       elevation: 0, // Remove app bar shadow
                       // centerTitle: true,
                       title: const Text(
                         ' Mobile Dairy',
                         style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 27,
-                            fontWeight: FontWeight.bold),
+                          color: Colors.black,
+                          fontSize: 27,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       actions: <Widget>[
                         TextButton.icon(
@@ -75,8 +81,9 @@ class _RegisterState extends State<Register> {
                           label: const Text(
                             'Sign In',
                             style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           onPressed: () => widget.toggleView(),
                         ),
@@ -87,7 +94,9 @@ class _RegisterState extends State<Register> {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 20.0, horizontal: 50.0),
+                        vertical: 20.0,
+                        horizontal: 50.0,
+                      ),
                       child: Form(
                         key: _formKey,
                         child: ListView(
@@ -95,9 +104,11 @@ class _RegisterState extends State<Register> {
                             const SizedBox(height: 20.0),
                             TextFormField(
                               decoration: textInputDecoration.copyWith(
-                                  hintText: 'email'),
-                              validator: (val) =>
-                                  val!.isEmpty ? 'Enter an email' : null,
+                                hintText: 'email',
+                              ),
+                              validator:
+                                  (val) =>
+                                      val!.isEmpty ? 'Enter an email' : null,
                               onChanged: (val) {
                                 setState(() => email = val);
                               },
@@ -106,10 +117,13 @@ class _RegisterState extends State<Register> {
                             TextFormField(
                               obscureText: true,
                               decoration: textInputDecoration.copyWith(
-                                  hintText: 'password'),
-                              validator: (val) => val!.length < 6
-                                  ? 'Enter a password 6+ chars long'
-                                  : null,
+                                hintText: 'password',
+                              ),
+                              validator:
+                                  (val) =>
+                                      val!.length < 6
+                                          ? 'Enter a password 6+ chars long'
+                                          : null,
                               onChanged: (val) {
                                 setState(() => password = val);
                               },
@@ -117,7 +131,8 @@ class _RegisterState extends State<Register> {
                             const SizedBox(height: 20.0),
                             TextFormField(
                               decoration: textInputDecoration.copyWith(
-                                  hintText: 'Owner_name'),
+                                hintText: 'Owner_name',
+                              ),
                               onChanged: (val) {
                                 setState(() => ownerName = val);
                               },
@@ -125,7 +140,8 @@ class _RegisterState extends State<Register> {
                             const SizedBox(height: 20.0),
                             TextFormField(
                               decoration: textInputDecoration.copyWith(
-                                  hintText: 'Farm_name'),
+                                hintText: 'Farm_name',
+                              ),
                               onChanged: (val) {
                                 setState(() => farmName = val);
                               },
@@ -133,7 +149,8 @@ class _RegisterState extends State<Register> {
                             const SizedBox(height: 20.0),
                             TextFormField(
                               decoration: textInputDecoration.copyWith(
-                                  hintText: 'Location'),
+                                hintText: 'Location',
+                              ),
                               onChanged: (val) {
                                 setState(() => location = val);
                               },
@@ -141,7 +158,8 @@ class _RegisterState extends State<Register> {
                             const SizedBox(height: 20.0),
                             TextFormField(
                               decoration: textInputDecoration.copyWith(
-                                  hintText: 'Phone_no'),
+                                hintText: 'Phone_no',
+                              ),
                               keyboardType: TextInputType.number,
                               controller: _textController,
                             ),
@@ -153,18 +171,23 @@ class _RegisterState extends State<Register> {
                               onPressed: () {
                                 if (_formKey.currentState!.validate()) {
                                   Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => RegisterOtp(
-                                              email: email,
-                                              password: password,
-                                              farmUser: FarmUser(
-                                                  farmName: farmName,
-                                                  ownerName: ownerName,
-                                                  phoneNo: phoneNo,
-                                                  location: location,
-                                                  chosenLanguage: "en"),
-                                              toggleView: widget.toggleView)));
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => RegisterOtp(
+                                            email: email,
+                                            password: password,
+                                            farmUser: FarmUser(
+                                              farmName: farmName,
+                                              ownerName: ownerName,
+                                              phoneNo: phoneNo,
+                                              location: location,
+                                              chosenLanguage: "en",
+                                            ),
+                                            toggleView: widget.toggleView,
+                                          ),
+                                    ),
+                                  );
                                 }
                               },
                               child: const Text(
@@ -176,8 +199,10 @@ class _RegisterState extends State<Register> {
                             Text(
                               error,
                               style: const TextStyle(
-                                  color: Colors.red, fontSize: 14.0),
-                            )
+                                color: Colors.red,
+                                fontSize: 14.0,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -198,12 +223,13 @@ class RegisterOtp extends StatefulWidget {
   final String email;
   final String password;
   final FarmUser farmUser;
-  const RegisterOtp(
-      {super.key,
-      required this.email,
-      required this.password,
-      required this.farmUser,
-      required this.toggleView});
+  const RegisterOtp({
+    super.key,
+    required this.email,
+    required this.password,
+    required this.farmUser,
+    required this.toggleView,
+  });
 
   @override
   State<RegisterOtp> createState() => _RegisterOtpState();
@@ -229,23 +255,27 @@ class _RegisterOtpState extends State<RegisterOtp> {
 
   void successOTP() {
     final snackBar = SnackBar(
-        backgroundColor: Colors.red.shade500,
-        content: const Text('OTP send'),
-        action: SnackBarAction(label: 'Undo', onPressed: () {}));
+      backgroundColor: Colors.red.shade500,
+      content: const Text('OTP send'),
+      action: SnackBarAction(label: 'Undo', onPressed: () {}),
+    );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   void failedOTP() {
     Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => Register(toggleView: widget.toggleView)));
+      context,
+      MaterialPageRoute(
+        builder: (context) => Register(toggleView: widget.toggleView),
+      ),
+    );
     _formKey.currentState!.save();
     final snackBar = SnackBar(
-        backgroundColor: Colors.red.shade500,
-        content: const Text('Error in sending OTP'),
-        action: SnackBarAction(label: 'Undo', onPressed: () {}));
+      backgroundColor: Colors.red.shade500,
+      content: const Text('Error in sending OTP'),
+      action: SnackBarAction(label: 'Undo', onPressed: () {}),
+    );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
@@ -256,11 +286,12 @@ class _RegisterOtpState extends State<RegisterOtp> {
     super.initState();
 
     emailOTP.setConfig(
-        appEmail: "2021csb1136@iitrpr.ac.in",
-        appName: "Dairy Management",
-        userEmail: widget.email,
-        otpLength: 6,
-        otpType: OTPType.numeric);
+      appEmail: "2021csb1136@iitrpr.ac.in",
+      appName: "Dairy Management",
+      userEmail: widget.email,
+      otpLength: 6,
+      otpType: OTPType.numeric,
+    );
     _sendOTP();
   }
 
@@ -281,22 +312,24 @@ class _RegisterOtpState extends State<RegisterOtp> {
             ),
             // Content container with opacity
             Container(
-              color:
-                  Colors.black.withValues(alpha: 0.5), // Set opacity level here
+              color: Colors.black.withValues(
+                alpha: 0.5,
+              ), // Set opacity level here
               child: Column(
                 children: [
                   // App bar with transparent background
                   Container(
                     padding: EdgeInsets.only(
-                        top: MediaQuery.of(context)
-                            .padding
-                            .top), // Adjust top padding to account for system status bar
+                      top: MediaQuery.of(context).padding.top,
+                    ), // Adjust top padding to account for system status bar
                     height: 90, // Set app bar height
-                    color: Colors
-                        .transparent, // Make app bar background transparent
+                    color:
+                        Colors
+                            .transparent, // Make app bar background transparent
                     child: AppBar(
-                      backgroundColor: Colors
-                          .transparent, // Make app bar background transparent
+                      backgroundColor:
+                          Colors
+                              .transparent, // Make app bar background transparent
                       elevation: 0, // Remove app bar shadow
                       // title: Text(
                       //   'Dairy Management App',
@@ -305,20 +338,20 @@ class _RegisterOtpState extends State<RegisterOtp> {
                       //   ),
                       // ),
                       leading: IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: const Icon(
-                            Icons.arrow_back,
-                            color: Colors.white,
-                          )),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      ),
                     ),
                   ),
                   // Form content
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 20.0, horizontal: 50.0),
+                        vertical: 20.0,
+                        horizontal: 50.0,
+                      ),
                       child: Form(
                         key: _formKey,
                         child: ListView(
@@ -326,10 +359,11 @@ class _RegisterOtpState extends State<RegisterOtp> {
                             const SizedBox(height: 20.0),
                             TextFormField(
                               controller: _textController,
-                              decoration:
-                                  textInputDecoration.copyWith(hintText: 'OTP'),
-                              validator: (val) =>
-                                  val!.isEmpty ? 'Enter OTP' : null,
+                              decoration: textInputDecoration.copyWith(
+                                hintText: 'OTP',
+                              ),
+                              validator:
+                                  (val) => val!.isEmpty ? 'Enter OTP' : null,
                               onChanged: (val) {
                                 setState(() => otp = val);
                               },
@@ -349,68 +383,92 @@ class _RegisterOtpState extends State<RegisterOtp> {
                                     try {
                                       dynamic result = await _auth
                                           .registerWithEmailAndPassword(
-                                              widget.email,
-                                              widget.password,
-                                              widget.farmUser.ownerName,
-                                              widget.farmUser.farmName,
-                                              widget.farmUser.location,
-                                              widget.farmUser.phoneNo);
+                                            widget.email,
+                                            widget.password,
+                                            widget.farmUser.ownerName,
+                                            widget.farmUser.farmName,
+                                            widget.farmUser.location,
+                                            widget.farmUser.phoneNo,
+                                          );
                                       if (result == null) {
                                         setState(() {
                                           error = 'Please supply a valid email';
                                         });
                                         Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) => Register(
-                                                    toggleView:
-                                                        widget.toggleView)));
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) => Register(
+                                                  toggleView: widget.toggleView,
+                                                ),
+                                          ),
+                                        );
                                       } else {
                                         Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    const WrapperHomePage()));
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) =>
+                                                    const WrapperHomePage(),
+                                          ),
+                                        );
                                       }
                                     } on FirebaseAuthException {
                                       Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => Register(
-                                                  toggleView:
-                                                      widget.toggleView)));
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => Register(
+                                                toggleView: widget.toggleView,
+                                              ),
+                                        ),
+                                      );
                                     }
                                   } else {
                                     final snackBar = SnackBar(
-                                        backgroundColor: Colors.red.shade500,
-                                        content: const Text('Wrong OTP'),
-                                        action: SnackBarAction(
-                                            label: 'Undo', onPressed: () {}));
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(snackBar);
+                                      backgroundColor: Colors.red.shade500,
+                                      content: const Text('Wrong OTP'),
+                                      action: SnackBarAction(
+                                        label: 'Undo',
+                                        onPressed: () {},
+                                      ),
+                                    );
+                                    ScaffoldMessenger.of(
+                                      context,
+                                    ).showSnackBar(snackBar);
                                     Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => Register(
-                                                toggleView:
-                                                    widget.toggleView)));
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => Register(
+                                              toggleView: widget.toggleView,
+                                            ),
+                                      ),
+                                    );
                                   }
                                 } else {
                                   Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => Register(
-                                              toggleView: widget.toggleView)));
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => Register(
+                                            toggleView: widget.toggleView,
+                                          ),
+                                    ),
+                                  );
                                   _formKey.currentState!.save();
                                   final snackBar = SnackBar(
-                                      backgroundColor: Colors.red.shade500,
-                                      content:
-                                          const Text('Error in sending OTP'),
-                                      action: SnackBarAction(
-                                          label: 'Undo', onPressed: () {}));
+                                    backgroundColor: Colors.red.shade500,
+                                    content: const Text('Error in sending OTP'),
+                                    action: SnackBarAction(
+                                      label: 'Undo',
+                                      onPressed: () {},
+                                    ),
+                                  );
 
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(snackBar);
+                                  ScaffoldMessenger.of(
+                                    context,
+                                  ).showSnackBar(snackBar);
                                 }
                               },
                               child: const Text(
@@ -422,8 +480,10 @@ class _RegisterOtpState extends State<RegisterOtp> {
                             Text(
                               error,
                               style: const TextStyle(
-                                  color: Colors.red, fontSize: 14.0),
-                            )
+                                color: Colors.red,
+                                fontSize: 14.0,
+                              ),
+                            ),
                           ],
                         ),
                       ),

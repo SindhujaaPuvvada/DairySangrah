@@ -6,7 +6,7 @@ class DatabaseForSale {
   DatabaseForSale({required this.uid});
 
   Future<QuerySnapshot<Map<String, dynamic>>>
-      infoFromServerAllTransaction() async {
+  infoFromServerAllTransaction() async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
     return await db
@@ -25,7 +25,8 @@ class DatabaseForSale {
         .doc(uid)
         .collection('Sale')
         .doc(
-            "${sale.name.replaceAll(' ', '')}D${sale.saleOnMonth!.day}M${sale.saleOnMonth!.month}Y${sale.saleOnMonth!.year}")
+          "${sale.name.replaceAll(' ', '')}D${sale.saleOnMonth!.day}M${sale.saleOnMonth!.month}Y${sale.saleOnMonth!.year}",
+        )
         .set(sale.toFireStore());
   }
 
@@ -37,12 +38,15 @@ class DatabaseForSale {
         .doc(uid)
         .collection('Sale')
         .doc(
-            "${sale.name.replaceAll(' ', '')}D${sale.saleOnMonth!.day}M${sale.saleOnMonth!.month}Y${sale.saleOnMonth!.year}")
+          "${sale.name.replaceAll(' ', '')}D${sale.saleOnMonth!.day}M${sale.saleOnMonth!.month}Y${sale.saleOnMonth!.year}",
+        )
         .delete();
   }
 
   Future<DocumentSnapshot> infoFromServerSaleOnDate(
-      String name, DateTime? saleOnMonth) async {
+    String name,
+    DateTime? saleOnMonth,
+  ) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
     return await db
@@ -50,7 +54,26 @@ class DatabaseForSale {
         .doc(uid)
         .collection('Sale')
         .doc(
-            "${name.replaceAll(' ', '')}D${saleOnMonth!.day}M${saleOnMonth.month}Y${saleOnMonth.year}")
+          "${name.replaceAll(' ', '')}D${saleOnMonth!.day}M${saleOnMonth.month}Y${saleOnMonth.year}",
+        )
+        .get();
+  }
+
+  Future<QuerySnapshot<Map<String, dynamic>>> infoFromSaleByDateRange(
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    Timestamp sDate = Timestamp.fromDate(startDate);
+    Timestamp eDate = Timestamp.fromDate(endDate);
+
+    return await db
+        .collection('User')
+        .doc(uid)
+        .collection('Sale')
+        .where('saleOnMonth', isGreaterThanOrEqualTo: sDate)
+        .where('saleOnMonth', isLessThanOrEqualTo: eDate)
+        //.orderBy('saleOnMonth', descending: true)
         .get();
   }
 }
@@ -60,7 +83,7 @@ class DatabaseForExpense {
   DatabaseForExpense({required this.uid});
 
   Future<QuerySnapshot<Map<String, dynamic>>>
-      infoFromServerAllTransaction() async {
+  infoFromServerAllTransaction() async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
     return await db
@@ -79,7 +102,8 @@ class DatabaseForExpense {
         .doc(uid)
         .collection('Expense')
         .doc(
-            "${expense.name.replaceAll(' ', '')}D${expense.expenseOnMonth!.day}M${expense.expenseOnMonth!.month}Y${expense.expenseOnMonth!.year}")
+          "${expense.name.replaceAll(' ', '')}D${expense.expenseOnMonth!.day}M${expense.expenseOnMonth!.month}Y${expense.expenseOnMonth!.year}",
+        )
         .set(expense.toFireStore());
   }
 
@@ -91,12 +115,15 @@ class DatabaseForExpense {
         .doc(uid)
         .collection('Expense')
         .doc(
-            "${expense.name.replaceAll(' ', '')}D${expense.expenseOnMonth!.day}M${expense.expenseOnMonth!.month}Y${expense.expenseOnMonth!.year}")
+          "${expense.name.replaceAll(' ', '')}D${expense.expenseOnMonth!.day}M${expense.expenseOnMonth!.month}Y${expense.expenseOnMonth!.year}",
+        )
         .delete();
   }
 
   Future<DocumentSnapshot> infoFromServerExpenseOnDate(
-      String name, DateTime? expenseOnMonth) async {
+    String name,
+    DateTime? expenseOnMonth,
+  ) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
     return await db
@@ -104,7 +131,26 @@ class DatabaseForExpense {
         .doc(uid)
         .collection('Expense')
         .doc(
-            "${name.replaceAll(' ', '')}D${expenseOnMonth!.day}M${expenseOnMonth.month}Y${expenseOnMonth.year}")
+          "${name.replaceAll(' ', '')}D${expenseOnMonth!.day}M${expenseOnMonth.month}Y${expenseOnMonth.year}",
+        )
+        .get();
+  }
+
+  Future<QuerySnapshot<Map<String, dynamic>>> infoFromExpenseByDateRange(
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    Timestamp sDate = Timestamp.fromDate(startDate);
+    Timestamp eDate = Timestamp.fromDate(endDate);
+
+    return await db
+        .collection('User')
+        .doc(uid)
+        .collection('Expense')
+        .where('expenseOnMonth', isGreaterThanOrEqualTo: sDate)
+        .where('expenseOnMonth', isLessThanOrEqualTo: eDate)
+        //.orderBy('saleOnMonth', descending: true)
         .get();
   }
 }

@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import '../../../main.dart';
 import '../../../models/milk.dart';
 import '../../../services/database/milkdatabase.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 class MilkByDatePage extends StatefulWidget {
   final DateTime? dateOfMilk;
@@ -19,7 +19,7 @@ class MilkByDatePage extends StatefulWidget {
 }
 
 class _MilkByDatePageState extends State<MilkByDatePage> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   final user = FirebaseAuth.instance.currentUser;
@@ -40,8 +40,10 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
     await db.deleteAllMilkRecords(widget.dateOfMilk!);
     if (mounted) {
       Navigator.pop(context);
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => const AvgMilkPage()));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const AvgMilkPage()),
+      );
     }
   }
 
@@ -68,14 +70,16 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
 
   double _calculateTotalMilk() {
     return _filteredMilk.fold(
-        0, (sum, milk) => sum + milk.morning + milk.evening);
+      0,
+      (sum, milk) => sum + milk.morning + milk.evening,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
@@ -89,18 +93,21 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
         ),
         actions: [
           IconButton(
-              onPressed: () {
-                _deleteAllMilkOnDate();
-              },
-              color: Colors.black,
-              icon: const Icon(Icons.delete)),
+            onPressed: () {
+              _deleteAllMilkOnDate();
+            },
+            color: Colors.black,
+            icon: const Icon(Icons.delete),
+          ),
           IconButton(
             color: Colors.black,
             onPressed: () {
               showSearch(
                 context: context,
                 delegate: MilkSearchDelegate(
-                    allMilk: _allMilkInDate, onSearch: _searchMilk),
+                  allMilk: _allMilkInDate,
+                  onSearch: _searchMilk,
+                ),
               );
             },
             icon: const Icon(Icons.search),
@@ -112,8 +119,10 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
           onPressed: () {
             Navigator.pop(context);
             // Navigator.pop(context);
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => const AvgMilkPage()));
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const AvgMilkPage()),
+            );
           },
         ),
       ),
@@ -169,7 +178,9 @@ class MilkSearchDelegate extends SearchDelegate<String> {
   ThemeData appBarTheme(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return theme.copyWith(
-      appBarTheme: const AppBarTheme(backgroundColor: Color.fromRGBO(13, 166, 186, 1)),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color.fromRGBO(13, 166, 186, 1),
+      ),
       // Customize the search bar's appearance
       inputDecorationTheme: InputDecorationTheme(
         filled: true, // Set to true to add a background color
@@ -189,8 +200,10 @@ class MilkSearchDelegate extends SearchDelegate<String> {
           borderRadius: BorderRadius.circular(10.0),
           borderSide: const BorderSide(color: Colors.black), // Border color
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 10.0,
+          horizontal: 16.0,
+        ),
       ),
     );
   }
@@ -199,25 +212,19 @@ class MilkSearchDelegate extends SearchDelegate<String> {
   List<Widget> buildActions(BuildContext context) {
     return [
       IconButton(
-        icon: const Icon(
-          Icons.clear,
-          color: Colors.black,
-        ),
+        icon: const Icon(Icons.clear, color: Colors.black),
         onPressed: () {
           query = '';
           onSearch('');
         },
-      )
+      ),
     ];
   }
 
   @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
-      icon: const Icon(
-        Icons.arrow_back,
-        color: Colors.black,
-      ),
+      icon: const Icon(Icons.arrow_back, color: Colors.black),
       onPressed: () {
         close(context, '');
       },
@@ -235,13 +242,18 @@ class MilkSearchDelegate extends SearchDelegate<String> {
   }
 
   Widget _buildSearchResults() {
-    final List<Milk> searchResults = query.isEmpty
-        ? allMilk
-        : allMilk.where((milk) => milk.id.contains(query)).toList();
+    final List<Milk> searchResults =
+        query.isEmpty
+            ? allMilk
+            : allMilk.where((milk) => milk.id.contains(query)).toList();
 
     return Container(
       color: const Color.fromRGBO(
-          240, 255, 255, 1), // Set the background color here
+        240,
+        255,
+        255,
+        1,
+      ), // Set the background color here
       child: ListView.builder(
         itemCount: searchResults.length,
         itemBuilder: (context, index) {
@@ -263,24 +275,26 @@ class MilkDataRow extends StatefulWidget {
 }
 
 class _MilkDataRowState extends State<MilkDataRow> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
   void editDetail() {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => EditMilkByDate(data: widget.data)));
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditMilkByDate(data: widget.data),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     String id = '';
     String idVal = '';
-    final double totalMilk =
-        (widget.data.evening + widget.data.morning).toPrecision(2);
+    final double totalMilk = (widget.data.evening + widget.data.morning)
+        .toPrecision(2);
 
     if (widget.data.id == 'whole farm') {
       id = 'whole farm';
@@ -301,10 +315,7 @@ class _MilkDataRowState extends State<MilkDataRow> {
       elevation: 8,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(25),
-        side: const BorderSide(
-          color: Colors.white,
-          width: 3,
-        ),
+        side: const BorderSide(color: Colors.white, width: 3),
       ),
       child: Row(
         children: [
@@ -345,11 +356,7 @@ class _MilkDataRowState extends State<MilkDataRow> {
                 children: [
                   Row(
                     children: [
-                      Image.asset(
-                        'asset/morning.webp',
-                        width: 20,
-                        height: 20,
-                      ),
+                      Image.asset('asset/morning.webp', width: 20, height: 20),
                       const SizedBox(width: 10),
                       Text(
                         "${currentLocalization['morning'] ?? ""}: ${widget.data.morning.toStringAsFixed(2)}L",
@@ -363,11 +370,7 @@ class _MilkDataRowState extends State<MilkDataRow> {
                   const SizedBox(height: 5),
                   Row(
                     children: [
-                      Image.asset(
-                        'asset/evening2.jpg',
-                        width: 20,
-                        height: 20,
-                      ),
+                      Image.asset('asset/evening2.jpg', width: 20, height: 20),
                       const SizedBox(width: 10),
                       Text(
                         "${currentLocalization['evening']}: ${widget.data.evening.toStringAsFixed(2)}L",
@@ -381,14 +384,8 @@ class _MilkDataRowState extends State<MilkDataRow> {
                   const SizedBox(height: 18),
                   Row(
                     children: [
-                      Image.asset(
-                        'asset/milk.jpg',
-                        width: 20,
-                        height: 20,
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
+                      Image.asset('asset/milk.jpg', width: 20, height: 20),
+                      const SizedBox(width: 10),
                       Text(
                         "${currentLocalization['total']}: ${totalMilk}L",
                         style: const TextStyle(
@@ -429,7 +426,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
   final uid = FirebaseAuth.instance.currentUser!.uid;
   late DatabaseForMilk db;
   late DatabaseForMilkByDate dbByDate;
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   double? milkInMorning;
@@ -461,14 +458,15 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
             widget.data.morning)
         .toPrecision(2);
     await dbByDate.infoToServerMilk(
-        MilkByDate(dateOfMilk: milk.dateOfMilk, totalMilk: totalMilk));
+      MilkByDate(dateOfMilk: milk.dateOfMilk, totalMilk: totalMilk),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     String id = '';
     String idVal = '';
@@ -514,7 +512,9 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
                   Text(
                     "${currentLocalization[id]} : $idVal",
                     style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Text(
                     '${currentLocalization['date']} : ${widget.data.dateOfMilk!.day}-${widget.data.dateOfMilk!.month}-${widget.data.dateOfMilk!.year}',
@@ -563,10 +563,14 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
                       Navigator.pop(context);
                       // Navigator.push(context, MaterialPageRoute(builder: (context) => const AvgMilkPage()));
                       Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => MilkByDatePage(
-                                  dateOfMilk: widget.data.dateOfMilk)));
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => MilkByDatePage(
+                                dateOfMilk: widget.data.dateOfMilk,
+                              ),
+                        ),
+                      );
                     }
                   },
                   child: Padding(

@@ -28,8 +28,9 @@ class FarmUser {
   });
 
   factory FarmUser.fromFireStore(
-      DocumentSnapshot<Map<String, dynamic>> snapshot,
-      SnapshotOptions? options) {
+    DocumentSnapshot<Map<String, dynamic>> snapshot,
+    SnapshotOptions? options,
+  ) {
     final data = snapshot.data();
     return FarmUser(
       ownerName: data?['ownerName'],
@@ -52,7 +53,7 @@ class FarmUser {
       'chosenLanguage': chosenLanguage,
       'appMode': appMode,
       'isFirstLaunch': isFirstLaunch,
-      'fcmToken': fcmToken
+      'fcmToken': fcmToken,
     };
   }
 }

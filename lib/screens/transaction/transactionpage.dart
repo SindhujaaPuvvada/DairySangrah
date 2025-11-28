@@ -3,15 +3,15 @@ import 'package:farm_expense_mangement_app/screens/transaction/edittransaction.d
 import 'package:farm_expense_mangement_app/services/database/transactiondatabase.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 import 'expenses.dart';
 import 'income.dart';
 import '../../main.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 class TransactionPage extends StatefulWidget {
-
   final bool showIncome; // New parameter
   const TransactionPage({super.key, required this.showIncome});
 
@@ -20,7 +20,7 @@ class TransactionPage extends StatefulWidget {
 }
 
 class _TransactionPageState extends State<TransactionPage> {
-  late Map<String, String> currentLocalization= {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
   final user = FirebaseAuth.instance.currentUser;
   final uid = FirebaseAuth.instance.currentUser!.uid;
@@ -38,28 +38,42 @@ class _TransactionPageState extends State<TransactionPage> {
   Future<void> _fetchIncome() async {
     final snapshot = await dbSale.infoFromServerAllTransaction();
     setState(() {
-      incomeTransactions = snapshot.docs
-          .map((doc) => Sale.fromFireStore(doc, null))
-          .where((sale) =>
-      (selectedStartDate == null ||
-          sale.saleOnMonth!.isAfter(selectedStartDate!.add(Duration(days: -1)))) &&
-          (selectedEndDate == null ||
-              sale.saleOnMonth!.isBefore(selectedEndDate!.add(Duration(days: 1)))))
-          .toList();
+      incomeTransactions =
+          snapshot.docs
+              .map((doc) => Sale.fromFireStore(doc, null))
+              .where(
+                (sale) =>
+                    (selectedStartDate == null ||
+                        sale.saleOnMonth!.isAfter(
+                          selectedStartDate!.add(Duration(days: -1)),
+                        )) &&
+                    (selectedEndDate == null ||
+                        sale.saleOnMonth!.isBefore(
+                          selectedEndDate!.add(Duration(days: 1)),
+                        )),
+              )
+              .toList();
     });
   }
 
   Future<void> _fetchExpense() async {
     final snapshot = await dbExpense.infoFromServerAllTransaction();
     setState(() {
-      expenseTransactions = snapshot.docs
-          .map((doc) => Expense.fromFireStore(doc, null))
-          .where((expense) =>
-      (selectedStartDate == null ||
-          expense.expenseOnMonth!.isAfter(selectedStartDate!.add(Duration(days: -1)))) &&
-          (selectedEndDate == null ||
-              expense.expenseOnMonth!.isBefore(selectedEndDate!.add(Duration(days: 1)))))
-          .toList();
+      expenseTransactions =
+          snapshot.docs
+              .map((doc) => Expense.fromFireStore(doc, null))
+              .where(
+                (expense) =>
+                    (selectedStartDate == null ||
+                        expense.expenseOnMonth!.isAfter(
+                          selectedStartDate!.add(Duration(days: -1)),
+                        )) &&
+                    (selectedEndDate == null ||
+                        expense.expenseOnMonth!.isBefore(
+                          selectedEndDate!.add(Duration(days: 1)),
+                        )),
+              )
+              .toList();
     });
   }
 
@@ -79,13 +93,13 @@ class _TransactionPageState extends State<TransactionPage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(13, 152, 186, 1.0),
-        title:  Text(
-          currentLocalization['transactions']??"",
+        title: Text(
+          currentLocalization['transactions'] ?? "",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
@@ -96,31 +110,26 @@ class _TransactionPageState extends State<TransactionPage> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(
-              Icons.filter_list_outlined,
-              color: Colors.black,
-            ),
+            icon: const Icon(Icons.filter_list_outlined, color: Colors.black),
             onPressed: () async {
               await _showDateRangePicker(context);
               setState(() {});
             },
           ),
           IconButton(
-            icon: const Icon(
-              Icons.attach_money,
-              color: Colors.black,
-            ),
+            icon: const Icon(Icons.attach_money, color: Colors.black),
             onPressed: () {
               // Navigate to the page displaying total income, total sale, and net profit
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => TotalTransactionPage(
-                    selectedStartDate: selectedStartDate,
-                    selectedEndDate: selectedEndDate,
-                    incomeTransactions: incomeTransactions,
-                    expenseTransactions: expenseTransactions,
-                  ),
+                  builder:
+                      (context) => TotalTransactionPage(
+                        selectedStartDate: selectedStartDate,
+                        selectedEndDate: selectedEndDate,
+                        incomeTransactions: incomeTransactions,
+                        expenseTransactions: expenseTransactions,
+                      ),
                 ),
               );
             },
@@ -128,10 +137,7 @@ class _TransactionPageState extends State<TransactionPage> {
           Visibility(
             visible: selectedStartDate != null || selectedEndDate != null,
             child: IconButton(
-              icon: const Icon(
-                Icons.clear,
-              color: Colors.black,
-              ),
+              icon: const Icon(Icons.clear, color: Colors.black),
               onPressed: () {
                 setState(() {
                   selectedStartDate = null;
@@ -141,7 +147,7 @@ class _TransactionPageState extends State<TransactionPage> {
                 });
               },
             ),
-          )
+          ),
         ],
       ),
       body: Column(
@@ -161,20 +167,27 @@ class _TransactionPageState extends State<TransactionPage> {
                       padding: const EdgeInsets.all(10),
                       margin: const EdgeInsets.only(top: 8),
                       decoration: BoxDecoration(
-                        color: showIncome
-                            ? Colors.blueGrey[100]
-                            : const Color.fromRGBO(240, 255, 255, 0.9),
+                        color:
+                            showIncome
+                                ? Colors.blueGrey[100]
+                                : const Color.fromRGBO(240, 255, 255, 0.9),
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(8),
                           bottomLeft: Radius.circular(8),
                         ),
-                        boxShadow: showIncome
-                            ? [BoxShadow(color: Colors.grey.withValues(alpha: 1), blurRadius: 4)]
-                            : [],
+                        boxShadow:
+                            showIncome
+                                ? [
+                                  BoxShadow(
+                                    color: Colors.grey.withValues(alpha: 1),
+                                    blurRadius: 4,
+                                  ),
+                                ]
+                                : [],
                       ),
-                      child:  Center(
+                      child: Center(
                         child: Text(
-                          currentLocalization['income']??"",
+                          currentLocalization['income'] ?? "",
                           style: TextStyle(fontSize: 18),
                         ),
                       ),
@@ -192,18 +205,27 @@ class _TransactionPageState extends State<TransactionPage> {
                       padding: const EdgeInsets.all(10),
                       margin: const EdgeInsets.only(top: 8),
                       decoration: BoxDecoration(
-                        color: showIncome
-                            ? const Color.fromRGBO(240, 255, 255, 0.9)
-                            : Colors.blueGrey[100],
+                        color:
+                            showIncome
+                                ? const Color.fromRGBO(240, 255, 255, 0.9)
+                                : Colors.blueGrey[100],
                         borderRadius: const BorderRadius.only(
                           topRight: Radius.circular(8),
                           bottomRight: Radius.circular(8),
                         ),
-                        boxShadow: showIncome ? [] : [BoxShadow(color: Colors.grey.withValues(alpha: 0.5), blurRadius: 4)],
+                        boxShadow:
+                            showIncome
+                                ? []
+                                : [
+                                  BoxShadow(
+                                    color: Colors.grey.withValues(alpha: 0.5),
+                                    blurRadius: 4,
+                                  ),
+                                ],
                       ),
-                      child:  Center(
+                      child: Center(
                         child: Text(
-                          currentLocalization['expenses']??"",
+                          currentLocalization['expenses'] ?? "",
                           style: TextStyle(fontSize: 18),
                         ),
                       ),
@@ -214,9 +236,10 @@ class _TransactionPageState extends State<TransactionPage> {
             ),
           ),
           Expanded(
-            child: (showIncome)
-                ? ListTileForSale(data: incomeTransactions)
-                : ListTileForExpense(data: expenseTransactions),
+            child:
+                (showIncome)
+                    ? ListTileForSale(data: incomeTransactions)
+                    : ListTileForExpense(data: expenseTransactions),
           ),
         ],
       ),
@@ -227,30 +250,29 @@ class _TransactionPageState extends State<TransactionPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => (showIncome)
-                      ? AddIncome(
-                    onSubmit: () {
-                      _fetchIncome();
-                      _fetchExpense();
-                    },
-                  )
-                      : AddExpenses(
-                    onSubmit: () {
-                      _fetchIncome();
-                      _fetchExpense();
-                    },
-                  ),
+                  builder:
+                      (context) =>
+                          (showIncome)
+                              ? AddIncome(
+                                onSubmit: () {
+                                  _fetchIncome();
+                                  _fetchExpense();
+                                },
+                              )
+                              : AddExpenses(
+                                onSubmit: () {
+                                  _fetchIncome();
+                                  _fetchExpense();
+                                },
+                              ),
                 ),
               );
             },
             backgroundColor: const Color.fromRGBO(13, 166, 186, 1),
             tooltip: currentLocalization['add_transaction'],
-            child: const Icon(
-              Icons.add,
-              color: Colors.black,
-            ),
+            child: const Icon(Icons.add, color: Colors.black),
           );
-        }
+        },
       ),
     );
   }
@@ -260,9 +282,10 @@ class _TransactionPageState extends State<TransactionPage> {
       context: context,
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
-      initialDateRange: selectedStartDate != null && selectedEndDate != null
-          ? DateTimeRange(start: selectedStartDate!, end: selectedEndDate!)
-          : null,
+      initialDateRange:
+          selectedStartDate != null && selectedEndDate != null
+              ? DateTimeRange(start: selectedStartDate!, end: selectedEndDate!)
+              : null,
     );
     if (picked != null) {
       selectedStartDate = picked.start;
@@ -282,13 +305,13 @@ class ListTileForSale extends StatefulWidget {
 }
 
 class _ListTileForSaleState extends State<ListTileForSale> {
-  late Map<String, String> currentLocalization= {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
     return ListView.builder(
       itemCount: widget.data.length,
       itemBuilder: (context, index) {
@@ -298,7 +321,7 @@ class _ListTileForSaleState extends State<ListTileForSale> {
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 4.0),
             decoration: BoxDecoration(
-              color: Colors.green.shade500.withValues(alpha:0.2),
+              color: Colors.green.shade500.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: ListTile(
@@ -308,16 +331,29 @@ class _ListTileForSaleState extends State<ListTileForSale> {
                     : sale.name == "Cattle Sale"
                     ? currentLocalization['cattle_sale'] ?? ''
                     : sale.name,
-                style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               subtitle: Text(
                 '${currentLocalization['amount']}:  ${sale.value.toStringAsFixed(2)}| ${currentLocalization['on_date']}: ${sale.saleOnMonth?.day}-${sale.saleOnMonth?.month}-${sale.saleOnMonth?.year}',
-                style:  TextStyle(color: Colors.grey[800]),
+                style: TextStyle(color: Colors.grey[800]),
               ),
               trailing: IconButton(
                 icon: const Icon(Icons.edit, color: Colors.black),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditTransaction(showIncome: true,sale: sale,expense: null,)));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => EditTransaction(
+                            showIncome: true,
+                            sale: sale,
+                            expense: null,
+                          ),
+                    ),
+                  );
                 },
               ),
             ),
@@ -337,13 +373,13 @@ class ListTileForExpense extends StatefulWidget {
 }
 
 class _ListTileForExpenseState extends State<ListTileForExpense> {
-  late Map<String, String> currentLocalization= {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
     return ListView.builder(
       itemCount: widget.data.length,
       itemBuilder: (context, index) {
@@ -353,15 +389,21 @@ class _ListTileForExpenseState extends State<ListTileForExpense> {
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 4.0),
             decoration: BoxDecoration(
-              color: Colors.red.shade500.withValues(alpha:0.2),
+              color: Colors.red.shade500.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: ListTile(
               title: Text(
-                expense.name != "Feed" && expense.name != "Veterinary" && expense.name != "Labor Costs"&& expense.name != "Equipment and Machinery"
+                expense.name != "Feed" &&
+                        expense.name != "Veterinary" &&
+                        expense.name != "Labor Costs" &&
+                        expense.name != "Equipment and Machinery"
                     ? expense.name
                     : currentLocalization[expense.name] ?? '',
-                style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               subtitle: Text(
                 '${currentLocalization['amount']}:  ${expense.value.toStringAsFixed(2)}| ${currentLocalization['on_date']}: ${expense.expenseOnMonth?.day}-${expense.expenseOnMonth?.month}-${expense.expenseOnMonth?.year}',
@@ -370,7 +412,17 @@ class _ListTileForExpenseState extends State<ListTileForExpense> {
               trailing: IconButton(
                 icon: const Icon(Icons.edit, color: Colors.black),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditTransaction(showIncome: false,sale: null,expense: expense,)));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => EditTransaction(
+                            showIncome: false,
+                            sale: null,
+                            expense: expense,
+                          ),
+                    ),
+                  );
                 },
               ),
             ),
@@ -382,7 +434,7 @@ class _ListTileForExpenseState extends State<ListTileForExpense> {
 }
 
 class TotalTransactionPage extends StatelessWidget {
-  late Map<String, String> currentLocalization= {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   final DateTime? selectedStartDate;
@@ -390,38 +442,48 @@ class TotalTransactionPage extends StatelessWidget {
   final List<Sale> incomeTransactions;
   final List<Expense> expenseTransactions;
 
-   TotalTransactionPage({
+  TotalTransactionPage({
     super.key,
     required this.selectedStartDate,
     required this.selectedEndDate,
     required this.incomeTransactions,
     required this.expenseTransactions,
-
   });
-
 
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
     // Calculate total income
     final totalIncome = incomeTransactions
-        .where((sale) =>
-    (selectedStartDate == null ||
-        sale.saleOnMonth!.isAfter(selectedStartDate!.add(Duration(days: -1)))) &&
-        (selectedEndDate == null ||
-            sale.saleOnMonth!.isBefore(selectedEndDate!.add(Duration(days: 1)))))
+        .where(
+          (sale) =>
+              (selectedStartDate == null ||
+                  sale.saleOnMonth!.isAfter(
+                    selectedStartDate!.add(Duration(days: -1)),
+                  )) &&
+              (selectedEndDate == null ||
+                  sale.saleOnMonth!.isBefore(
+                    selectedEndDate!.add(Duration(days: 1)),
+                  )),
+        )
         .map((sale) => sale.value)
         .fold<double>(0, (prev, amount) => prev + amount);
 
     // Calculate total expense
     final totalExpense = expenseTransactions
-        .where((expense) =>
-    (selectedStartDate == null ||
-        expense.expenseOnMonth!.isAfter(selectedStartDate!.add(Duration(days: -1)))) &&
-        (selectedEndDate == null ||
-            expense.expenseOnMonth!.isBefore(selectedEndDate!.add(Duration(days: 1)))))
+        .where(
+          (expense) =>
+              (selectedStartDate == null ||
+                  expense.expenseOnMonth!.isAfter(
+                    selectedStartDate!.add(Duration(days: -1)),
+                  )) &&
+              (selectedEndDate == null ||
+                  expense.expenseOnMonth!.isBefore(
+                    selectedEndDate!.add(Duration(days: 1)),
+                  )),
+        )
         .map((expense) => expense.value)
         .fold<double>(0, (prev, amount) => prev + amount);
 
@@ -432,21 +494,23 @@ class TotalTransactionPage extends StatelessWidget {
     final Map<String, double> incomePerCategory = {};
     for (final transaction in incomeTransactions) {
       final category = transaction.name;
-      incomePerCategory[category] = (incomePerCategory[category] ?? 0) + transaction.value;
+      incomePerCategory[category] =
+          (incomePerCategory[category] ?? 0) + transaction.value;
     }
 
     // Calculate total expense per category
     final Map<String, double> expensePerCategory = {};
     for (final transaction in expenseTransactions) {
       final category = transaction.name;
-      expensePerCategory[category] = (expensePerCategory[category] ?? 0) + transaction.value;
+      expensePerCategory[category] =
+          (expensePerCategory[category] ?? 0) + transaction.value;
     }
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(13, 152, 186, 1.0),
-        title:  Text(
-          currentLocalization['total_transactions']??'',
+        title: Text(
+          currentLocalization['total_transactions'] ?? '',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
@@ -464,53 +528,77 @@ class TotalTransactionPage extends StatelessWidget {
             const SizedBox(height: 30),
             Text(
               '${currentLocalization["total_income"]}: ₹$totalIncome',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.green,
+              ),
             ),
             const SizedBox(height: 7),
-             Text(
+            Text(
               '${currentLocalization["income_per_category"]}',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            ...incomePerCategory.entries.map((entry) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                      '${entry.key != "Milk Sale" && entry.key != "Cattle Sale"? entry.key : currentLocalization[entry.key]}' ,
-                      style: const TextStyle(fontSize: 14)),
-                  Text('₹${entry.value.toStringAsFixed(2)}', style: const TextStyle(fontSize: 14)),
-                ],
+            ...incomePerCategory.entries.map(
+              (entry) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${entry.key != "Milk Sale" && entry.key != "Cattle Sale" ? entry.key : currentLocalization[entry.key]}',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    Text(
+                      '₹${entry.value.toStringAsFixed(2)}',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ],
+                ),
               ),
-            )),
+            ),
             const SizedBox(height: 25),
             Text(
               '${currentLocalization["total_expense"]}: ₹$totalExpense',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
             ),
             const SizedBox(height: 7),
-             Text(
+            Text(
               '${currentLocalization["expense_per_category"]}',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            ...expensePerCategory.entries.map((entry) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(entry.key!= "Feed" && entry.key != "Veterinary" && entry.key != "Labor Costs"&& entry.key != "Equipment and Machinery"
+            ...expensePerCategory.entries.map(
+              (entry) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      entry.key != "Feed" &&
+                              entry.key != "Veterinary" &&
+                              entry.key != "Labor Costs" &&
+                              entry.key != "Equipment and Machinery"
                           ? entry.key
                           : currentLocalization[entry.key] ?? '',
-                      style: const TextStyle(fontSize: 14)),
-                  Text('₹${entry.value.toStringAsFixed(2)}', style: const TextStyle(fontSize: 14)),
-                ],
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    Text(
+                      '₹${entry.value.toStringAsFixed(2)}',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ],
+                ),
               ),
-            )),
+            ),
             const SizedBox(height: 30),
             Text(
-              netProfit>=0?
-              '${currentLocalization['net_profit']}:  ₹$netProfit':
-    '${currentLocalization['net_loss']}:  ₹$netProfit',
+              netProfit >= 0
+                  ? '${currentLocalization['net_profit']}:  ₹${netProfit.toPrecision(2)}'
+                  : '${currentLocalization['net_loss']}:  ₹${netProfit.toPrecision(2)}',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,

@@ -17,7 +17,8 @@ class DatabaseServicesForNotification {
   }
 
   Future<DocumentSnapshot<Map<String, dynamic>>> infoFromServer(
-      String ntId) async {
+    String ntId,
+  ) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
     return await db
@@ -29,7 +30,7 @@ class DatabaseServicesForNotification {
   }
 
   Future<QuerySnapshot<Map<String, dynamic>>>
-      infoFromServerAllNotifications() async {
+  infoFromServerAllNotifications() async {
     FirebaseFirestore db = FirebaseFirestore.instance;
     return await db
         .collection('User')
@@ -42,13 +43,14 @@ class DatabaseServicesForNotification {
   Future<void> closeNotificationByPhrase(String phrase) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
-    QuerySnapshot querySnapshot = await db
-        .collection('User')
-        .doc(uid)
-        .collection('Notification')
-        .where('ntDetails', isGreaterThanOrEqualTo: phrase)
-        .where('ntDetails', isLessThanOrEqualTo: '$phrase\uf8ff')
-        .get();
+    QuerySnapshot querySnapshot =
+        await db
+            .collection('User')
+            .doc(uid)
+            .collection('Notification')
+            .where('ntDetails', isGreaterThanOrEqualTo: phrase)
+            .where('ntDetails', isLessThanOrEqualTo: '$phrase\uf8ff')
+            .get();
 
     for (QueryDocumentSnapshot doc in querySnapshot.docs) {
       await doc.reference.update({'ntClosed': true});
@@ -58,12 +60,13 @@ class DatabaseServicesForNotification {
   Future<void> closeNotification(String ntId) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
 
-    QuerySnapshot querySnapshot = await db
-        .collection('User')
-        .doc(uid)
-        .collection('Notification')
-        .where('ntId', isEqualTo: ntId)
-        .get();
+    QuerySnapshot querySnapshot =
+        await db
+            .collection('User')
+            .doc(uid)
+            .collection('Notification')
+            .where('ntId', isEqualTo: ntId)
+            .get();
 
     for (QueryDocumentSnapshot doc in querySnapshot.docs) {
       await doc.reference.update({'ntClosed': true});

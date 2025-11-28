@@ -7,7 +7,7 @@ import 'package:farm_expense_mangement_app/screens/cattle/newcattle.dart';
 import 'package:provider/provider.dart';
 import '../../../main.dart';
 import '../wrappers/wrapperhome.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 class AnimalList1 extends StatefulWidget {
   const AnimalList1({super.key});
@@ -24,7 +24,7 @@ class _AnimalList1State extends State<AnimalList1>
   int dryCount = 0;
   int milkedCount = 0;
   int heiferCount = 0;
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   @override
@@ -40,24 +40,33 @@ class _AnimalList1State extends State<AnimalList1>
   }
 
   void _fetchCounts(String type) async {
-    final snapshot = await cattleDb
-        .infoFromServerAllCattle(FirebaseAuth.instance.currentUser!.uid);
+    final snapshot = await cattleDb.infoFromServerAllCattle(
+      FirebaseAuth.instance.currentUser!.uid,
+    );
     final allCattle =
         snapshot.docs.map((doc) => Cattle.fromFireStore(doc, null)).toList();
 
     setState(() {
-      calfCount = allCattle
-          .where((cattle) => cattle.type == type && cattle.state == 'Calf')
-          .length;
-      dryCount = allCattle
-          .where((cattle) => cattle.type == type && cattle.state == 'Dry')
-          .length;
-      milkedCount = allCattle
-          .where((cattle) => cattle.type == type && cattle.state == 'Milked')
-          .length;
-      heiferCount = allCattle
-          .where((cattle) => cattle.type == type && cattle.state == 'Heifer')
-          .length;
+      calfCount =
+          allCattle
+              .where((cattle) => cattle.type == type && cattle.state == 'Calf')
+              .length;
+      dryCount =
+          allCattle
+              .where((cattle) => cattle.type == type && cattle.state == 'Dry')
+              .length;
+      milkedCount =
+          allCattle
+              .where(
+                (cattle) => cattle.type == type && cattle.state == 'Milked',
+              )
+              .length;
+      heiferCount =
+          allCattle
+              .where(
+                (cattle) => cattle.type == type && cattle.state == 'Heifer',
+              )
+              .length;
     });
   }
 
@@ -65,21 +74,22 @@ class _AnimalList1State extends State<AnimalList1>
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(
-            onPressed: () => Navigator.push(
+          onPressed:
+              () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const WrapperHomePage()))),
+                  builder: (context) => const WrapperHomePage(),
+                ),
+              ),
+        ),
         iconTheme: const IconThemeData(color: Colors.black),
         title: Text(
           currentLocalization['Animals'] ?? 'Animals',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
         centerTitle: true,
@@ -88,7 +98,9 @@ class _AnimalList1State extends State<AnimalList1>
           labelColor: Colors.black,
           unselectedLabelColor: Colors.black54,
           labelStyle: const TextStyle(
-              fontSize: 18, fontWeight: FontWeight.bold), // Increased text size
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ), // Increased text size
           unselectedLabelStyle: const TextStyle(fontSize: 16),
           tabs: [
             Tab(text: currentLocalization['Cow'] ?? 'Cow'),
@@ -110,18 +122,13 @@ class _AnimalList1State extends State<AnimalList1>
       body: TabBarView(
         physics: const NeverScrollableScrollPhysics(),
         controller: _tabController,
-        children: [
-          _buildCattleSection('Cow'),
-          _buildCattleSection('Buffalo'),
-        ],
+        children: [_buildCattleSection('Cow'), _buildCattleSection('Buffalo')],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => const AddNewCattle(),
-            ),
+            MaterialPageRoute(builder: (context) => const AddNewCattle()),
           );
         },
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
@@ -152,8 +159,8 @@ class _AnimalList1State extends State<AnimalList1>
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                AnimalList2(animalType: type, section: section),
+            builder:
+                (context) => AnimalList2(animalType: type, section: section),
           ),
         );
       },
@@ -165,7 +172,9 @@ class _AnimalList1State extends State<AnimalList1>
         ),
         child: Container(
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16), color: Colors.white),
+            borderRadius: BorderRadius.circular(16),
+            color: Colors.white,
+          ),
           child: Column(
             children: [
               // Section name container with white background at the top
@@ -174,7 +183,11 @@ class _AnimalList1State extends State<AnimalList1>
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: const BoxDecoration(
                   color: Color.fromRGBO(
-                      13, 166, 186, 0.9), // White background for section name
+                    13,
+                    166,
+                    186,
+                    0.9,
+                  ), // White background for section name
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(16),
                     topRight: Radius.circular(16),
@@ -184,7 +197,9 @@ class _AnimalList1State extends State<AnimalList1>
                   currentLocalization[section] ?? section,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
 

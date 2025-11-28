@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import '../screens/home/localisations_en.dart';
-import '../screens/home/localisations_hindi.dart';
-import '../screens/home/localisations_punjabi.dart';
-import '../screens/home/localisations_telugu.dart';
 
 const textInputDecoration = InputDecoration(
   fillColor: Colors.white,
@@ -34,17 +30,19 @@ const langCodeMap = {
   'en': 'English',
   'hi': 'Hindi',
   'pa': 'Punjabi',
-  'te': 'Telugu'
+  'te': 'Telugu',
 };
 
-const langFileMap = {
+/*const langFileMap = {
   'en': LocalizationEn.translations,
   'hi': LocalizationHi.translations,
   'pa': LocalizationPun.translations,
-  'te': LocalizationTe.translations
-};
+  'te': LocalizationTe.translations,
+};*/
 
-const cowBreed = [
+const langCodes = ['en', 'hi', 'pa', 'te'];
+
+/*const cowBreed = [
   'select',
   'jersey',
   'holstein',
@@ -75,5 +73,8 @@ const buffaloBreed = [
   'pandharpuri',
   'banni',
 ];
+*/
 
 const milkEntryTypes = ['whole farm', 'group wise', 'cattle wise'];
+
+const reportTypes = ['transactions', 'milk production', 'milk sale'];

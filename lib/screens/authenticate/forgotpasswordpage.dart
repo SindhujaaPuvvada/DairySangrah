@@ -43,14 +43,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
-              'asset/bgscreen.png',
-              fit: BoxFit.fitHeight,
-            ),
+            child: Image.asset('asset/bgscreen.png', fit: BoxFit.fitHeight),
           ),
           Container(
-            color:
-                Colors.black.withValues(alpha: 0.5), // Set opacity level here
+            color: Colors.black.withValues(
+              alpha: 0.5,
+            ), // Set opacity level here
 
             child: ListView(
               children: [
@@ -73,9 +71,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     ),
                   ),
                 ),
-                const SizedBox(
-                  height: 30,
-                ),
+                const SizedBox(height: 30),
                 Padding(
                   padding: const EdgeInsets.all(50.0),
                   child: Container(
@@ -83,7 +79,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       color: Colors.black.withValues(
-                          alpha: 0.4), // Set container color with opacity
+                        alpha: 0.4,
+                      ), // Set container color with opacity
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),

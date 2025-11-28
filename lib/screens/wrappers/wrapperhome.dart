@@ -1,5 +1,5 @@
 import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
-import 'package:farm_expense_mangement_app/shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/localizationService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../main.dart';
 import '../notification/alertnotificationpage.dart';
+import '../reports/reportsPage.dart';
 
 class WrapperHomePage extends StatefulWidget {
   const WrapperHomePage({super.key});
@@ -21,27 +22,40 @@ class LanguagePopup {
   static void showLanguageOptions(BuildContext context) {
     var languageCode =
         Provider.of<AppData>(context, listen: false).persistentVariable;
-    Map<String, String> currentLocalization = {};
+    Map<String, dynamic> currentLocalization = {};
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title:
-              Text(currentLocalization['Select Language'] ?? 'Select Language'),
+          title: Text(
+            currentLocalization['Select Language'] ?? 'Select Language',
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildLanguageOption(
-                  context, currentLocalization['English'] ?? 'English', 'en'),
+                context,
+                currentLocalization['English'] ?? 'English',
+                'en',
+              ),
               _buildLanguageOption(
-                  context, currentLocalization['Hindi'] ?? 'Hindi', 'hi'),
+                context,
+                currentLocalization['Hindi'] ?? 'Hindi',
+                'hi',
+              ),
               _buildLanguageOption(
-                  context, currentLocalization['Punjabi'] ?? 'Punjabi', 'pa'),
+                context,
+                currentLocalization['Punjabi'] ?? 'Punjabi',
+                'pa',
+              ),
               _buildLanguageOption(
-                  context, currentLocalization['Telugu'] ?? 'Telugu', 'te')
+                context,
+                currentLocalization['Telugu'] ?? 'Telugu',
+                'te',
+              ),
             ],
           ),
         );
@@ -50,7 +64,10 @@ class LanguagePopup {
   }
 
   static Widget _buildLanguageOption(
-      BuildContext context, String language, String languageCode) {
+    BuildContext context,
+    String language,
+    String languageCode,
+  ) {
     return InkWell(
       onTap: () {
         Provider.of<AppData>(context, listen: false).persistentVariable =
@@ -59,10 +76,7 @@ class LanguagePopup {
       },
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Text(
-          language,
-          style: const TextStyle(fontSize: 16),
-        ),
+        child: Text(language, style: const TextStyle(fontSize: 16)),
       ),
     );
   }
@@ -99,25 +113,19 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
       String uid = FirebaseAuth.instance.currentUser!.uid;
       DatabaseServicesForUser userDB = DatabaseServicesForUser(uid);
       String? fcmToken = prefs.getString('fcm_token');
-      await userDB.updateFCMToken(uid,fcmToken);
+      await userDB.updateFCMToken(uid, fcmToken);
       await prefs.setBool('fcm_to_update', false);
     }
-    if(mounted) {
-      int counter = Provider
-          .of<AppData>(context, listen: false)
-          .counter;
+    if (mounted) {
+      int counter = Provider.of<AppData>(context, listen: false).counter;
       if (counter == 0) {
         String uid = FirebaseAuth.instance.currentUser!.uid;
         DatabaseServicesForUser userDB = DatabaseServicesForUser(uid);
         var langCode = await userDB.getChosenLanguage(uid);
         if (mounted) {
-          Provider
-              .of<AppData>(context, listen: false)
-              .persistentVariable =
+          Provider.of<AppData>(context, listen: false).persistentVariable =
               langCode;
-          Provider
-              .of<AppData>(context, listen: false)
-              .counter = 1;
+          Provider.of<AppData>(context, listen: false).counter = 1;
         }
       }
     }
@@ -135,11 +143,11 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
       } else if (_selectedIndex == 2) {
         LanguagePopup.showLanguageOptions(context);
       } else if (_selectedIndex == 3) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => const AlertNotificationsPage()),
-        );
+        _appBar = const NotificationAppBar();
+        _bodyScreen = const AlertNotificationsPage();
+      } else if (_selectedIndex == 4) {
+        _appBar = const ReportsAppBar();
+        _bodyScreen = const ReportsPage();
       }
     });
   }
@@ -159,6 +167,18 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
   void language(BuildContext context) {
     setState(() {
       _updateIndex(2);
+    });
+  }
+
+  void notifications(BuildContext context) {
+    setState(() {
+      _updateIndex(3);
+    });
+  }
+
+  void reports(BuildContext context) {
+    setState(() {
+      _updateIndex(4);
     });
   }
 
@@ -182,6 +202,7 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               FloatingActionButton(
+                heroTag: 'profile_tag',
                 onPressed: () {
                   profile(context);
                 },
@@ -194,18 +215,7 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
                 ),
               ),
               FloatingActionButton(
-                onPressed: () {
-                  home(context);
-                },
-                backgroundColor: Colors.white,
-                elevation: 0,
-                child: Icon(
-                  Icons.home,
-                  size: 36,
-                  color: _selectedIndex == 0 ? Colors.black : Colors.grey,
-                ),
-              ),
-              FloatingActionButton(
+                heroTag: 'language_tag',
                 onPressed: () {
                   LanguagePopup.showLanguageOptions(context);
                 },
@@ -218,18 +228,22 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
                 ),
               ),
               FloatingActionButton(
-                onPressed: () async {
-                  _selectedIndex = 3;
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const AlertNotificationsPage()),
-                  );
-                  // Reset index after returning from the notifications page
-                  setState(() {
-                    _selectedIndex =
-                        0; // Set this to the default page index (Home)
-                  });
+                heroTag: 'home_tag',
+                onPressed: () {
+                  home(context);
+                },
+                backgroundColor: Colors.white,
+                elevation: 0,
+                child: Icon(
+                  Icons.home,
+                  size: 36,
+                  color: _selectedIndex == 0 ? Colors.black : Colors.grey,
+                ),
+              ),
+              FloatingActionButton(
+                heroTag: 'notifications_tag',
+                onPressed: () {
+                  notifications(context);
                 },
                 backgroundColor: Colors.white,
                 elevation: 0,
@@ -237,6 +251,19 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
                   Icons.notifications,
                   size: 36,
                   color: _selectedIndex == 3 ? Colors.black : Colors.grey,
+                ),
+              ),
+              FloatingActionButton(
+                heroTag: 'reports_tag',
+                onPressed: () {
+                  reports(context);
+                },
+                backgroundColor: Colors.white,
+                elevation: 0,
+                child: Icon(
+                  Icons.file_download_rounded,
+                  size: 36,
+                  color: _selectedIndex == 4 ? Colors.black : Colors.grey,
                 ),
               ),
             ],

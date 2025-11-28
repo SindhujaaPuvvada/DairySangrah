@@ -7,7 +7,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../main.dart';
-import '../../shared/constants.dart';
+import '../../services/breedService.dart';
+import '../../services/localizationService.dart';
 import '../cattle/cattleUtils.dart';
 import 'onboardUtils.dart';
 
@@ -19,7 +20,7 @@ class OnBoardingScreens extends StatefulWidget {
 }
 
 class _OnBoardingScreensState extends State<OnBoardingScreens> {
-  late Map<String, String> currentLocalization = {};
+  late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   final PageController pageController = PageController();
@@ -66,6 +67,16 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
 
   String? _selectedOption = 'yes';
 
+  late List<String> cowBreed;
+  late List<String> buffaloBreed;
+
+  @override
+  void initState() {
+    super.initState();
+    cowBreed = BreedService().cowBreeds;
+    buffaloBreed = BreedService().buffaloBreeds;
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -84,14 +95,16 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = langFileMap[languageCode]!;
+    currentLocalization = Localization().translations[languageCode]??{};
 
     Map<String, String> cowBreedMap = {};
+    cowBreedMap['select'] = currentLocalization['select'] ?? 'select';
     for (var breed in cowBreed) {
       cowBreedMap[breed] = currentLocalization[breed] ?? breed;
     }
 
     Map<String, String> buffaloBreedMap = {};
+    buffaloBreedMap['select'] = currentLocalization['select'] ?? 'select';
     for (var breed in buffaloBreed) {
       buffaloBreedMap[breed] = currentLocalization[breed] ?? breed;
     }
@@ -560,23 +573,25 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
         maleCount = int.parse(maleCountController[k].text);
         String? breed = (_selectedOption == 'no') ? null : selectedBreeds[k];
 
-        lastGrpId = results[0] + (k*5);
+        lastGrpId = results[0] + (k * 5);
         lastRFId = lastRFId + prevBreedCattleCount;
 
-        futures.add(createGroups(
-          cattleType,
-          breed,
-          calfCount,
-          heiferCount,
-          milkedCount,
-          dryCount,
-          maleCount,
-          lastGrpId,
-          lastRFId,
-        ));
+        futures.add(
+          createGroups(
+            cattleType,
+            breed,
+            calfCount,
+            heiferCount,
+            milkedCount,
+            dryCount,
+            maleCount,
+            lastGrpId,
+            lastRFId,
+          ),
+        );
 
         prevBreedCattleCount =
-        (calfCount + heiferCount + milkedCount + dryCount + maleCount);
+            (calfCount + heiferCount + milkedCount + dryCount + maleCount);
       }
       breedCountController.text = '1';
       selectedBreeds = [];

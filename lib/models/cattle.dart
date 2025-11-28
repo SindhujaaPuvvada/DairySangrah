@@ -17,22 +17,25 @@ class Cattle {
   String? motherInfo;
   String? fatherInfo;
 
-  Cattle(
-      {required this.rfid,
-      this.nickname,
-      required this.sex,
-      this.breed,
-      this.weight = 0,
-      this.state = 'Dry',
-      this.source = 'Born on Farm',
-      required this.type,
-      this.isPregnant = false,
-      this.dateOfBirth,
-      this.motherInfo,
-      this.fatherInfo});
+  Cattle({
+    required this.rfid,
+    this.nickname,
+    required this.sex,
+    this.breed,
+    this.weight = 0,
+    this.state = 'Dry',
+    this.source = 'Born on Farm',
+    required this.type,
+    this.isPregnant = false,
+    this.dateOfBirth,
+    this.motherInfo,
+    this.fatherInfo,
+  });
 
-  factory Cattle.fromFireStore(DocumentSnapshot<Map<String, dynamic>> snapshot,
-      SnapshotOptions? options) {
+  factory Cattle.fromFireStore(
+    DocumentSnapshot<Map<String, dynamic>> snapshot,
+    SnapshotOptions? options,
+  ) {
     final data = snapshot.data();
     return Cattle(
       rfid: data?['rfid'],
@@ -63,8 +66,8 @@ class Cattle {
       'type': type,
       'isPregnant': isPregnant,
       'dateOfBirth': dateOfBirth,
-      'motherInfo':motherInfo,
-      'fatherInfo':fatherInfo,
+      'motherInfo': motherInfo,
+      'fatherInfo': fatherInfo,
     };
   }
 }
