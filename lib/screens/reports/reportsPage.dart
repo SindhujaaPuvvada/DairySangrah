@@ -225,7 +225,11 @@ class _ReportsPageState extends State<ReportsPage> {
                           ),
                           child: InkWell(
                             onTap: () async {
-                              await OpenFilex.open(file.path);
+                              await OpenFilex.open(
+                                file.path,
+                                type:
+                                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                              );
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
