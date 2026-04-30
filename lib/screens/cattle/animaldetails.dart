@@ -465,7 +465,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 115,
+                                  width: 125,
                                   child: Text(
                                     (_cattle.dateOfBirth == null)
                                         ? ''

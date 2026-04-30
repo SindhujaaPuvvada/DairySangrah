@@ -25,7 +25,12 @@ class NotificationsApi {
       await prefs.setString('fcm_token', '');
       await prefs.setBool('fcm_to_update', true);
     } else {
-      final fCMToken = await _firebaseMessaging.getToken();
+      String? fCMToken;
+      for (int i = 0; i < 10; i++) {
+        fCMToken = await _firebaseMessaging.getToken();
+        await Future.delayed(Duration(seconds: 1));
+      }
+
       await prefs.setString('fcm_token', fCMToken ?? '');
       await prefs.setBool('fcm_to_update', true);
     }

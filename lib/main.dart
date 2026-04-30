@@ -1,4 +1,5 @@
 import 'package:farm_expense_mangement_app/api/notifications_api.dart';
+import 'package:farm_expense_mangement_app/firebase_options.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/authentication.dart';
 import 'package:farm_expense_mangement_app/screens/onboarding/onboard.dart';
 import 'package:farm_expense_mangement_app/screens/onboarding/onboardUtils.dart';
@@ -11,6 +12,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/language.dart';
 import 'package:upgrader/upgrader.dart';
@@ -38,7 +40,15 @@ class AppData with ChangeNotifier {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await dotenv.load(fileName: 'firebase_options.env');
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  if(kDebugMode) {
+    await FirebaseAuth.instance.setSettings(
+      appVerificationDisabledForTesting: true,
+    ); // comment this for production
+  }
+
   List<Future<void>> futures = [];
   futures.add(Localization().init());
   /*if (kDebugMode) {

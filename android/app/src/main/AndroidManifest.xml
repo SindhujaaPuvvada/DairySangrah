@@ -3,7 +3,7 @@
     <application
         android:label="DairySangrah"
         android:name="${applicationName}"
-        android:icon="@mipmap/bgscreen"
+        android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="false">
         <activity
             android:name=".MainActivity"
