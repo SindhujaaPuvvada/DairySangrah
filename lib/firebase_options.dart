@@ -3,6 +3,7 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -49,16 +50,16 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyALWWg6zUU0KsjClXs9SvX_5q30tOLMTSw',
+  static final FirebaseOptions android = FirebaseOptions(
+    apiKey: dotenv.env['ANDROID_API']!,
     appId: '1:856392093031:android:80d8942dcdf878ed33b3c2',
     messagingSenderId: '856392093031',
     projectId: 'farm-expense-management-cp',
     storageBucket: 'farm-expense-management-cp.firebasestorage.app',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDEBroxwravOFvgMLexWrAWPrmMzvvYD0w',
+  static final FirebaseOptions ios = FirebaseOptions(
+    apiKey: dotenv.env['IOS_API']!,
     appId: '1:856392093031:ios:73515d3a64ecfc4233b3c2',
     messagingSenderId: '856392093031',
     projectId: 'farm-expense-management-cp',
