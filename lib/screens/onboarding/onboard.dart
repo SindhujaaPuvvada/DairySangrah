@@ -1,6 +1,5 @@
 import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
-import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:farm_expense_mangement_app/services/database/dairyfarmDatabase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -95,7 +94,7 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     Map<String, String> cowBreedMap = {};
     cowBreedMap['select'] = currentLocalization['select'] ?? 'select';
@@ -222,10 +221,7 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
                       ],
                       if (data['type'] == 'count') ...[
                         StatefulBuilder(
-                          builder: (
-                            BuildContext context,
-                            StateSetter setState,
-                          ) {
+                          builder: (BuildContext context, StateSetter setState) {
                             int breedCount = int.parse(
                               breedCountController.text,
                             );
@@ -257,49 +253,48 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
                                     for (int j = 0; j < breedCount; j++) ...[
                                       (_selectedOption == 'no')
                                           ? Text(
-                                            currentLocalization['enter_the_details'] ??
-                                                '',
-                                            style: TextStyle(
-                                              color: Color.fromRGBO(
-                                                13,
-                                                166,
-                                                186,
-                                                1.0,
+                                              currentLocalization['enter_the_details'] ??
+                                                  '',
+                                              style: TextStyle(
+                                                color: Color.fromRGBO(
+                                                  13,
+                                                  166,
+                                                  186,
+                                                  1.0,
+                                                ),
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
                                               ),
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          )
+                                            )
                                           : Text(
-                                            "${currentLocalization['enter_for_breed']} ${j + 1}",
-                                            style: TextStyle(
-                                              color: Color.fromRGBO(
-                                                13,
-                                                166,
-                                                186,
-                                                1.0,
+                                              "${currentLocalization['enter_for_breed']} ${j + 1}",
+                                              style: TextStyle(
+                                                color: Color.fromRGBO(
+                                                  13,
+                                                  166,
+                                                  186,
+                                                  1.0,
+                                                ),
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
                                               ),
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
                                             ),
-                                          ),
                                       SizedBox(height: 15),
                                       (_selectedOption == 'no')
                                           ? Container()
                                           : OnboardUtils.buildDropdown(
-                                            label:
-                                                "${currentLocalization['breed']} ${j + 1}",
-                                            value: selectedBreeds[j],
-                                            items:
-                                                (index == 2)
-                                                    ? cowBreedMap
-                                                    : buffaloBreedMap,
-                                            onChanged: (newValue) {
-                                              setState(() {
-                                                selectedBreeds[j] = newValue!;
-                                              });
-                                            },
-                                          ),
+                                              label:
+                                                  "${currentLocalization['breed']} ${j + 1}",
+                                              value: selectedBreeds[j],
+                                              items: (index == 2)
+                                                  ? cowBreedMap
+                                                  : buffaloBreedMap,
+                                              onChanged: (newValue) {
+                                                setState(() {
+                                                  selectedBreeds[j] = newValue!;
+                                                });
+                                              },
+                                            ),
                                       SizedBox(height: 15),
                                       Row(
                                         spacing:
@@ -400,15 +395,14 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
                       SizedBox(height: 15),
                       OnboardUtils.buildElevatedButton(
                         currentLocalization['Continue'] ?? 'Continue',
-                        onPressed:
-                            isButtonDisabled
-                                ? () {}
-                                : () {
-                                  setState(() {
-                                    isButtonDisabled = true;
-                                  });
-                                  onContinue(index, data);
-                                },
+                        onPressed: isButtonDisabled
+                            ? () {}
+                            : () {
+                                setState(() {
+                                  isButtonDisabled = true;
+                                });
+                                onContinue(index, data);
+                              },
                       ),
                       SizedBox(height: 15),
                     ],
@@ -423,6 +417,7 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
   }
 
   Future<void> createGroups(
+    String farmId,
     String cattleType,
     String? breed,
     int calfCount,
@@ -430,108 +425,91 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
     int milkedCount,
     int dryCount,
     int maleCount,
-    int lastGrpId,
-    int lastRFId,
   ) async {
     List<Future<void>> futures = [];
 
     futures.add(
-      CattleUtils.addCattleGroupToDB(cattleType, breed, 'Calf', lastGrpId),
+      CattleUtils.addCattleGroupToDB(farmId, cattleType, breed, 'Calf'),
     );
-    lastGrpId++;
     for (int i = 0; i < calfCount; i++) {
       futures.add(
-        CattleUtils.addNewCattleToDB(cattleType, breed, 'Calf', lastRFId),
+        CattleUtils.addNewCattleToDB(farmId, cattleType, breed, 'Calf'),
       );
-      lastRFId++;
     }
 
     futures.add(
-      CattleUtils.addCattleGroupToDB(cattleType, breed, 'Heifer', lastGrpId),
+      CattleUtils.addCattleGroupToDB(farmId, cattleType, breed, 'Heifer'),
     );
-    lastGrpId++;
     for (int i = 0; i < heiferCount; i++) {
       futures.add(
         CattleUtils.addNewCattleToDB(
+          farmId,
           cattleType,
           breed,
           'Heifer',
-          lastRFId,
           'Female',
         ),
       );
-      lastRFId++;
     }
 
     futures.add(
-      CattleUtils.addCattleGroupToDB(cattleType, breed, 'Milked', lastGrpId),
+      CattleUtils.addCattleGroupToDB(farmId, cattleType, breed, 'Milked'),
     );
-    lastGrpId++;
     for (int i = 0; i < milkedCount; i++) {
       futures.add(
         CattleUtils.addNewCattleToDB(
+          farmId,
           cattleType,
           breed,
           'Milked',
-          lastRFId,
           'Female',
         ),
       );
-      lastRFId++;
     }
 
     futures.add(
-      CattleUtils.addCattleGroupToDB(cattleType, breed, 'Dry', lastGrpId),
+      CattleUtils.addCattleGroupToDB(farmId, cattleType, breed, 'Dry'),
     );
-    lastGrpId++;
     for (int i = 0; i < dryCount; i++) {
       futures.add(
         CattleUtils.addNewCattleToDB(
+          farmId,
           cattleType,
           breed,
           'Dry',
-          lastRFId,
           'Female',
         ),
       );
-      lastRFId++;
     }
 
     futures.add(
-      CattleUtils.addCattleGroupToDB(
-        cattleType,
-        breed,
-        'Adult Male',
-        lastGrpId,
-      ),
+      CattleUtils.addCattleGroupToDB(farmId, cattleType, breed, 'Adult Male'),
     );
-    lastGrpId++;
     for (int i = 0; i < maleCount; i++) {
       futures.add(
         CattleUtils.addNewCattleToDB(
+          farmId,
           cattleType,
           breed,
           'Adult Male',
-          lastRFId,
           'Male',
         ),
       );
-      lastRFId++;
     }
 
     await Future.wait(futures);
   }
 
   Future<void> onContinue(int index, var data) async {
-    String uid = FirebaseAuth.instance.currentUser!.uid;
-    DatabaseServicesForUser userDB = DatabaseServicesForUser(uid);
+    String farmId = Provider.of<AppData>(context, listen: false).farmId;
+    DbServicesForDairyFarm farmDB = DbServicesForDairyFarm();
     List<Future<void>> futures = [];
 
     if (data['type'] == 'count') {
       int breedCount = int.parse(breedCountController.text);
 
       if (_selectedOption == 'yes') {
-        futures.add(userDB.updateAppMode(uid, 'GBW'));
+        futures.add(farmDB.updateFarmMode(farmId, 'GBW'));
         for (int l = 0; l < breedCount; l++) {
           if (selectedBreeds[l] == 'select') {
             if (mounted) {
@@ -551,19 +529,11 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
           }
         }
       } else {
-        futures.add(userDB.updateAppMode(uid, 'Normal'));
+        futures.add(farmDB.updateFarmMode(farmId, 'Normal'));
       }
 
       String cattleType = (index == 2) ? 'Cow' : 'Buffalo';
       int calfCount, heiferCount, milkedCount, dryCount, maleCount;
-      int lastGrpId, lastRFId;
-      int prevBreedCattleCount = 0;
-
-      final results = await Future.wait([
-        CattleUtils.getLastUsedGrpId(uid),
-        CattleUtils.getLastUsedRFId(uid),
-      ]);
-      lastRFId = results[1];
 
       for (int k = 0; k < breedCount; k++) {
         calfCount = int.parse(calfCountController[k].text);
@@ -573,11 +543,9 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
         maleCount = int.parse(maleCountController[k].text);
         String? breed = (_selectedOption == 'no') ? null : selectedBreeds[k];
 
-        lastGrpId = results[0] + (k * 5);
-        lastRFId = lastRFId + prevBreedCattleCount;
-
         futures.add(
           createGroups(
+            farmId,
             cattleType,
             breed,
             calfCount,
@@ -585,13 +553,8 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
             milkedCount,
             dryCount,
             maleCount,
-            lastGrpId,
-            lastRFId,
           ),
         );
-
-        prevBreedCattleCount =
-            (calfCount + heiferCount + milkedCount + dryCount + maleCount);
       }
       breedCountController.text = '1';
       selectedBreeds = [];
@@ -603,8 +566,9 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
     }
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (index == _pageData.length - 1) {
-      futures.add(prefs.setBool('first_launch_$uid', false));
-      futures.add(userDB.updateIsFirstLaunch(uid, false));
+      futures.add(prefs.setBool('first_launch_$farmId', false));
+      futures.add(farmDB.updateIsFirstLaunch(farmId, false));
+      await Future.wait(futures);
 
       if (mounted) {
         Navigator.push(
@@ -615,8 +579,9 @@ class _OnBoardingScreensState extends State<OnBoardingScreens> {
     } else {
       if (_selectedOption == 'no' || (breedCountController.text) == '0') {
         if ((index + 2) > _pageData.length - 1) {
-          futures.add(prefs.setBool('first_launch_$uid', false));
-          futures.add(userDB.updateIsFirstLaunch(uid, false));
+          futures.add(prefs.setBool('first_launch_$farmId', false));
+          futures.add(farmDB.updateIsFirstLaunch(farmId, false));
+          await Future.wait(futures);
           if (mounted) {
             Navigator.push(
               context,

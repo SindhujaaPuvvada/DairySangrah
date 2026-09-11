@@ -1,32 +1,43 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class CattleGroup {
-  final String grpId;
+  String grpId;
+  final String farmId;
   final String type;
-  final String? breed;
+  int? breedId;
+  String? breed;
   final String state;
+  final DateTime createdAt;
 
   CattleGroup({
     required this.grpId,
+    required this.farmId,
     required this.type,
-    required this.breed,
+    this.breedId,
+    this.breed,
     required this.state,
+    required this.createdAt,
   });
 
-  factory CattleGroup.fromFireStore(
-    DocumentSnapshot<Map<String, dynamic>> snapshot,
-    SnapshotOptions? options,
-  ) {
-    final data = snapshot.data();
+  factory CattleGroup.fromDB(Map<String, dynamic> data) {
     return CattleGroup(
-      grpId: data?['grpId'],
-      type: data?['type'],
-      breed: data?['breed'],
-      state: data?['state'],
+      grpId: data['grpId'].toString(),
+      farmId: data['farmId'].toString(),
+      type: data['type'],
+      breedId: data['breedId'],
+      breed: (data.keys.contains('Breeds')) && (data['Breeds'] != null)
+          ? data['Breeds']['breedName']
+          : null,
+      state: data['state'],
+      createdAt: DateTime.parse(data['createdAt']),
     );
   }
 
-  Map<String, dynamic> toFireStore() {
-    return {'grpId': grpId, 'type': type, 'breed': breed, 'state': state};
+  Map<String, dynamic> toDB() {
+    return {
+      'farmId': farmId.toString(),
+      'type': type,
+      'breedId': breedId,
+      'state': state,
+      'createdAt': createdAt.toIso8601String().split('.')[0],
+    };
   }
 }

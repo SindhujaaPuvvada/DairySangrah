@@ -1,7 +1,7 @@
-import 'package:farm_expense_mangement_app/models/user.dart';
+/*import 'package:farm_expense_mangement_app/models/user.dart';
 import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
-import 'package:farm_expense_mangement_app/services/auth.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:farm_expense_mangement_app/services/supabaseService.dart';
+
 import 'package:flutter/material.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 import 'package:email_otp/email_otp.dart';
@@ -177,7 +177,7 @@ class _RegisterState extends State<Register> {
                                           (context) => RegisterOtp(
                                             email: email,
                                             password: password,
-                                            farmUser: FarmUser(
+                                            farmUser: DairyFarmUser(
                                               farmName: farmName,
                                               ownerName: ownerName,
                                               phoneNo: phoneNo,
@@ -222,7 +222,7 @@ class RegisterOtp extends StatefulWidget {
   final Function toggleView;
   final String email;
   final String password;
-  final FarmUser farmUser;
+  final DairyFarmUser farmUser;
   const RegisterOtp({
     super.key,
     required this.email,
@@ -236,7 +236,7 @@ class RegisterOtp extends StatefulWidget {
 }
 
 class _RegisterOtpState extends State<RegisterOtp> {
-  final AuthService _auth = AuthService();
+  final SupabaseService _auth = SupabaseService();
   final _formKey = GlobalKey<FormState>();
   String error = '';
   final TextEditingController _textController = TextEditingController();
@@ -498,3 +498,4 @@ class _RegisterOtpState extends State<RegisterOtp> {
     );
   }
 }
+*/

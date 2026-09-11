@@ -1,7 +1,7 @@
 import 'package:farm_expense_mangement_app/models/cattle.dart';
 import 'package:farm_expense_mangement_app/screens/cattle/animaldetails.dart';
 import 'package:farm_expense_mangement_app/services/database/cattledatabase.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:farm_expense_mangement_app/services/localizationService.dart';
 import 'package:provider/provider.dart';
@@ -9,11 +9,13 @@ import '../../../main.dart';
 import '../../services/breedService.dart';
 
 class AnimalList2 extends StatefulWidget {
+  final String farmId;
   final String animalType;
   final String section;
   final String? breed;
 
   const AnimalList2({
+    required this.farmId,
     required this.animalType,
     required this.section,
     this.breed,
@@ -25,7 +27,7 @@ class AnimalList2 extends StatefulWidget {
 }
 
 class _AnimalList2State extends State<AnimalList2> {
-  late DatabaseServicesForCattle cattleDb;
+  late DbServicesForCattle cattleDb;
   late List<Cattle> allCattle = [];
   List<Cattle> filteredCattle = [];
   late Map<String, dynamic> currentLocalization = {};
@@ -43,9 +45,7 @@ class _AnimalList2State extends State<AnimalList2> {
     cowBreed = BreedService().cowBreeds;
     buffaloBreed = BreedService().buffaloBreeds;
     _selectedBreed = widget.breed;
-    cattleDb = DatabaseServicesForCattle(
-      FirebaseAuth.instance.currentUser!.uid,
-    );
+    cattleDb = DbServicesForCattle();
     _fetchCattle();
     _searchController.addListener(_searchCattle);
     if (widget.animalType == 'Cow') {
@@ -60,38 +60,33 @@ class _AnimalList2State extends State<AnimalList2> {
   }
 
   Future<void> _fetchCattle() async {
-    final snapshot = await cattleDb.infoFromServerAllCattle(
-      FirebaseAuth.instance.currentUser!.uid,
-    );
+    final snapshot = await cattleDb.infoFromServerAllCattle(widget.farmId);
+    final allCattleData = snapshot.map((r) => Cattle.fromDB(r)).toList();
     setState(() {
-      allCattle =
-          snapshot.docs.map((doc) => Cattle.fromFireStore(doc, null)).toList();
-      //print(widget.animalType);
-      // print(widget.section);
+      allCattle = allCattleData;
       _filterCattle();
     });
   }
 
   void _filterCattle() {
     setState(() {
-      filteredCattle =
-          allCattle.where((cattle) {
-            //print(cattle.type);
-            //print(cattle.state);
-            if (widget.animalType == 'Cow' && cattle.type != 'Cow') {
-              return false;
-            }
-            if (widget.animalType == 'Buffalo' && cattle.type != 'Buffalo') {
-              return false;
-            }
-            if (cattle.state != widget.section) return false;
-            if (_selectedBreed != null &&
-                _selectedBreed != 'All' &&
-                cattle.breed?.toLowerCase() != _selectedBreed?.toLowerCase()) {
-              return false; // Filter by breed
-            }
-            return true;
-          }).toList();
+      filteredCattle = allCattle.where((cattle) {
+        //print(cattle.type);
+        //print(cattle.state);
+        if (widget.animalType == 'Cow' && cattle.type != 'Cow') {
+          return false;
+        }
+        if (widget.animalType == 'Buffalo' && cattle.type != 'Buffalo') {
+          return false;
+        }
+        if (cattle.state != widget.section) return false;
+        if (_selectedBreed != null &&
+            _selectedBreed != 'All' &&
+            cattle.breed?.toLowerCase() != _selectedBreed?.toLowerCase()) {
+          return false; // Filter by breed
+        }
+        return true;
+      }).toList();
       _searchCattle(); // Apply search filter after breed filter
     });
     //print(filteredCattle);
@@ -100,24 +95,25 @@ class _AnimalList2State extends State<AnimalList2> {
   void _viewCattleDetail(Cattle cattle) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => AnimalDetails(rfid: cattle.rfid)),
+      MaterialPageRoute(
+        builder: (context) => AnimalDetails(cattleId: cattle.cattleId),
+      ),
     );
   }
 
   void _searchCattle() {
     String query = _searchController.text.toLowerCase();
     setState(() {
-      filteredCattle =
-          filteredCattle.where((cattle) {
-            if (_selectedBreed != null &&
-                _selectedBreed != 'All' &&
-                cattle.breed?.toLowerCase() != _selectedBreed?.toLowerCase()) {
-              return false; // Apply breed filter
-            }
-            return cattle.rfid.toLowerCase().contains(
-              query,
-            ); // Search functionality
-          }).toList();
+      filteredCattle = filteredCattle.where((cattle) {
+        if (_selectedBreed != null &&
+            _selectedBreed != 'All' &&
+            cattle.breed?.toLowerCase() != _selectedBreed?.toLowerCase()) {
+          return false; // Apply breed filter
+        }
+        return cattle.cattleId.toString().toLowerCase().contains(
+          query,
+        ); // Search functionality
+      }).toList();
     });
   }
 
@@ -143,7 +139,7 @@ class _AnimalList2State extends State<AnimalList2> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -183,25 +179,22 @@ class _AnimalList2State extends State<AnimalList2> {
               onChanged: (String? newValue) {
                 _filterByBreed(newValue);
               },
-              items:
-                  breedList.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(
-                        currentLocalization[value.toLowerCase()] ?? value,
-                        style: TextStyle(
-                          color:
-                              _selectedBreed == value
-                                  ? Colors.black
-                                  : Colors.black,
-                          fontWeight:
-                              _selectedBreed == value
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                        ),
-                      ),
-                    );
-                  }).toList(),
+              items: breedList.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(
+                    currentLocalization[value.toLowerCase()] ?? value,
+                    style: TextStyle(
+                      color: _selectedBreed == value
+                          ? Colors.black
+                          : Colors.black,
+                      fontWeight: _selectedBreed == value
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           ),
         ],
@@ -276,7 +269,7 @@ class _AnimalList2State extends State<AnimalList2> {
                         leading: Padding(
                           padding: const EdgeInsets.all(5),
                           child: //cattleInfo.sex == 'Female'?
-                              Container(
+                          Container(
                             margin: const EdgeInsets.fromLTRB(0, 1, 0, 1),
                             foregroundDecoration: const BoxDecoration(
                               shape: BoxShape.circle,
@@ -295,7 +288,7 @@ class _AnimalList2State extends State<AnimalList2> {
                           ),
                         ),
                         title: Text(
-                          "${currentLocalization['RF ID'] ?? 'Cattle ID'}: ${cattleInfo.rfid}",
+                          "${currentLocalization['RF ID'] ?? 'Cattle ID'}: ${cattleInfo.cattleId}",
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Column(
@@ -307,18 +300,22 @@ class _AnimalList2State extends State<AnimalList2> {
                             Text(
                               "${currentLocalization['sex'] ?? 'Sex'}: ${currentLocalization[cattleInfo.sex?.toLowerCase()] ?? ''}",
                             ),
+                            Text(
+                              "${currentLocalization['rep_status'] ?? 'Reproductive Status'}: ${currentLocalization[cattleInfo.reproductiveStatus.toLowerCase()] ?? ''}",
+                            ),
                           ],
                         ),
                         trailing: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            (cattleInfo.nickname != null)
+                            (cattleInfo.nickName != null)
                                 ? Text(
-                                  currentLocalization['cattle_name'] ?? 'Name',
-                                )
+                                    currentLocalization['cattle_name'] ??
+                                        'Name',
+                                  )
                                 : Text(""),
                             Text(
-                              cattleInfo.nickname ?? '',
+                              cattleInfo.nickName ?? '',
                               style: const TextStyle(
                                 color: Colors.black,
                                 fontSize: 16,

@@ -1,18 +1,23 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:farm_expense_mangement_app/logging.dart';
 import 'package:farm_expense_mangement_app/main.dart';
+import 'package:farm_expense_mangement_app/models/dairyfarm.dart';
 import 'package:farm_expense_mangement_app/models/user.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/language.dart';
+import 'package:farm_expense_mangement_app/screens/authenticate/registerNewFarm.dart';
+import 'package:farm_expense_mangement_app/screens/authenticate/showfarms.dart';
+import 'package:farm_expense_mangement_app/screens/home/settingspage.dart';
+import 'package:farm_expense_mangement_app/services/database/dairyfarmDatabase.dart';
+import 'package:farm_expense_mangement_app/services/database/dairyfarmuserDatabase.dart';
 import 'package:farm_expense_mangement_app/services/localizationService.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import '../../services/database/userdatabase.dart';
+import '../../services/supabaseService.dart';
 import '../../shared/constants.dart';
 import '../authenticate/authUtils.dart';
 import '../wrappers/wrapperhome.dart';
+import 'contactuspage.dart';
 
 class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
   ProfileAppBar({super.key});
@@ -30,13 +35,59 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
     currentLocalization = Localization().translations[languageCode] ?? {};
 
     return AppBar(
-      leading: BackButton(
-        color: Colors.white,
-        onPressed:
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const WrapperHomePage()),
-            ),
+      leading:
+      PopupMenuButton<String>(
+        position: PopupMenuPosition.under,
+        icon: const Icon(Icons.more_vert, color: Colors.white,),
+        onSelected: (value) {
+          switch (value) {
+            case 'register_farm':
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => RegisterFarm()),
+              );
+              break;
+
+            case 'show_farms':
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => ShowFarmsPage()),
+              );
+              break;
+
+            case 'settings':
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => SettingsPage()),
+              );
+              break;
+
+            case 'contactus':
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => ContactUsPage()),
+              );
+              break;
+          }
+        },
+        itemBuilder: (context) => [
+          PopupMenuItem(
+            value: 'show_farms',
+            child: Text(currentLocalization['My Farms']??'My Farms' ),
+          ),
+          PopupMenuItem(
+            value: 'register_farm',
+            child: Text(currentLocalization['Register a New Farm']??'Register New Farm'),
+          ),
+          PopupMenuItem(
+            value: 'settings',
+            child: Text(currentLocalization['Settings'] ?? 'Settings'),
+          ),
+          PopupMenuItem(
+            value: 'contactus',
+            child: Text(currentLocalization['ContactUs'] ?? 'Contact Us'),
+          ),
+        ],
       ),
       centerTitle: true,
       title: Text(
@@ -57,7 +108,7 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
               menuChildren: [
                 MenuItemButton(
                   onPressed: () {
-                    FirebaseAuth.instance.signOut();
+                    SupabaseService.client.auth.signOut();
                     Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(builder: (context) => SignUpPage()),
                       (Route<dynamic> route) => false,
@@ -68,7 +119,7 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                 SubmenuButton(
                   menuChildren: [
                     MenuItemButton(
-                      child: Text(currentLocalization['Delete Data'] ?? ''),
+                      child: Text(currentLocalization['Delete Farms'] ?? ''),
                       onPressed: () {
                         showDialog(
                           context: context,
@@ -76,15 +127,11 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                             return AuthUtils.buildAlertDialog(
                               title: currentLocalization["Are you Sure?"] ?? '',
                               content:
-                                  currentLocalization['Delete Data Content'] ??
+                                  currentLocalization['Delete Farms Content'] ??
                                   '',
                               opt1: currentLocalization['yes'] ?? '',
                               onPressedOpt1: () async {
                                 try {
-                                  HttpsCallable callDeleteFarmData =
-                                      FirebaseFunctions.instance.httpsCallable(
-                                        'deleteFarmData',
-                                      );
                                   bool isDeleting = true;
                                   if (isDeleting) {
                                     final snackBar = SnackBar(
@@ -99,7 +146,7 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                                       context,
                                     ).showSnackBar(snackBar);
                                   }
-                                  await callDeleteFarmData();
+                                  await SupabaseService.client.functions.invoke('delete_all_farms');
                                   isDeleting = false;
                                   log.i(
                                     'Completed Sucessfully!',
@@ -109,7 +156,7 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                                     ScaffoldMessenger.of(
                                       context,
                                     ).hideCurrentSnackBar();
-                                    FirebaseAuth.instance.signOut();
+                                    SupabaseService.client.auth.signOut();
                                     Navigator.of(context).pushReplacement(
                                       MaterialPageRoute(
                                         builder: (context) => SignUpPage(),
@@ -146,11 +193,7 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                                   '',
                               opt1: currentLocalization['delete'] ?? '',
                               onPressedOpt1: () async {
-                                var user = FirebaseAuth.instance.currentUser!;
-
-                                //deleting the current user account permanently
-                                user
-                                    .delete()
+                                SupabaseService.client.functions.invoke('delete_account')
                                     .then((val) async {
                                       if (context.mounted) {
                                         Navigator.of(
@@ -180,15 +223,14 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
                                                     currentLocalization['re-login'] ??
                                                     '',
                                                 onPressedOpt1: () {
-                                                  FirebaseAuth.instance
+                                                  SupabaseService.client.auth
                                                       .signOut();
                                                   Navigator.of(
                                                     context,
                                                   ).pushAndRemoveUntil(
                                                     MaterialPageRoute(
-                                                      builder:
-                                                          (context) =>
-                                                              SignUpPage(),
+                                                      builder: (context) =>
+                                                          SignUpPage(),
                                                     ),
                                                     (Route<dynamic> route) =>
                                                         false,
@@ -238,7 +280,8 @@ class ProfileAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class ProfilePage extends StatefulWidget implements PreferredSizeWidget {
-  const ProfilePage({super.key});
+  final String farmId;
+  const ProfilePage({super.key, required this.farmId});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -252,35 +295,51 @@ class _ProfilePageState extends State<ProfilePage> {
   late String languageCode = 'en';
   late String appVersion;
   late String appBuildNumber;
+  late String farmId;
 
-  final user = FirebaseAuth.instance.currentUser;
-  final uid = FirebaseAuth.instance.currentUser!.uid;
-  late final Future<DocumentSnapshot<Map<String, dynamic>>>? _futureController;
+  final uid = SupabaseService.client.auth.currentUser!.id;
+  late final Future<void>? _futureController;
 
-  late FarmUser farmUser;
-  late DatabaseServicesForUser userDb;
-
-  Future<void> _fetchPkgInfo() async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    setState(() {
-      appVersion = packageInfo.version;
-      appBuildNumber = packageInfo.buildNumber;
-    });
-  }
+  late DbServicesForDairyFarm farmDb;
+  late DbServicesForUser userDb;
+  late User userData;
+  late DairyFarm dFarm;
+  late DairyFarmUser dFarmUser;
+  late DbServicesForDairyFarmUser farmUserDb;
 
   @override
   void initState() {
     super.initState();
-    userDb = DatabaseServicesForUser(uid);
+    farmUserDb = DbServicesForDairyFarmUser();
+
     setState(() {
-      _fetchPkgInfo();
-      _futureController = userDb.infoFromServer(uid);
+      _futureController = _fetchData(uid, widget.farmId);
     });
+  }
+
+  Future<void> _fetchData(String uid, String farmId) async {
+    userDb = DbServicesForUser();
+    farmDb = DbServicesForDairyFarm();
+    Map<String, dynamic>? data;
+    DairyFarm fData;
+    PackageInfo packageInfo;
+    (packageInfo, data, fData) = await (
+      PackageInfo.fromPlatform(),
+      userDb.infoFromServer(uid),
+      farmDb.infoFromServer(farmId),
+    ).wait;
+    if (data != null) {
+      userData = User.fromDB(data);
+    }
+    dFarm = fData;
+    appVersion = packageInfo.version;
+    appBuildNumber = packageInfo.buildNumber;
   }
 
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
+    farmId = Provider.of<AppData>(context).farmId;
 
     currentLocalization = Localization().translations[languageCode] ?? {};
 
@@ -292,9 +351,7 @@ class _ProfilePageState extends State<ProfilePage> {
             color: Colors.white,
             child: Center(child: CircularProgressIndicator()),
           );
-        } else if (snapshot.hasData) {
-          farmUser = FarmUser.fromFireStore(snapshot.requireData, null);
-
+        } else if (snapshot.connectionState == ConnectionState.done) {
           return Padding(
             padding: const EdgeInsets.all(0),
             child: Column(
@@ -309,7 +366,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       bottomRight: Radius.circular(20.0),
                     ),
                   ),
-                  height: 180,
+                  height: 165,
                   width: double.infinity,
                   child: Column(
                     children: [
@@ -324,15 +381,16 @@ class _ProfilePageState extends State<ProfilePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            currentLocalization['Farm Owner'] ?? '',
+                            '${currentLocalization['My Name']}:',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
+                          SizedBox(width: 10),
                           Text(
-                            farmUser.ownerName.toUpperCase(),
+                            userData.userName.toUpperCase(),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 20,
@@ -360,7 +418,12 @@ class _ProfilePageState extends State<ProfilePage> {
                           child: Container(
                             color: Colors.blueGrey[100],
                             child: Padding(
-                              padding: const EdgeInsets.fromLTRB(8.0, 18, 8, 18),
+                              padding: const EdgeInsets.fromLTRB(
+                                8.0,
+                                18,
+                                8,
+                                18,
+                              ),
                               child: Column(
                                 children: [
                                   Row(
@@ -368,26 +431,56 @@ class _ProfilePageState extends State<ProfilePage> {
                                       const SizedBox(
                                         child: Icon(
                                           Icons.home,
-                                          color: Color.fromRGBO(13, 166, 186, 1),
+                                          color: Color.fromRGBO(
+                                            13,
+                                            166,
+                                            186,
+                                            1,
+                                          ),
                                         ),
                                       ),
                                       const SizedBox(width: 16),
                                       SizedBox(
                                         width: 120,
                                         child: Text(
-                                          currentLocalization["Farm Name"] ?? '',
+                                          currentLocalization["Farm Name"] ??
+                                              '',
                                           style: TextStyle(fontSize: 18),
                                         ),
                                       ),
                                       const SizedBox(width: 40),
                                       Text(
-                                        farmUser.farmName,
+                                        dFarm.farmName,
                                         style: const TextStyle(fontSize: 18),
                                       ),
                                     ],
                                   ),
 
-                                  // SizedBox(height: 20,),
+                                  const SizedBox(height: 25),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.person,
+                                        color: Color.fromRGBO(13, 166, 186, 1),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      SizedBox(
+                                        width: 120,
+                                        child: Text(
+                                          currentLocalization["Owner Name"] ??
+                                              '',
+                                          style: TextStyle(fontSize: 18),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 40),
+                                      Expanded(
+                                        child: Text(
+                                          dFarm.ownerName.toString(),
+                                          style: const TextStyle(fontSize: 18),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                   const SizedBox(height: 25),
                                   Row(
                                     children: [
@@ -399,14 +492,15 @@ class _ProfilePageState extends State<ProfilePage> {
                                       SizedBox(
                                         width: 120,
                                         child: Text(
-                                          currentLocalization["Phone No."] ?? '',
+                                          currentLocalization["Phone No."] ??
+                                              '',
                                           style: TextStyle(fontSize: 18),
                                         ),
                                       ),
                                       const SizedBox(width: 40),
                                       Expanded(
                                         child: Text(
-                                          "${farmUser.phoneNo}",
+                                          userData.phoneNumber,
                                           style: const TextStyle(fontSize: 18),
                                         ),
                                       ),
@@ -423,14 +517,15 @@ class _ProfilePageState extends State<ProfilePage> {
                                       SizedBox(
                                         width: 120,
                                         child: Text(
-                                          currentLocalization["Farm Address"] ?? '',
+                                          currentLocalization["Farm Address"] ??
+                                              '',
                                           style: TextStyle(fontSize: 18),
                                         ),
                                       ),
                                       const SizedBox(width: 40),
                                       Expanded(
                                         child: Text(
-                                          farmUser.location,
+                                          dFarm.address,
                                           style: const TextStyle(fontSize: 18),
                                         ),
                                       ),
@@ -455,9 +550,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                       const SizedBox(width: 40),
                                       Expanded(
                                         child: Text(
-                                          currentLocalization[langCodeMap[farmUser
-                                                  .chosenLanguage]] ??
-                                              farmUser.chosenLanguage,
+                                          langCodeMap[userData
+                                                  .chosenLanguage] ??
+                                              userData.chosenLanguage,
                                           style: const TextStyle(fontSize: 18),
                                         ),
                                       ),
@@ -499,38 +594,30 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(height: 40),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromRGBO(13, 166, 186, 0.9),
+                            backgroundColor: const Color.fromRGBO(
+                              13,
+                              166,
+                              186,
+                              0.9,
+                            ),
                             foregroundColor: Colors.white,
                           ),
                           onPressed: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder:
-                                    (context) => ProfileEditPage(
-                                      farmUser: farmUser,
-                                      refresh: () {
-                                        setState(() {
-                                          final snapshot1 =
-                                              userDb.infoFromServer(uid)
-                                                  as AsyncSnapshot<
-                                                    DocumentSnapshot<
-                                                      Map<String, dynamic>
-                                                    >
-                                                  >;
-                                          farmUser = FarmUser.fromFireStore(
-                                            snapshot1.requireData,
-                                            null,
-                                          );
-                                        });
-                                      },
-                                    ),
+                                builder: (context) => ProfileEditPage(
+                                  userData: userData,
+                                  farmData: dFarm,
+                                ),
                               ),
                             );
                           },
-                          child: Text(currentLocalization['Edit Profile'] ?? ''),
+                          child: Text(
+                            currentLocalization['Edit Profile'] ?? '',
+                          ),
                         ),
-                        SizedBox(height: 20,),
+                        SizedBox(height: 20),
                       ],
                     ),
                   ),
@@ -549,12 +636,12 @@ class _ProfilePageState extends State<ProfilePage> {
 }
 
 class ProfileEditPage extends StatefulWidget {
-  final FarmUser farmUser;
-  final Function refresh;
+  final User userData;
+  final DairyFarm farmData;
   const ProfileEditPage({
     super.key,
-    required this.farmUser,
-    required this.refresh,
+    required this.userData,
+    required this.farmData,
   });
 
   @override
@@ -562,15 +649,14 @@ class ProfileEditPage extends StatefulWidget {
 }
 
 class _ProfileEditPageState extends State<ProfileEditPage> {
-  final user = FirebaseAuth.instance.currentUser;
-  final uid = FirebaseAuth.instance.currentUser!.uid;
+  final uid = SupabaseService.client.auth.currentUser!.id;
 
   late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _controllerName = TextEditingController();
-  final _controllerOwnerName = TextEditingController();
+  final _controllerUserName = TextEditingController();
   final _controllerPhone = TextEditingController();
   final _controllerAddress = TextEditingController();
   late String _selectedLanguage;
@@ -579,17 +665,12 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   @override
   void initState() {
     super.initState();
-    _controllerName.text = widget.farmUser.farmName;
-    _controllerOwnerName.text = widget.farmUser.ownerName;
-    _controllerPhone.text = widget.farmUser.phoneNo.toString();
-    _controllerAddress.text = widget.farmUser.location;
-    _selectedLanguage = widget.farmUser.chosenLanguage;
+    _controllerName.text = widget.farmData.farmName;
+    _controllerUserName.text = widget.userData.userName;
+    _controllerAddress.text = widget.farmData.address;
+    _controllerPhone.text = widget.userData.phoneNumber;
+    _selectedLanguage = widget.userData.chosenLanguage;
     //_selectedAppMode = widget.farmUser.appMode;
-  }
-
-  Future updateUser(FarmUser user) async {
-    final db = DatabaseServicesForUser(uid);
-    db.infoToServer(uid, user);
   }
 
   @override
@@ -613,12 +694,12 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
           child: ListView(
             children: [
               TextFormField(
-                controller: _controllerOwnerName,
+                controller: _controllerUserName,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  labelText: currentLocalization['Owner Name'] ?? '',
+                  labelText: currentLocalization['My Name'] ?? '',
                 ),
               ),
               const SizedBox(height: 25),
@@ -669,55 +750,34 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                     horizontal: 12.0,
                   ),
                 ),
-                items:
-                    langCodeMap.entries.map((lang) {
-                      return DropdownMenuItem<String>(
-                        value: lang.key,
-                        child: Text(currentLocalization[lang.value]!),
-                      );
-                    }).toList(),
+                items: langCodeMap.entries.map((lang) {
+                  return DropdownMenuItem<String>(
+                    value: lang.key,
+                    child: Text(lang.value),
+                  );
+                }).toList(),
                 onChanged: (val) => (_selectedLanguage = val!),
               ),
               const SizedBox(height: 25),
-              /*DropdownButtonFormField<String>(
-                    value: _selectedAppMode,
-                    decoration: InputDecoration(
-                      labelText: currentLocalization["App Mode"] ?? 'App Mode',
-                      labelStyle: const TextStyle(
-                          color: Colors.black54, fontSize: 14.0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 10.0, horizontal: 12.0),
-                    ),
-                    items: appModes.map((item) {
-                      return DropdownMenuItem<String>(
-                        value: item,
-                        child: Text(currentLocalization[item] ?? item),
-                      );
-                    }).toList(),
-                    onChanged: (val) => (_selectedAppMode = val!),
-                  ),
-                  const SizedBox(height: 25),*/
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromRGBO(13, 166, 186, 0.9),
                   foregroundColor: Colors.white,
                 ),
                 onPressed: () {
-                  final FarmUser farmUser = FarmUser(
-                    ownerName: _controllerOwnerName.text,
-                    farmName: _controllerName.text,
-                    location: _controllerAddress.text,
-                    phoneNo: int.parse(_controllerPhone.text),
-                    chosenLanguage: _selectedLanguage,
-                    appMode: widget.farmUser.appMode,
-                    isFirstLaunch: widget.farmUser.isFirstLaunch,
-                    fcmToken: widget.farmUser.fcmToken,
+                  final db = DbServicesForUser();
+                  final fdb = DbServicesForDairyFarm();
+                  db.updateToServerUserInfo(
+                    widget.userData.userId,
+                    _controllerUserName.text,
+                    _selectedLanguage,
                   );
-                  updateUser(farmUser);
-                  Provider.of<AppData>(context, listen: false).counter = 0;
+                  fdb.updateToServerFarm(
+                    widget.farmData.farmId!,
+                    _controllerName.text,
+                    _controllerAddress.text,
+                  );
+                  Provider.of<AppData>(context, listen: false).persistentVariable = _selectedLanguage;
                   Navigator.pop(context);
                   Navigator.push(
                     context,

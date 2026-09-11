@@ -1,4 +1,4 @@
-import 'package:farm_expense_mangement_app/screens/authenticate/register.dart';
+/*import 'package:farm_expense_mangement_app/screens/authenticate/register.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/login.dart';
 import 'package:flutter/material.dart';
 
@@ -12,7 +12,7 @@ class Authenticate extends StatefulWidget {
 class _AuthenticateState extends State<Authenticate> {
   bool showSignIn = true;
   void toggleView() {
-    //print(showSignIn.toString());
+    //print(showSignIn;
     setState(() => showSignIn = !showSignIn);
   }
 
@@ -25,3 +25,4 @@ class _AuthenticateState extends State<Authenticate> {
     }
   }
 }
+*/

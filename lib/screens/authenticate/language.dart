@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Import provider package for state management
-import 'package:farm_expense_mangement_app/screens/authenticate/base.dart';
+import 'package:farm_expense_mangement_app/screens/authenticate/phoneno.dart';
 import 'package:farm_expense_mangement_app/main.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
 
   @override
-  _SignUpPageState createState() => _SignUpPageState();
+  State<SignUpPage> createState() => _SignUpPageState();
 }
 
 class _SignUpPageState extends State<SignUpPage> {
@@ -72,7 +72,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => DairyMitraRegistrationPage(),
+                        builder: (context) => PhoneAuthentication(),
                       ),
                     );
                   },
@@ -107,10 +107,9 @@ class _SignUpPageState extends State<SignUpPage> {
         padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
         margin: EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
-          color:
-              selectedLanguage == language
-                  ? Colors.grey.shade200
-                  : Colors.white,
+          color: selectedLanguage == language
+              ? Colors.grey.shade200
+              : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.grey.shade300, width: 1.5),
           boxShadow: [

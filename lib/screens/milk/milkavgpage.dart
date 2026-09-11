@@ -1,7 +1,7 @@
 import 'package:farm_expense_mangement_app/models/cattlegroups.dart';
 import 'package:farm_expense_mangement_app/screens/milk/milkUtils.dart';
 import 'package:farm_expense_mangement_app/services/database/cattlegroupsdatabase.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -11,13 +11,15 @@ import '../../../models/milk.dart';
 import '../../../services/database/cattledatabase.dart';
 import '../../../services/database/milkdatabase.dart';
 import '../../shared/constants.dart';
+import '../wrappers/wrapperhome.dart';
 import 'milkbydate.dart';
 import '../../../main.dart';
 import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 class AvgMilkPage extends StatefulWidget {
   final bool? fromNotification;
-  const AvgMilkPage({super.key, this.fromNotification});
+  final String farmId;
+  const AvgMilkPage({super.key, this.fromNotification, required this.farmId});
 
   @override
   State<AvgMilkPage> createState() => _AvgMilkPageState();
@@ -27,28 +29,24 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
   late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
-  final user = FirebaseAuth.instance.currentUser;
-  final uid = FirebaseAuth.instance.currentUser!.uid;
-
-  late DatabaseForMilkByDate db;
-  List<MilkByDate> _allMilkByDate = [];
+  late DbServicesForMilk db;
+  List<Milk> _allMilk = [];
   late DateTime _selectedDate = DateTime.now();
-  List<MilkByDate> _originalMilkByDate = [];
+  List<Milk> _originalMilk = [];
   bool _isLoading = true;
   double totalMilkAcrossAllDates = 0.0;
 
-  Future<void> _fetchAllMilkByDate() async {
-    final snapshot = await db.infoFromServerAllMilk();
+  Future<void> _fetchAllMilk() async {
+    final snapshot = await db.infoFromServerAllMilk(widget.farmId);
     setState(() {
-      _originalMilkByDate =
-          snapshot.docs
-              .map((doc) => MilkByDate.fromFireStore(doc, null))
-              .toList();
-      _allMilkByDate = _originalMilkByDate;
-      if (_allMilkByDate.isNotEmpty) {
-        totalMilkAcrossAllDates = (_originalMilkByDate
-            .map((milk) => milk.totalMilk)
-            .reduce((a, b) => a + b)).toPrecision(2);
+      _originalMilk = snapshot.map((r) => Milk.fromDB(r)).toList();
+      _allMilk = _originalMilk;
+      if (_allMilk.isNotEmpty) {
+        totalMilkAcrossAllDates =
+            (_originalMilk
+                    .map((milk) => milk.morningMilk + milk.eveningMilk)
+                    .reduce((a, b) => a + b))
+                .toPrecision(2);
       } // Calculate the total milk across all dates
       _isLoading = false;
     });
@@ -57,15 +55,15 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
   @override
   void initState() {
     super.initState();
-    db = DatabaseForMilkByDate(uid);
+    db = DbServicesForMilk();
     setState(() {
-      _fetchAllMilkByDate();
+      _fetchAllMilk();
     });
   }
 
   void _resetList() {
     setState(() {
-      _allMilkByDate = _originalMilkByDate;
+      _allMilk = _originalMilk;
     });
   }
 
@@ -86,10 +84,9 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
 
   void _filterMilkByDate(DateTime selectedDate) {
     setState(() {
-      _allMilkByDate =
-          _originalMilkByDate
-              .where((milk) => milk.dateOfMilk == selectedDate)
-              .toList();
+      _allMilk = _originalMilk
+          .where((milk) => milk.milkingDate == selectedDate)
+          .toList();
     });
   }
 
@@ -97,12 +94,15 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
+    
+    List<DateTime> allMilkDates = _allMilk.map((m)=> m.milkingDate).toSet().toList();
 
     if (widget.fromNotification != null && widget.fromNotification == true) {
       return AddMilkDataPage(
+        farmId: widget.farmId,
         onMilkRecordAdded: () {
-          _fetchAllMilkByDate();
+          _fetchAllMilk();
         },
       );
     }
@@ -110,6 +110,12 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
       appBar: AppBar(
+        leading: BackButton(
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const WrapperHomePage()),
+          ),
+        ),
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
         title: Center(
           child: Text(
@@ -121,7 +127,7 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
           IconButton(
             color: Colors.black,
             onPressed: () {
-              if (_allMilkByDate.length != _originalMilkByDate.length) {
+              if (_allMilk.length != _originalMilk.length) {
                 _resetList();
               } else {
                 _selectDate(context);
@@ -130,66 +136,55 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
             icon: const Icon(Icons.filter_list),
           ),
         ],
-        leading: IconButton(
-          color: Colors.black,
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
       ),
-      body:
-          _isLoading
-              ? Container(
-                color: Colors.white,
-                child: Center(child: CircularProgressIndicator()),
-              )
-              : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      "${currentLocalization['Total Milk'] ?? 'Total Milk'}: $totalMilkAcrossAllDates ${currentLocalization['Litres']}",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
+      body: _isLoading
+          ? Container(
+              color: Colors.white,
+              child: Center(child: CircularProgressIndicator()),
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    "${currentLocalization['Total Milk'] ?? 'Total Milk'}: $totalMilkAcrossAllDates ${currentLocalization['Litres']}",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
                   ),
-                  Expanded(
-                    child:
-                        _allMilkByDate.isEmpty
-                            ? Center(
-                              child: Text(
-                                currentLocalization['no_entries_for_sel_date'] ??
-                                    '',
-                                style: TextStyle(fontSize: 18),
-                              ),
-                            )
-                            : ListView.builder(
-                              itemCount: _allMilkByDate.length,
-                              itemBuilder: (context, index) {
-                                return MilkDataRowByDate(
-                                  data: _allMilkByDate[index],
-                                );
-                              },
-                            ),
-                  ),
-                ],
-              ),
+                ),
+                Expanded(
+                  child: allMilkDates.isEmpty
+                      ? Center(
+                          child: Text(
+                            currentLocalization['no_entries_for_sel_date'] ??
+                                '',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: allMilkDates.length,
+                          itemBuilder: (context, index) {
+                            return MilkDataRowByDate(milkingDate: allMilkDates[index], farmId: widget.farmId,);
+                          },
+                        ),
+                ),
+              ],
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder:
-                  (context) => AddMilkDataPage(
-                    onMilkRecordAdded: () {
-                      _fetchAllMilkByDate();
-                    },
-                  ),
+              builder: (context) => AddMilkDataPage(
+                farmId: widget.farmId,
+                onMilkRecordAdded: () {
+                  _fetchAllMilk();
+                },
+              ),
             ),
           );
         },
@@ -202,8 +197,13 @@ class _AvgMilkPageState extends State<AvgMilkPage> {
 
 class AddMilkDataPage extends StatefulWidget {
   final VoidCallback? onMilkRecordAdded;
+  final String farmId;
 
-  const AddMilkDataPage({super.key, this.onMilkRecordAdded});
+  const AddMilkDataPage({
+    super.key,
+    required this.farmId,
+    this.onMilkRecordAdded,
+  });
 
   @override
   State<AddMilkDataPage> createState() => _AddMilkDataPageState();
@@ -213,14 +213,11 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
   late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
-  final user = FirebaseAuth.instance.currentUser;
-  final uid = FirebaseAuth.instance.currentUser!.uid;
   final formKey = GlobalKey<FormState>();
 
-  late DatabaseForMilk db;
-  late DatabaseForMilkByDate dbByDate;
-  late DatabaseServicesForCattle cattleDb;
-  late DatabaseServicesForCattleGroups cgrpDb;
+  late DbServicesForMilk db;
+  late DbServicesForCattle cattleDb;
+  late DbServicesForCattleGroups cgrpDb;
 
   List<CattleGroup> milkedCattleGrps = [];
   List<Cattle> milkedCattle = [];
@@ -229,32 +226,29 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
   Map<String, String> milkedCattleIdsMap = {};
 
   Future<void> _fetchCattle() async {
-    final snapshot = await cattleDb.infoFromServerAllCattle(uid);
+    final snapshot = await cattleDb.infoFromServerAllCattle(widget.farmId);
+    final allCattleData = snapshot.map((r) => Cattle.fromDB(r)).toList();
     setState(() {
-      var allCattle =
-          snapshot.docs.map((doc) => Cattle.fromFireStore(doc, null)).toList();
-      milkedCattle =
-          allCattle.where((cattle) => cattle.state == 'Milked').toList();
+      var allCattle = allCattleData;
+      milkedCattle = allCattle
+          .where((cattle) => cattle.state == 'Milked')
+          .toList();
       //allMilkedRfIds = milkedRfid.map((cattle) => cattle.rfid).toList();
     });
   }
 
   Future<void> _fetchCattleGroup() async {
-    final snapshot = await cgrpDb.infoFromServerAllCattleGrps(uid);
+    final snapshot = await cgrpDb.infoFromServerAllCattleGrps(widget.farmId);
     setState(() {
-      var allCattleGrps =
-          snapshot.docs
-              .map((doc) => CattleGroup.fromFireStore(doc, null))
-              .toList();
-      milkedCattleGrps =
-          allCattleGrps
-              .where((cattleGrp) => cattleGrp.state == 'Milked')
-              .toList();
+      var allCattleGrps = snapshot.map((r) => CattleGroup.fromDB(r)).toList();
+      milkedCattleGrps = allCattleGrps
+          .where((cattleGrp) => cattleGrp.state == 'Milked')
+          .toList();
       //allMilkedGrpIds = milkedGrpId.map((cattleGrp) => cattleGrp.grpId).toList();
     });
   }
 
-  String selectedEntryType = 'whole farm';
+  String selectedEntryType = 'Whole-farm';
   String? selectedId;
   double? milkInMorning;
   double? milkInEvening;
@@ -263,55 +257,43 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
   @override
   void initState() {
     super.initState();
-    db = DatabaseForMilk(uid);
-    dbByDate = DatabaseForMilkByDate(uid);
-    cattleDb = DatabaseServicesForCattle(uid);
-    cgrpDb = DatabaseServicesForCattleGroups(uid);
+    db = DbServicesForMilk();
+    cattleDb = DbServicesForCattle();
+    cgrpDb = DbServicesForCattleGroups();
     _fetchCattleGroup();
     _fetchCattle();
   }
 
   Future<void> _addMilk(Milk data) async {
     await db.infoToServerMilk(data);
-    final snapshot = await dbByDate.infoFromServerMilk(data.dateOfMilk!);
-    final MilkByDate milkByDate;
-    if (snapshot.exists) {
-      milkByDate = MilkByDate.fromFireStore(snapshot, null);
-    } else {
-      milkByDate = MilkByDate(dateOfMilk: data.dateOfMilk);
-      await dbByDate.infoToServerMilk(milkByDate);
-    }
-    final double totalMilk =
-        (milkByDate.totalMilk + data.morning + data.evening).toPrecision(2);
-    await dbByDate.infoToServerMilk(
-      MilkByDate(dateOfMilk: data.dateOfMilk, totalMilk: totalMilk),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
-    for (var entryType in milkEntryTypes) {
+    for (var entryType in milkReportLevels) {
       milkEntryOptsMap[entryType] = currentLocalization[entryType] ?? entryType;
     }
 
     for (CattleGroup cgrp in milkedCattleGrps) {
       if (cgrp.breed != null) {
-        milkedGrpIdsMap[cgrp.grpId] =
+        milkedGrpIdsMap[cgrp.grpId.toString()] =
             "${currentLocalization[cgrp.state] ?? cgrp.state}-${currentLocalization[cgrp.breed] ?? cgrp.breed}";
       } else {
-        milkedGrpIdsMap[cgrp.grpId] =
+        milkedGrpIdsMap[cgrp.grpId.toString()] =
             "${currentLocalization[cgrp.state] ?? cgrp.state}-${currentLocalization[cgrp.type] ?? cgrp.type}";
       }
     }
 
     for (Cattle cattle in milkedCattle) {
-      if (cattle.nickname != null) {
-        milkedCattleIdsMap[cattle.rfid] = "${cattle.rfid}-${cattle.nickname}";
+      if (cattle.nickName != null) {
+        milkedCattleIdsMap[cattle.cattleId.toString()] =
+            "${cattle.cattleId}-${cattle.nickName}";
       } else {
-        milkedCattleIdsMap[cattle.rfid] = cattle.rfid;
+        milkedCattleIdsMap[cattle.cattleId.toString()] = cattle.cattleId
+            .toString();
       }
     }
 
@@ -353,28 +335,24 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
                   },
                 ),
                 const SizedBox(height: 20.0),
-                (selectedEntryType != "whole farm")
+                (selectedEntryType != "Whole-farm")
                     ? MilkUtils.buildDropdown(
-                      label:
-                          (selectedEntryType == 'group wise')
-                              ? currentLocalization['select_grpid'] ?? ""
-                              : currentLocalization['select_rfid'] ?? "",
-                      value: selectedId,
-                      valMsg:
-                          (selectedEntryType == 'group wise')
-                              ? currentLocalization['please_select_grp_id'] ??
-                                  ""
-                              : currentLocalization['please_select_rfid'] ?? "",
-                      items:
-                          selectedEntryType == 'group wise'
-                              ? milkedGrpIdsMap
-                              : milkedCattleIdsMap,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedId = value;
-                        });
-                      },
-                    )
+                        label: (selectedEntryType == 'Group-wise')
+                            ? currentLocalization['select_grpid'] ?? ""
+                            : currentLocalization['select_rfid'] ?? "",
+                        value: selectedId,
+                        valMsg: (selectedEntryType == 'Group-wise')
+                            ? currentLocalization['please_select_grp_id'] ?? ""
+                            : currentLocalization['please_select_rfid'] ?? "",
+                        items: selectedEntryType == 'Group-wise'
+                            ? milkedGrpIdsMap
+                            : milkedCattleIdsMap,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedId = value;
+                          });
+                        },
+                      )
                     : Container(),
                 const SizedBox(height: 20.0),
                 _buildInputBox(
@@ -442,10 +420,9 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
                       child: TextFormField(
                         readOnly: true,
                         controller: TextEditingController(
-                          text:
-                              milkingDate != null
-                                  ? '${milkingDate!.year}-${milkingDate!.month}-${milkingDate!.day}'
-                                  : '',
+                          text: milkingDate != null
+                              ? '${milkingDate!.year}-${milkingDate!.month}-${milkingDate!.day}'
+                              : '',
                         ),
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         validator: (value) {
@@ -474,20 +451,17 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
                     ),
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
-                        String idVal;
-                        if (selectedEntryType == 'whole farm') {
-                          idVal = "whole farm";
-                        } else {
-                          idVal =
-                              (selectedEntryType == 'group wise')
-                                  ? "GPID-${selectedId!}"
-                                  : "CTID-${selectedId!}";
-                        }
+                        DateTime now = DateTime.now();
                         final Milk newMilkData = Milk(
-                          id: idVal,
-                          morning: milkInMorning!.toPrecision(2),
-                          evening: milkInEvening!.toPrecision(2),
-                          dateOfMilk: milkingDate,
+                          milkId: '',
+                          farmId: widget.farmId,
+                          morningMilk: milkInMorning!.toPrecision(2),
+                          eveningMilk: milkInEvening!.toPrecision(2),
+                          milkingDate: milkingDate!,
+                          milkEntryType: selectedEntryType,
+                          milkEntryId: selectedEntryType == "Whole-farm" ? "0" : selectedId!,
+                          createdAt: now,
+                          updatedAt: now,
                         );
 
                         _addMilk(newMilkData).then((_) {
@@ -536,9 +510,10 @@ class _AddMilkDataPageState extends State<AddMilkDataPage> {
 }
 
 class MilkDataRowByDate extends StatefulWidget {
-  final MilkByDate data;
+  final DateTime milkingDate;
+  final String farmId;
 
-  const MilkDataRowByDate({super.key, required this.data});
+  const MilkDataRowByDate({super.key, required this.milkingDate, required this.farmId});
 
   @override
   State<MilkDataRowByDate> createState() => _MilkDataRowByDateState();
@@ -551,17 +526,19 @@ class _MilkDataRowByDateState extends State<MilkDataRowByDate> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder:
-            (context) => MilkByDatePage(dateOfMilk: (widget.data.dateOfMilk)),
+        builder: (context) => MilkByDatePage(
+          farmId: widget.farmId,
+          dateOfMilk: (widget.milkingDate),
+        ),
       ),
     );
   }
 
-  @override
+    @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     return GestureDetector(
       onTap: () {
@@ -598,7 +575,7 @@ class _MilkDataRowByDateState extends State<MilkDataRowByDate> {
               ),
             ),
             title: Text(
-              "${currentLocalization['date'] ?? ''}: ${widget.data.dateOfMilk?.day}-${widget.data.dateOfMilk?.month}-${widget.data.dateOfMilk?.year}",
+              "${currentLocalization['date'] ?? ''}: ${widget.milkingDate.day}-${widget.milkingDate.month}-${widget.milkingDate.year}",
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),

@@ -1,73 +1,97 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-// final cattle = Cattle(rfid:"5515154", sex: "male",age:  10,breed: "cow" ,lactationCycle:  2,weight:  120,/*dateOfBirth: DateTime.parse('2020-12-01')*/);
-
 class Cattle {
-  final String rfid;
-  String? nickname;
+  String cattleId;
+  String? nickName;
+  final String farmId;
   String? sex;
-  //final int age;
+  int? breedId;
   String? breed;
-  final int weight;
+  final double weight;
   String state;
-  final String? source;
+  final String source;
   final String type;
-  bool isPregnant;
   DateTime? dateOfBirth;
   String? motherInfo;
   String? fatherInfo;
+  String reproductiveStatus;
+  final bool isActive;
+  String? inactiveReason;
+  String? ext_cattleId;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   Cattle({
-    required this.rfid,
-    this.nickname,
+    required this.cattleId,
+    this.nickName,
+    required this.farmId,
     required this.sex,
+    this.breedId,
     this.breed,
     this.weight = 0,
-    this.state = 'Dry',
+    required this.state,
     this.source = 'Born on Farm',
     required this.type,
-    this.isPregnant = false,
     this.dateOfBirth,
     this.motherInfo,
     this.fatherInfo,
+    this.reproductiveStatus = 'Open',
+    this.isActive = true,
+    this.inactiveReason,
+    this.ext_cattleId,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
-  factory Cattle.fromFireStore(
-    DocumentSnapshot<Map<String, dynamic>> snapshot,
-    SnapshotOptions? options,
-  ) {
-    final data = snapshot.data();
+  factory Cattle.fromDB(Map<String, dynamic> data) {
     return Cattle(
-      rfid: data?['rfid'],
-      nickname: data?['nickname'],
-      sex: data?['sex'],
-      breed: data?['breed'],
-      weight: data?['weight'],
-      state: data?['state'],
-      source: data?['source'],
-      type: data?['type'],
-      isPregnant: data?['isPregnant'],
-      dateOfBirth:
-          (data?['dateOfBirth'] != null) ? data!['dateOfBirth'].toDate() : null,
-      motherInfo: data?['motherInfo'],
-      fatherInfo: data?['fatherInfo'],
+      cattleId: data['cattleId'].toString(),
+      nickName: data['nickName'],
+      farmId: data['farmId'].toString(),
+      sex: data['sex'],
+      breedId: data['breedId'],
+      breed: (data.keys.contains('Breeds')) && (data['Breeds'] != null)
+          ? data['Breeds']['breedName']
+          : null,
+      weight: data['weight'].toDouble(),
+      state: data['state'],
+      source: data['source'],
+      type: data['type'],
+      dateOfBirth: (data['dateOfBirth'] != null)
+          ? DateTime.parse(data['dateOfBirth'])
+          : null,
+      motherInfo: (data['motherInfo'] != null)
+          ? data['motherInfo'].toString()
+          : null,
+      fatherInfo: data['fatherInfo'],
+      reproductiveStatus: data['reproductiveStatus'],
+      isActive: data['isActive'],
+      inactiveReason: data['inactiveReason'],
+      ext_cattleId: data['ext_cattleId'],
+      createdAt: DateTime.parse(data['createdAt']),
+      updatedAt: DateTime.parse(data['updatedAt']),
     );
   }
 
-  Map<String, dynamic> toFireStore() {
+  Map<String, dynamic> toDB() {
     return {
-      'rfid': rfid,
-      'nickname': nickname,
+      'nickName': nickName,
+      'farmId': farmId,
       'sex': sex,
-      'breed': breed,
+      'breedId': breedId,
       'weight': weight,
       'state': state,
       'source': source,
       'type': type,
-      'isPregnant': isPregnant,
-      'dateOfBirth': dateOfBirth,
+      'dateOfBirth': (dateOfBirth != null)
+          ? dateOfBirth.toString().split(' ')[0]
+          : null,
       'motherInfo': motherInfo,
       'fatherInfo': fatherInfo,
+      'reproductiveStatus': reproductiveStatus,
+      'isActive': isActive,
+      'inactiveReason': inactiveReason,
+      'ext_cattleId': ext_cattleId,
+      'createdAt': createdAt.toIso8601String().split('.')[0],
+      'updatedAt': updatedAt.toIso8601String().split('.')[0],
     };
   }
 }

@@ -1,96 +1,127 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:farm_expense_mangement_app/services/database/breedDatabase.dart';
+import 'package:farm_expense_mangement_app/services/supabaseService.dart';
 import '../../models/cattle.dart';
 
-class DatabaseServicesForCattle {
-  final String uid;
-  DatabaseServicesForCattle(this.uid);
-  Future<bool> checkIfRFIDExists(String rfid) async {
-    final doc =
-        await FirebaseFirestore.instance
-            .collection('User')
-            .doc(uid)
-            .collection('Cattle')
-            .doc(rfid)
-            .get();
-
-    return doc.exists;
-  }
-
+class DbServicesForCattle {
   Future<void> infoToServerSingleCattle(Cattle cattle) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    return await db
-        .collection('User')
-        .doc(uid)
-        .collection('Cattle')
-        .doc(cattle.rfid)
-        .set(cattle.toFireStore());
-  }
-
-  Future<DocumentSnapshot<Map<String, dynamic>>> infoFromServer(
-    String rfid,
-  ) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-
-    return await db
-        .collection('User')
-        .doc(uid)
-        .collection('Cattle')
-        .doc(rfid)
-        .get();
-  }
-
-  Future<QuerySnapshot<Map<String, dynamic>>> infoFromServerAllCattle(
-    String uid,
-  ) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-
-    return await db
-        .collection('User')
-        .doc(uid)
-        .collection('Cattle')
-        .orderBy('rfid')
-        .get();
-  }
-
-  Future<void> deleteCattle(String rfid) async {
-    final FirebaseFirestore db = FirebaseFirestore.instance;
-
-    // Reference to the specific cattle document
-    final DocumentReference cattleDocRef = db
-        .collection('User')
-        .doc(uid)
-        .collection('Cattle')
-        .doc(rfid);
-
-    // Delete all documents in the 'History' subcollection
-    final QuerySnapshot historyDocs =
-        await cattleDocRef.collection('History').get();
-    // print(historyDocs);
-    for (QueryDocumentSnapshot doc in historyDocs.docs) {
-      await doc.reference.delete();
+    Map<String, dynamic> breedData;
+    if (cattle.breed != null) {
+      breedData = await DbServicesForBreed().getBreedDataFromName(
+        cattle.breed!,
+      );
+      cattle.breedId = breedData['breedId'];
     }
 
-    // Now delete the main cattle document
-    await cattleDocRef.delete();
+    return await SupabaseService.client.from('Cattle').insert(cattle.toDB());
   }
 
-  Future<String> getLastUsedRFIdDB(String uid) async {
-    final FirebaseFirestore db = FirebaseFirestore.instance;
+  Future<Map<String, dynamic>> infoFromServer(String cattleId) async {
+    Map<String, dynamic> data = await SupabaseService.client
+        .from('Cattle')
+        .select('*,Breeds(breedName)')
+        .eq('cattleId', cattleId)
+        .single();
 
-    final QuerySnapshot<Map<String, dynamic>> cattleDoc =
-        await db
-            .collection('User')
-            .doc(uid)
-            .collection('Cattle')
-            .orderBy("rfid", descending: true)
-            .limit(1)
-            .get();
+    return data;
+  }
 
-    if (cattleDoc.docs.isNotEmpty) {
-      var cattle = Cattle.fromFireStore(cattleDoc.docs[0], null);
-      return cattle.rfid;
-    } else {
-      return '0';
+  Future<List<Map<String, dynamic>>> infoFromServerAllCattle(
+    String farmId,
+  ) async {
+    List<Map<String, dynamic>> dataList = await SupabaseService.client
+        .from('Cattle')
+        .select('*, Breeds(breedName)')
+        .eq('farmId', farmId)
+         .order('createdAt', ascending: true);
+    return dataList;
+  }
+
+  Future<void> deleteCattle(String cattleId) async {
+    // Close all open notifications of the cattle
+    await SupabaseService.client
+        .from('Notifications')
+        .update({
+          'ntClosedDate': DateTime.now().toIso8601String().split('.')[0],
+        })
+        .eq('ntLevel', 'Cattle')
+        .eq('ntRelatedTo', cattleId)
+        .isFilter('ntClosedDate', null);
+
+    // Delete all events in the 'CattleEvents' table for the cattleId
+    await SupabaseService.client
+        .from('CattleEvents')
+        .delete()
+        .eq('cattleId', cattleId);
+
+    // Now delete the cattle data
+    await SupabaseService.client
+        .from('Cattle')
+        .delete()
+        .eq('cattleId', cattleId);
+
+    return;
+  }
+
+  Future<void> updateCattleState(String cattleId, String state) async {
+    String now = DateTime.now().toIso8601String().split('.')[0];
+    await SupabaseService.client
+        .from('Cattle')
+        .update({'state': state, 'updatedAt': now})
+        .eq('cattleId', cattleId);
+    return;
+  }
+
+  Future<void> updateCattleRepStatus(String cattleId, String repStatus) async {
+    String now = DateTime.now().toIso8601String().split('.')[0];
+    await SupabaseService.client
+        .from('Cattle')
+        .update({'reproductiveStatus': repStatus, 'updatedAt': now})
+        .eq('cattleId', cattleId);
+    return;
+  }
+
+  Future<void> updateCattleStateRepStatus(
+    String cattleId,
+    String state,
+    String repStatus,
+  ) async {
+    String now = DateTime.now().toIso8601String().split('.')[0];
+    await SupabaseService.client
+        .from('Cattle')
+        .update({
+          'state': state,
+          'reproductiveStatus': repStatus,
+          'updatedAt': now,
+        })
+        .eq('cattleId', cattleId);
+    return;
+  }
+
+  Future<void> updateToServerSingleCattle(Cattle cattle) async {
+    String now = DateTime.now().toIso8601String().split('.')[0];
+    Map<String, dynamic> breedData;
+    if (cattle.breed != null) {
+      breedData = await DbServicesForBreed().getBreedDataFromName(
+        cattle.breed!,
+      );
+      cattle.breedId = breedData['breedId'];
     }
+    await SupabaseService.client
+        .from('Cattle')
+        .update({
+          'nickName': cattle.nickName,
+          'breedId': cattle.breedId,
+          'sex': cattle.sex,
+          'weight': cattle.weight,
+          'source': cattle.source,
+          'dateOfBirth': cattle.dateOfBirth != null
+              ? cattle.dateOfBirth.toString().split('.')[0]
+              : null,
+          'motherInfo': cattle.motherInfo,
+          'fatherInfo': cattle.fatherInfo,
+          'updatedAt': now,
+        })
+        .eq('cattleId', cattle.cattleId);
+    return;
   }
 }

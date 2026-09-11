@@ -1,7 +1,7 @@
 import 'package:farm_expense_mangement_app/screens/cattle/animallist2.dart';
 import 'package:flutter/material.dart';
 import 'package:farm_expense_mangement_app/services/database/cattledatabase.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:farm_expense_mangement_app/models/cattle.dart';
 import 'package:farm_expense_mangement_app/screens/cattle/newcattle.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +10,9 @@ import '../wrappers/wrapperhome.dart';
 import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 class AnimalList1 extends StatefulWidget {
-  const AnimalList1({super.key});
+  final String farmId;
+
+  const AnimalList1({required this.farmId, super.key});
 
   @override
   State<AnimalList1> createState() => _AnimalList1State();
@@ -19,7 +21,7 @@ class AnimalList1 extends StatefulWidget {
 class _AnimalList1State extends State<AnimalList1>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  late DatabaseServicesForCattle cattleDb;
+  late DbServicesForCattle cattleDb;
   int calfCount = 0;
   int dryCount = 0;
   int milkedCount = 0;
@@ -31,8 +33,7 @@ class _AnimalList1State extends State<AnimalList1>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    cattleDb = DatabaseServicesForCattle(uid!);
+    cattleDb = DbServicesForCattle();
     setState(() {
       _fetchCounts('Cow');
     });
@@ -40,33 +41,21 @@ class _AnimalList1State extends State<AnimalList1>
   }
 
   void _fetchCounts(String type) async {
-    final snapshot = await cattleDb.infoFromServerAllCattle(
-      FirebaseAuth.instance.currentUser!.uid,
-    );
-    final allCattle =
-        snapshot.docs.map((doc) => Cattle.fromFireStore(doc, null)).toList();
-
+    final snapshot = await cattleDb.infoFromServerAllCattle(widget.farmId);
+    final allCattle = snapshot.map((r) => Cattle.fromDB(r)).toList();
     setState(() {
-      calfCount =
-          allCattle
-              .where((cattle) => cattle.type == type && cattle.state == 'Calf')
-              .length;
-      dryCount =
-          allCattle
-              .where((cattle) => cattle.type == type && cattle.state == 'Dry')
-              .length;
-      milkedCount =
-          allCattle
-              .where(
-                (cattle) => cattle.type == type && cattle.state == 'Milked',
-              )
-              .length;
-      heiferCount =
-          allCattle
-              .where(
-                (cattle) => cattle.type == type && cattle.state == 'Heifer',
-              )
-              .length;
+      calfCount = allCattle
+          .where((cattle) => cattle.type == type && cattle.state == 'Calf')
+          .length;
+      dryCount = allCattle
+          .where((cattle) => cattle.type == type && cattle.state == 'Dry')
+          .length;
+      milkedCount = allCattle
+          .where((cattle) => cattle.type == type && cattle.state == 'Milked')
+          .length;
+      heiferCount = allCattle
+          .where((cattle) => cattle.type == type && cattle.state == 'Heifer')
+          .length;
     });
   }
 
@@ -74,17 +63,14 @@ class _AnimalList1State extends State<AnimalList1>
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(
-          onPressed:
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const WrapperHomePage(),
-                ),
-              ),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const WrapperHomePage()),
+          ),
         ),
         iconTheme: const IconThemeData(color: Colors.black),
         title: Text(
@@ -128,7 +114,9 @@ class _AnimalList1State extends State<AnimalList1>
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const AddNewCattle()),
+            MaterialPageRoute(
+              builder: (context) => AddNewCattle(farmId: widget.farmId),
+            ),
           );
         },
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
@@ -159,8 +147,11 @@ class _AnimalList1State extends State<AnimalList1>
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder:
-                (context) => AnimalList2(animalType: type, section: section),
+            builder: (context) => AnimalList2(
+              farmId: widget.farmId,
+              animalType: type,
+              section: section,
+            ),
           ),
         );
       },

@@ -1,7 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../models/feed.dart';
+import '../../models/inventory.dart';
 import '../../services/database/feeddatabase.dart';
 
 class FeedUtils {
@@ -54,13 +53,12 @@ class FeedUtils {
           horizontal: 12.0,
         ),
       ),
-      items:
-          itemsList.map((item) {
-            return DropdownMenuItem<String>(
-              value: item.key,
-              child: Text(item.value),
-            );
-          }).toList(),
+      items: itemsList.map((item) {
+        return DropdownMenuItem<String>(
+          value: item.key,
+          child: Text(item.value),
+        );
+      }).toList(),
       onChanged: onChanged,
     );
   }
@@ -93,9 +91,8 @@ class FeedUtils {
     return [price, rate];
   }
 
-  static dynamic saveFeedDetails(Feed fd) async {
-    String uid = FirebaseAuth.instance.currentUser!.uid;
-    DatabaseServicesForFeed fdDB = DatabaseServicesForFeed(uid);
+  static dynamic saveFeedDetails(Inventory fd) async {
+    DbServicesForFeed fdDB = DbServicesForFeed();
     if (fd.ratePerKg != 0.0) {
       await fdDB.infoToServerFeed(fd);
     }

@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 
-import '../../services/auth.dart';
-import '../../shared/constants.dart';
+import '../../services/supabaseService.dart';
+
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -11,7 +11,7 @@ class ForgotPasswordPage extends StatefulWidget {
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
-  final AuthService _auth = AuthService();
+  final SupabaseService _auth = SupabaseService();
 
   final _formKey = GlobalKey<FormState>();
   String email = '';
@@ -124,3 +124,4 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     );
   }
 }
+*/

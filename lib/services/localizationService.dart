@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:farm_expense_mangement_app/services/supabaseService.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../logging.dart';
 
@@ -23,7 +23,7 @@ class Localization {
       // Fetch json file from Firebase Storage
       for (var lang in langCodes) {
         String? jsonString = prefs.getString('translations_$lang');
-        if(jsonString != null) {
+        if (jsonString != null) {
           translations[lang] = json.decode(jsonString);
         }
         futures.add(loadDataFromFiles(lang));
@@ -37,18 +37,19 @@ class Localization {
   }
 
   Future<void> loadDataFromFiles(String lang) async {
-    final transRef = FirebaseStorage.instance.ref().child(
-      '/public/translations_$lang.json',
-    );
+    try {
+      final bytes = await SupabaseService.client.storage
+          .from('LocalizationFiles')
+          .download('translations_$lang.json');
 
-    final bytes = await transRef.getData();
-    if (bytes == null) {
-      throw Exception("Failed to download Json file for ${langCodeMap[lang]}");
-    } else {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String jsonString = utf8.decode(bytes);
       translations[lang] = json.decode(jsonString);
       prefs.setString('translations_$lang', jsonString);
+    } catch (e) {
+      throw Exception(
+        "Failed to download Json file for ${langCodeMap[lang]} - $e",
+      );
     }
   }
 }

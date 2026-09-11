@@ -1,23 +1,21 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:farm_expense_mangement_app/screens/cattle/newcattle.dart';
 import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../models/cattle.dart';
 import '../../../services/database/cattledatabase.dart';
-import 'package:farm_expense_mangement_app/models/history.dart';
-import 'package:farm_expense_mangement_app/services/database/cattlehistorydatabase.dart';
+import 'package:farm_expense_mangement_app/models/event.dart';
+import 'package:farm_expense_mangement_app/services/database/cattleEventDatabase.dart';
 import '../../../main.dart';
 import '../../services/breedService.dart';
+import '../../services/supabaseService.dart';
 import '../notification/alertnotifications.dart';
 import 'package:farm_expense_mangement_app/services/localizationService.dart';
-
 import 'grouplist.dart';
 
 class AnimalDetails extends StatefulWidget {
-  final String rfid;
-  const AnimalDetails({super.key, required this.rfid});
+  final String cattleId;
+  const AnimalDetails({super.key, required this.cattleId});
 
   @override
   State<AnimalDetails> createState() => _AnimalDetailsState();
@@ -27,23 +25,20 @@ class _AnimalDetailsState extends State<AnimalDetails> {
   late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
-  final user = FirebaseAuth.instance.currentUser;
-  final uid = FirebaseAuth.instance.currentUser!.uid;
-  late Stream<DocumentSnapshot<Map<String, dynamic>>> _streamController;
+  final uid = SupabaseService.client.auth.currentUser!.id;
+  late Stream<Map<String, dynamic>> _streamController;
 
-  // late DocumentSnapshot<Map<String,dynamic>> snapshot;
-  late DatabaseServicesForCattle cattleDb;
-  late DatabaseServiceForCattleHistory cattleHistory;
+  late DbServicesForCattle cattleDb;
+  late DbServiceForCattleEvents cattleHistory;
   late Cattle _cattle;
-  // final CattleHistoryService _historyService = CattleHistoryService();
-  late List<CattleHistory> events = [];
-  // List<Map<String, dynamic>> events = [];
+  late List<CattleEvent> events = [];
+  bool isDetailVisible = false;
 
   @override
   void initState() {
     super.initState();
-    cattleDb = DatabaseServicesForCattle(uid);
-    cattleHistory = DatabaseServiceForCattleHistory(uid: uid);
+    cattleDb = DbServicesForCattle();
+    cattleHistory = DbServiceForCattleEvents();
     setState(() {
       _fetchCattleHistory();
     });
@@ -54,32 +49,22 @@ class _AnimalDetailsState extends State<AnimalDetails> {
   }
 
   void loadEvents() async {
-    // events1 = await _historyService.fetchEvents(uid, cattle.id);
     setState(() {});
   }
 
-  Stream<DocumentSnapshot<Map<String, dynamic>>> _fetchCattleDetail() {
-    return cattleDb.infoFromServer(widget.rfid).asStream();
+  Stream<Map<String, dynamic>> _fetchCattleDetail() {
+    return cattleDb.infoFromServer(widget.cattleId).asStream();
   }
 
   Future<void> _fetchCattleHistory() async {
-    final snapshot = await cattleHistory.historyFromServer(widget.rfid);
-    // for (var doc in snapshot.docs) {
-    //   print('Document ID: ${doc.id}');
-    //   print('Document Data: ${doc.data()}');
-    // }
+    final snapshot = await cattleHistory.eventsFromServer(widget.cattleId);
     setState(() {
-      events =
-          snapshot.docs
-              .map((doc) => CattleHistory.fromFireStore(doc, null))
-              .toList();
+      events = snapshot.map((r) => CattleEvent.fromDB(r)).toList();
     });
-    events.sort((a, b) => b.date.compareTo(a.date));
+    events.sort((a, b) => b.eventDate.compareTo(a.eventDate));
   }
 
   void editCattleDetail() {
-    // Navigator.pop(context);
-    // Navigator.pop(context);
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -88,8 +73,8 @@ class _AnimalDetailsState extends State<AnimalDetails> {
     );
   }
 
-  void deleteCattle() {
-    cattleDb.deleteCattle(widget.rfid).then((value) {
+  Future<void> deleteCattle() async {
+    await cattleDb.deleteCattle(widget.cattleId);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -97,31 +82,29 @@ class _AnimalDetailsState extends State<AnimalDetails> {
             duration: Duration(seconds: 2),
           ),
         );
+
+        Navigator.pop(context);
+        Navigator.pop(context);
+        Navigator.pop(context);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => WrapperHomePage()),
+        );
       }
-    });
-    Navigator.pop(context);
-    Navigator.pop(context);
-    Navigator.pop(context);
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => WrapperHomePage()),
-    );
   }
 
-  bool isDetailVisible = false;
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
-    Widget buildWidget(CattleHistory event) {
-      // String eventName = (event['name'] as String).toLowerCase();
-      if (event.name == currentLocalization['abortion']) {
+    currentLocalization = Localization().translations[languageCode] ?? {};
+    Widget buildWidget(CattleEvent event) {
+      if (event.eventName == currentLocalization['abortion']) {
         return Image.asset('asset/Cross_img.png', width: 30, height: 35);
-      } else if (event.name == currentLocalization['vaccination']) {
+      } else if (event.eventName == currentLocalization['vaccination']) {
         return Image.asset('asset/Vaccination.png', width: 30, height: 35);
-      } else if (event.name == currentLocalization['Heifer']) {
-        return Image.asset('asset/heifer.png', width: 30, height: 35);
+      } else if (event.eventName == currentLocalization['Heifer']) {
+        return Image.asset('asset/heifer_old.png', width: 30, height: 35);
       } else {
         return Image.asset('asset/Vaccination.png', width: 30, height: 35);
       }
@@ -130,13 +113,19 @@ class _AnimalDetailsState extends State<AnimalDetails> {
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1.0),
       appBar: AppBar(
-        title: Text(widget.rfid, style: const TextStyle(color: Colors.white)),
+        title: Text(
+          widget.cattleId,
+          style: const TextStyle(color: Colors.white),
+        ),
         backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
         leading: IconButton(
           onPressed: () {
+            String farmId = Provider.of<AppData>(context, listen: false).farmId;
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => GroupList()),
+              MaterialPageRoute(
+                builder: (context) => GroupList(farmId: farmId),
+              ),
             );
           },
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -164,66 +153,71 @@ class _AnimalDetailsState extends State<AnimalDetails> {
               child: Text(currentLocalization['please_wait'] ?? ""),
             );
           } else if (snapshot.hasData) {
-            _cattle = Cattle.fromFireStore(snapshot.requireData, null);
+            _cattle = Cattle.fromDB(snapshot.data!);
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 (_cattle.sex == 'Female')
                     ? Expanded(
-                      // flex: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(15, 5, 5, 5),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              currentLocalization['events'] ?? "",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AddEventPopup(
-                                      uid: uid,
-                                      cattle: _cattle,
-                                    );
-                                  },
-                                );
-                              },
-                              style: ButtonStyle(
-                                backgroundColor: WidgetStateProperty.all<Color>(
-                                  const Color.fromRGBO(240, 255, 255, 1.0),
-                                ),
-                                side: WidgetStateProperty.all<BorderSide>(
-                                  const BorderSide(
-                                    color: Colors.black,
-                                  ), // Set the border color here
-                                ),
-                              ),
-                              child: Text(
-                                currentLocalization['add_event'] ?? "",
+                        // flex: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(15, 5, 5, 5),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                currentLocalization['events'] ?? "",
                                 style: TextStyle(
-                                  color: Colors.black,
                                   fontWeight: FontWeight.bold,
+                                  fontSize: 20,
                                 ),
                               ),
-                            ),
-                          ],
+                              ElevatedButton(
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AddEventPopup(
+                                        uid: uid,
+                                        cattle: _cattle,
+                                      );
+                                    },
+                                  );
+                                },
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      WidgetStateProperty.all<Color>(
+                                        const Color.fromRGBO(
+                                          240,
+                                          255,
+                                          255,
+                                          1.0,
+                                        ),
+                                      ),
+                                  side: WidgetStateProperty.all<BorderSide>(
+                                    const BorderSide(
+                                      color: Colors.black,
+                                    ), // Set the border color here
+                                  ),
+                                ),
+                                child: Text(
+                                  currentLocalization['add_event'] ?? "",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    )
+                      )
                     : Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-                        alignment: Alignment.center,
-                        child:
-                            (_cattle.sex == null)
-                                ? Text(
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                          alignment: Alignment.center,
+                          child: (_cattle.sex == null)
+                              ? Text(
                                   currentLocalization['Update_gender_dob'] ??
                                       '',
                                   style: TextStyle(
@@ -232,131 +226,115 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                     color: Colors.deepPurple,
                                   ),
                                 )
-                                : Text(''),
+                              : Text(''),
+                        ),
                       ),
-                    ),
                 Expanded(
                   flex: 6,
                   child: ListView(
-                    children:
-                        events
-                            .map(
-                              (event) => Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  10,
-                                  7,
-                                  10,
-                                  7,
+                    children: events
+                        .map(
+                          (event) => Padding(
+                            padding: const EdgeInsets.fromLTRB(10, 7, 10, 7),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: Colors.grey,
+                                  // Set the border color here
+                                  width: 1.5, // Set the border width here
                                 ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                      color: Colors.grey,
-                                      // Set the border color here
-                                      width: 1.5, // Set the border width here
-                                    ),
-                                    color: const Color.fromRGBO(
-                                      240,
-                                      255,
-                                      255,
-                                      1,
-                                    ),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                      7,
-                                      9,
-                                      7,
-                                      9,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: [
-                                        Expanded(
-                                          flex: 4,
-                                          child: Container(
-                                            padding: const EdgeInsets.fromLTRB(
-                                              20,
-                                              10,
-                                              10,
-                                              10,
-                                            ),
-                                            width: 130,
-                                            height: 60,
-                                            alignment: Alignment.centerLeft,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: buildWidget(event),
+                                color: const Color.fromRGBO(240, 255, 255, 1),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(7, 9, 7, 9),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    Expanded(
+                                      flex: 4,
+                                      child: Container(
+                                        padding: const EdgeInsets.fromLTRB(
+                                          20,
+                                          10,
+                                          10,
+                                          10,
+                                        ),
+                                        width: 130,
+                                        height: 60,
+                                        alignment: Alignment.centerLeft,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
                                           ),
                                         ),
-                                        Expanded(
-                                          flex: 12,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                " ${capitalizeFirstLetterOfEachWord(currentLocalization[event.name.toLowerCase()] ?? "")}",
+                                        child: buildWidget(event),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 12,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            " ${capitalizeFirstLetterOfEachWord(currentLocalization[event.eventName.toLowerCase()] ?? "")}",
+                                            textAlign: TextAlign.left,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          if (event.notes != '' &&
+                                              event.notes != null) ...[
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                    3,
+                                                    0,
+                                                    0,
+                                                    0,
+                                                  ),
+                                              child: Text(
+                                                "${(event.eventName == 'Insemination') ? currentLocalization['sire_info'] : ''} ${event.notes ?? ''}",
                                                 textAlign: TextAlign.left,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: const TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.black,
+                                                  fontSize: 12,
+                                                  color: Colors.black87,
                                                 ),
-                                              ),
-                                              if (event.notes != '' &&
-                                                  event.notes != null) ...[
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.fromLTRB(
-                                                        3,
-                                                        0,
-                                                        0,
-                                                        0,
-                                                      ),
-                                                  child: Text(
-                                                    "${(event.name == 'Insemination') ? currentLocalization['sire_info'] : ''} ${event.notes ?? ''}",
-                                                    textAlign: TextAlign.left,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.black87,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ],
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 6,
-                                          child: SizedBox(
-                                            child: Text(
-                                              "${event.date.year}-${(event.date.month > 9) ? event.date.month : '0${event.date.month}'}-${(event.date.day > 9) ? event.date.day : '0${event.date.day}'}",
-                                              // Display the raw date string
-                                              softWrap: false,
-                                              textAlign: TextAlign.left,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold,
                                               ),
                                             ),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 6,
+                                      child: SizedBox(
+                                        child: Text(
+                                          "${event.eventDate.year}-${(event.eventDate.month > 9) ? event.eventDate.month : '0${event.eventDate.month}'}-${(event.eventDate.day > 9) ? event.eventDate.day : '0${event.eventDate.day}'}",
+                                          // Display the raw date string
+                                          softWrap: false,
+                                          textAlign: TextAlign.left,
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ),
-                            )
-                            .toList(),
+                            ),
+                          ),
+                        )
+                        .toList(),
                   ),
 
                   // ),
@@ -431,11 +409,11 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                 SizedBox(
                                   width: 115,
                                   child: Text(
-                                    (_cattle.nickname == null)
+                                    (_cattle.nickName == null)
                                         ? ''
-                                        : _cattle.nickname.toString().split(
-                                          " ",
-                                        )[0],
+                                        : _cattle.nickName.toString().split(
+                                            " ",
+                                          )[0],
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w600,
                                       color: Colors.white,
@@ -465,13 +443,13 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                   ),
                                 ),
                                 SizedBox(
-                                  width: 115,
+                                  width: 125,
                                   child: Text(
                                     (_cattle.dateOfBirth == null)
                                         ? ''
                                         : _cattle.dateOfBirth.toString().split(
-                                          " ",
-                                        )[0],
+                                            " ",
+                                          )[0],
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w600,
                                       color: Colors.white,
@@ -637,7 +615,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                   width: 115,
                                   child: Text(
                                     currentLocalization[_cattle.source
-                                            ?.toLowerCase()] ??
+                                            .toLowerCase()] ??
                                         '',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w600,
@@ -670,7 +648,9 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                                 SizedBox(
                                   width: 115,
                                   child: Text(
-                                    _cattle.motherInfo ?? '',
+                                    (_cattle.motherInfo != null)
+                                        ? _cattle.motherInfo!
+                                        : '',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w600,
                                       color: Colors.white,
@@ -716,39 +696,47 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                           const SizedBox(height: 10),
                           (_cattle.sex == currentLocalization['female'])
                               ? Container(
-                                height: 60,
-                                color: const Color.fromRGBO(13, 166, 186, 1.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    SizedBox(
-                                      width: 100,
-                                      child: Text(
-                                        currentLocalization["pregnant"] ?? "",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.white,
-                                          fontSize: 20,
+                                  height: 60,
+                                  color: const Color.fromRGBO(
+                                    13,
+                                    166,
+                                    186,
+                                    1.0,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      SizedBox(
+                                        width: 100,
+                                        child: Text(
+                                          currentLocalization["pregnant"] ?? "",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    SizedBox(
-                                      width: 115,
-                                      child: Text(
-                                        (_cattle.isPregnant)
-                                            ? currentLocalization['yes']??'Yes'
-                                            : currentLocalization['no']??'No',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.white,
-                                          fontSize: 20,
+                                      SizedBox(
+                                        width: 115,
+                                        child: Text(
+                                          (_cattle.reproductiveStatus ==
+                                                  'Pregnant')
+                                              ? currentLocalization['yes'] ??
+                                                    'Yes'
+                                              : currentLocalization['no'] ??
+                                                    'No',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              )
+                                    ],
+                                  ),
+                                )
                               : Container(),
                         ],
                       ),
@@ -784,14 +772,15 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
   final TextEditingController _nameTextController = TextEditingController();
   final TextEditingController _weightTextController = TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
-  final TextEditingController _motherInfoTextController =
-      TextEditingController();
   final TextEditingController _fatherInfoTextController =
+      TextEditingController();
+  final TextEditingController _motherInfoTextController =
       TextEditingController();
 
   String? _selectedGender; // Variable to store selected gender
   String? _selectedSource;
   String? _selectedBreed;
+  String? _selectedMotherId;
   DateTime? _birthDate;
 
   // Variable to store selected gender
@@ -801,11 +790,9 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
     'Born on Farm',
     'Purchased',
   ]; // List of gender options
+  List<Cattle> femaleCattle = [];
 
-  final user = FirebaseAuth.instance.currentUser;
-  final uid = FirebaseAuth.instance.currentUser!.uid;
-
-  late final DatabaseServicesForCattle cattleDb;
+  late final DbServicesForCattle cattleDb;
 
   late List<String> cowBreed;
   late List<String> buffaloBreed;
@@ -815,35 +802,62 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
     super.initState();
     cowBreed = BreedService().cowBreeds;
     buffaloBreed = BreedService().buffaloBreeds;
-    cattleDb = DatabaseServicesForCattle(uid);
-    _nameTextController.text = widget.cattle.nickname ?? '';
+    cattleDb = DbServicesForCattle();
+    _nameTextController.text = widget.cattle.nickName ?? '';
     _selectedBreed = widget.cattle.breed;
     _weightTextController.text = widget.cattle.weight.toString();
     _selectedSource = widget.cattle.source;
     _selectedGender = widget.cattle.sex;
     _birthDateController.text =
         '${widget.cattle.dateOfBirth?.year ?? '0000'}-${widget.cattle.dateOfBirth?.month ?? '00'}-${widget.cattle.dateOfBirth?.day ?? '00'}';
+    _selectedMotherId = widget.cattle.motherInfo;
     _motherInfoTextController.text = widget.cattle.motherInfo ?? '';
     _fatherInfoTextController.text = widget.cattle.fatherInfo ?? '';
+    setState(() {
+      _fetchCattle();
+    });
   }
 
-  void updateCattleButton(BuildContext context) {
+  Future<void> _fetchCattle() async {
+    final snapshot = await cattleDb.infoFromServerAllCattle(
+      widget.cattle.farmId,
+    );
+    final allCattle = snapshot.map((r) => Cattle.fromDB(r)).toList();
+    setState(() {
+      femaleCattle = allCattle
+          .where(
+            (cattle) =>
+                cattle.sex == 'Female' &&
+                cattle.state != 'Calf' &&
+                cattle.state != 'Heifer' &&
+                cattle.type == widget.cattle.type,
+          )
+          .toList();
+    });
+  }
+
+  Future<void> updateCattleButton(BuildContext context) async {
     final cattle = Cattle(
-      rfid: widget.cattle.rfid,
-      nickname: _nameTextController.text,
+      cattleId: widget.cattle.cattleId,
+      farmId: widget.cattle.farmId,
+      nickName: _nameTextController.text,
       breed: _selectedBreed.toString(),
       sex: _selectedGender.toString(),
-      weight: int.parse(_weightTextController.text),
+      weight: double.parse(_weightTextController.text),
       state: widget.cattle.state,
       source: _selectedSource.toString(),
       type: widget.cattle.type,
-      isPregnant: widget.cattle.isPregnant,
+      reproductiveStatus: widget.cattle.reproductiveStatus,
       dateOfBirth: _birthDate != null ? _birthDate! : widget.cattle.dateOfBirth,
-      motherInfo: _motherInfoTextController.text,
+      motherInfo: (_selectedSource == 'Born on Farm')
+          ? _selectedMotherId
+          : _motherInfoTextController.text,
       fatherInfo: _fatherInfoTextController.text,
+      createdAt: widget.cattle.createdAt,
+      updatedAt: DateTime.now(),
     );
 
-    cattleDb.infoToServerSingleCattle(cattle);
+    await cattleDb.updateToServerSingleCattle(cattle);
     if (cattle.state == "Calf" &&
         cattle.sex == "Female" &&
         cattle.dateOfBirth != null &&
@@ -852,20 +866,22 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
       alert.createCalfNotifications(cattle);
     }
 
-    Navigator.pop(context);
-    Navigator.pop(context);
-    Navigator.pop(context);
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => WrapperHomePage()),
-    );
+    if(context.mounted) {
+      Navigator.pop(context);
+      Navigator.pop(context);
+      Navigator.pop(context);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => WrapperHomePage()),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     var breedList = (widget.cattle.type == 'Cow') ? cowBreed : buffaloBreed;
 
@@ -886,7 +902,8 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => AnimalDetails(rfid: widget.cattle.rfid),
+                builder: (context) =>
+                    AnimalDetails(cattleId: widget.cattle.cattleId),
               ),
             );
           },
@@ -929,15 +946,14 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
                       filled: true,
                       fillColor: Color.fromRGBO(240, 255, 255, 0.7),
                     ),
-                    items:
-                        genderOptions.map((String gender) {
-                          return DropdownMenuItem<String>(
-                            value: gender,
-                            child: Text(
-                              currentLocalization[gender.toLowerCase()] ?? '',
-                            ),
-                          );
-                        }).toList(),
+                    items: genderOptions.map((String gender) {
+                      return DropdownMenuItem<String>(
+                        value: gender,
+                        child: Text(
+                          currentLocalization[gender.toLowerCase()] ?? '',
+                        ),
+                      );
+                    }).toList(),
                     onChanged: (value) {
                       setState(() {
                         _selectedGender = value;
@@ -1014,18 +1030,18 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
                       filled: true,
                       fillColor: Color.fromRGBO(240, 255, 255, 0.7),
                     ),
-                    items:
-                        sourceOptions.map((String source) {
-                          return DropdownMenuItem<String>(
-                            value: source,
-                            child: Text(
-                              currentLocalization[source.toLowerCase()] ?? '',
-                            ),
-                          );
-                        }).toList(),
+                    items: sourceOptions.map((String source) {
+                      return DropdownMenuItem<String>(
+                        value: source,
+                        child: Text(
+                          currentLocalization[source.toLowerCase()] ?? '',
+                        ),
+                      );
+                    }).toList(),
                     onChanged: (value) {
                       setState(() {
                         _selectedSource = value;
+                        setState(() {});
                       });
                     },
                     validator: (value) {
@@ -1050,13 +1066,12 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
                       filled: true,
                       fillColor: Color.fromRGBO(240, 255, 255, 0.7),
                     ),
-                    items:
-                        breedList.map((String breed) {
-                          return DropdownMenuItem<String>(
-                            value: breed,
-                            child: Text(currentLocalization[breed] ?? breed),
-                          );
-                        }).toList(),
+                    items: breedList.map((String breed) {
+                      return DropdownMenuItem<String>(
+                        value: breed,
+                        child: Text(currentLocalization[breed] ?? breed),
+                      );
+                    }).toList(),
                     onChanged: (value) {
                       setState(() {
                         _selectedBreed = value;
@@ -1070,18 +1085,46 @@ class _EditAnimalDetailState extends State<EditAnimalDetail> {
                     },
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(5, 0, 5, 26),
-                  child: TextFormField(
-                    controller: _motherInfoTextController,
-                    decoration: InputDecoration(
-                      labelText: currentLocalization['enter_mother_info'] ?? "",
-                      border: OutlineInputBorder(),
-                      filled: true,
-                      fillColor: Color.fromRGBO(240, 255, 255, 0.7),
+                if (_selectedSource == 'Born on Farm') ...[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
+                    child: DropdownButtonFormField<String>(
+                      initialValue: _selectedMotherId,
+                      decoration: InputDecoration(
+                        labelText:
+                            currentLocalization['enter_mother_info'] ?? "",
+                        border: OutlineInputBorder(),
+                        filled: true,
+                        fillColor: Color.fromRGBO(240, 255, 255, 0.7),
+                      ),
+                      items: femaleCattle.map((Cattle ct) {
+                        return DropdownMenuItem<String>(
+                          value: ct.cattleId,
+                          child: Text(ct.nickName ?? ct.cattleId),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedMotherId = value;
+                        });
+                      },
                     ),
                   ),
-                ),
+                ] else ...[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
+                    child: TextFormField(
+                      controller: _motherInfoTextController,
+                      decoration: InputDecoration(
+                        labelText:
+                            currentLocalization['enter_mother_info'] ?? "",
+                        border: OutlineInputBorder(),
+                        filled: true,
+                        fillColor: Color.fromRGBO(240, 255, 255, 0.7),
+                      ),
+                    ),
+                  ),
+                ],
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
                   child: TextFormField(
@@ -1229,7 +1272,7 @@ class _AddEventPopupState extends State<AddEventPopup> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
@@ -1268,25 +1311,21 @@ class _AddEventPopupState extends State<AddEventPopup> {
                 hintText: currentLocalization['event_name'] ?? '',
                 border: OutlineInputBorder(),
               ),
-              items:
-                  eventOptions.map((String option) {
-                    return DropdownMenuItem<String>(
-                      value: option,
-                      child: Text(
-                        currentLocalization[option.toLowerCase()] ?? '',
-                      ),
-                    );
-                  }).toList(),
+              items: eventOptions.map((String option) {
+                return DropdownMenuItem<String>(
+                  value: option,
+                  child: Text(currentLocalization[option.toLowerCase()] ?? ''),
+                );
+              }).toList(),
             ),
           ),
           const SizedBox(height: 10.0),
           TextFormField(
             readOnly: true,
             controller: TextEditingController(
-              text:
-                  selectedDate != null
-                      ? selectedDate.toString().split(' ')[0]
-                      : '',
+              text: selectedDate != null
+                  ? selectedDate.toString().split(' ')[0]
+                  : '',
             ),
             onTap: () async {
               final DateTime? pickedDate = await showDatePicker(
@@ -1312,10 +1351,9 @@ class _AddEventPopupState extends State<AddEventPopup> {
             textCapitalization: TextCapitalization.words,
             maxLength: 25,
             decoration: InputDecoration(
-              hintText:
-                  (selectedOption == 'Insemination')
-                      ? currentLocalization['enter_sire_info']
-                      : currentLocalization['enter_notes'],
+              hintText: (selectedOption == 'Insemination')
+                  ? currentLocalization['enter_sire_info']
+                  : currentLocalization['enter_notes'],
               border: OutlineInputBorder(),
             ),
           ),
@@ -1323,17 +1361,18 @@ class _AddEventPopupState extends State<AddEventPopup> {
           ElevatedButton(
             onPressed: () {
               if (selectedOption != null && selectedDate != null) {
-                final newHistory = CattleHistory(
-                  name: selectedOption!,
-                  date: selectedDate!,
+                final newEvent = CattleEvent(
+                  eventId: '',
+                  cattleId: widget.cattle.cattleId,
+                  eventName: selectedOption!,
+                  eventDate: selectedDate!,
                   notes: notesTextController.text,
+                  createdAt: DateTime.now(),
                 );
 
-                DatabaseServiceForCattleHistory(
-                  uid: widget.uid,
-                ).historyToServerSingleCattle(widget.cattle, newHistory);
+                DbServiceForCattleEvents().eventToServerSingleCattle(newEvent);
 
-                alerts.createNotifications(widget.cattle, newHistory);
+                alerts.createNotifications(widget.cattle, newEvent);
 
                 Navigator.of(context).pop();
 
@@ -1363,26 +1402,22 @@ class _AddEventPopupState extends State<AddEventPopup> {
                               ),
                             ),
                             onPressed: () async {
-                              String sireInfo =
-                                  await DatabaseServiceForCattleHistory(
-                                    uid: widget.uid,
-                                  ).getLastAISireDetails(widget.cattle.rfid);
+                              String sireInfo = await DbServiceForCattleEvents()
+                                  .getLastAISireDetails(widget.cattle.cattleId);
                               if (context.mounted) {
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                    builder:
-                                        (context) => AddNewCattle(
-                                          state: 'Calf',
-                                          breed: widget.cattle.breed,
-                                          type: widget.cattle.type,
-                                          dob: selectedDate,
-                                          source: 'Born on Farm',
-                                          motherInfo:
-                                              widget.cattle.nickname ??
-                                              widget.cattle.rfid,
-                                          fatherInfo: sireInfo,
-                                        ),
+                                    builder: (context) => AddNewCattle(
+                                      farmId: widget.cattle.farmId,
+                                      state: 'Calf',
+                                      breed: widget.cattle.breed,
+                                      type: widget.cattle.type,
+                                      dob: selectedDate,
+                                      source: 'Born on Farm',
+                                      motherInfo: widget.cattle.cattleId,
+                                      fatherInfo: sireInfo,
+                                    ),
                                   ),
                                 );
                               }
@@ -1398,13 +1433,12 @@ class _AddEventPopupState extends State<AddEventPopup> {
                               ),
                             ),
                             onPressed: () {
-                              Navigator.pushReplacement(
+                              Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder:
-                                      (context) => AnimalDetails(
-                                        rfid: widget.cattle.rfid,
-                                      ),
+                                  builder: (context) => AnimalDetails(
+                                    cattleId: widget.cattle.cattleId,
+                                  ),
                                 ),
                               );
                             },
@@ -1417,11 +1451,11 @@ class _AddEventPopupState extends State<AddEventPopup> {
                     },
                   );
                 } else {
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder:
-                          (context) => AnimalDetails(rfid: widget.cattle.rfid),
+                      builder: (context) =>
+                          AnimalDetails(cattleId: widget.cattle.cattleId),
                     ),
                   );
                 }

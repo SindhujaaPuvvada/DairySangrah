@@ -1,59 +1,83 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class User {
-  final String uid;
-
-  User({required this.uid});
-}
-
-class FarmUser {
-  final String ownerName;
-  final String farmName;
-  final String location;
-  final int phoneNo;
+  final String userId;
+  final String userName;
+  final String phoneNumber;
   final String chosenLanguage;
-  String appMode;
-  bool? isFirstLaunch;
   String? fcmToken;
+  String? subscription;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
-  FarmUser({
-    required this.ownerName,
-    required this.farmName,
-    required this.location,
-    required this.phoneNo,
-    required this.chosenLanguage,
-    this.appMode = 'GBW', //Group Breed Wise(GBW) or (Normal)
-    this.isFirstLaunch,
+  User({
+    required this.userId,
+    required this.userName,
+    required this.phoneNumber,
+    this.chosenLanguage = 'en',
     this.fcmToken,
+    this.subscription,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
-  factory FarmUser.fromFireStore(
-    DocumentSnapshot<Map<String, dynamic>> snapshot,
-    SnapshotOptions? options,
-  ) {
-    final data = snapshot.data();
-    return FarmUser(
-      ownerName: data?['ownerName'],
-      farmName: data?['farmName'],
-      location: data?['location'],
-      phoneNo: data?['phoneNo'],
-      chosenLanguage: data?['chosenLanguage'] ?? 'en',
-      appMode: data?['appMode'] ?? 'GBW',
-      isFirstLaunch: data?['isFirstLaunch'] ?? true,
-      fcmToken: data?['fcmToken'] ?? '',
+  factory User.fromDB(Map<String, dynamic> data) {
+    return User(
+      userId: data['userId'],
+      userName: data['userName'],
+      phoneNumber: data['phoneNumber'],
+      chosenLanguage: data['chosenLanguage'] ?? 'en',
+      fcmToken: data['fcmToken'] ?? '',
+      subscription: data['subscription'] ?? '',
+      createdAt: DateTime.parse(data['createdAt']),
+      updatedAt: DateTime.parse(data['updatedAt']),
     );
   }
 
-  Map<String, dynamic> toFireStore() {
+  Map<String, dynamic> toDB() {
     return {
-      'ownerName': ownerName,
-      'farmName': farmName,
-      'location': location,
-      'phoneNo': phoneNo,
+      'userId': userId,
+      'userName': userName,
+      'phoneNumber': phoneNumber,
       'chosenLanguage': chosenLanguage,
-      'appMode': appMode,
-      'isFirstLaunch': isFirstLaunch,
       'fcmToken': fcmToken,
+      'subscription': subscription,
+      'createdAt': createdAt.toIso8601String().split('.')[0],
+      'updatedAt': updatedAt.toIso8601String().split('.')[0],
+    };
+  }
+}
+
+class DairyFarmUser {
+  final String userId;
+  final String farmId;
+  final String userRole;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  DairyFarmUser({
+    required this.userId,
+    required this.farmId,
+    required this.userRole,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory DairyFarmUser.fromDB(Map<String, dynamic> data) {
+    return DairyFarmUser(
+      userId: data['userId'].toString(),
+      farmId: data['farmId'].toString(),
+      userRole: data['userRole'],
+      createdAt: DateTime.parse(data['createdAt']),
+      updatedAt: DateTime.parse(data['updatedAt']),
+    );
+  }
+
+  Map<String, dynamic> toDB() {
+    return {
+      'userId': userId,
+      'farmId': farmId,
+      'userRole': userRole,
+      'createdAt': createdAt.toIso8601String().split('.')[0],
+      'updatedAt': updatedAt.toIso8601String().split('.')[0],
     };
   }
 }

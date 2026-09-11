@@ -1,60 +1,50 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Milk {
-  double morning;
-  double evening;
-  DateTime? dateOfMilk;
-  String id;
+  String milkId;
+  final DateTime milkingDate;
+  final String farmId;
+  final String milkEntryType;
+  final String milkEntryId;
+  double morningMilk;
+  double eveningMilk;
+  final DateTime createdAt;
+  DateTime updatedAt;
+
   Milk({
-    required this.id,
-    this.morning = 0,
-    this.evening = 0,
-    required this.dateOfMilk,
+    required this.milkId,
+    required this.milkingDate,
+    required this.farmId,
+    required this.milkEntryType,
+    required this.milkEntryId,
+    required this.morningMilk,
+    required this.eveningMilk,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
-  factory Milk.fromFireStore(
-    DocumentSnapshot<Map<String, dynamic>> snapshot,
-    SnapshotOptions? options,
-  ) {
-    final data = snapshot.data();
+  factory Milk.fromDB(Map<String, dynamic> data) {
     return Milk(
-      morning: data?['morning'],
-      evening: data?['evening'],
-      dateOfMilk:
-          (data?['dateOfMilk'] != null) ? data!['dateOfMilk'].toDate() : null,
-      id: data?['id'],
+      milkId: data['milkId'].toString(),
+      milkingDate: DateTime.parse(data['milkingDate']),
+      farmId: data['farmId'].toString(),
+      milkEntryType: data['milkEntryType'],
+      milkEntryId: data['milkEntryId'].toString(),
+      morningMilk: data['morningMilk'].toDouble(),
+      eveningMilk: data['eveningMilk'].toDouble(),
+      createdAt: DateTime.parse(data['createdAt']),
+      updatedAt: DateTime.parse(data['updatedAt']),
     );
   }
 
-  Map<String, dynamic> toFireStore() {
+  Map<String, dynamic> toDB() {
     return {
-      'morning': morning,
-      'evening': evening,
-      'dateOfMilk':
-          (dateOfMilk != null) ? Timestamp.fromDate(dateOfMilk!) : null,
-      'id': id,
+      'milkingDate': milkingDate.toString().split('.')[0],
+      'farmId': farmId,
+      'milkEntryType': milkEntryType,
+      'milkEntryId': milkEntryId,
+      'morningMilk': morningMilk,
+      'eveningMilk': eveningMilk,
+      'createdAt': createdAt.toIso8601String().split('.')[0],
+      'updatedAt': updatedAt.toIso8601String().split('.')[0],
     };
-  }
-}
-
-class MilkByDate {
-  DateTime? dateOfMilk;
-  double totalMilk;
-  MilkByDate({required this.dateOfMilk, this.totalMilk = 0});
-
-  factory MilkByDate.fromFireStore(
-    DocumentSnapshot<Map<String, dynamic>> snapshot,
-    SnapshotOptions? options,
-  ) {
-    final data = snapshot.data();
-    return MilkByDate(
-      dateOfMilk:
-          (data?['dateOfMilk'] != null) ? data!['dateOfMilk'].toDate() : null,
-      totalMilk: data?['totalMilk'],
-    );
-  }
-
-  Map<String, dynamic> toFireStore() {
-    return {'dateOfMilk': dateOfMilk, 'totalMilk': totalMilk};
   }
 }

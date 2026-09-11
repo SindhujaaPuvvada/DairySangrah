@@ -1,69 +1,62 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/user.dart';
+import '../supabaseService.dart';
 
-class DatabaseServicesForUser {
-  final String uid;
-
-  DatabaseServicesForUser(this.uid);
-
-  Future<void> infoToServer(String uid, FarmUser userInfo) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    return await db.collection('User').doc(uid).set(userInfo.toFireStore());
+class DbServicesForUser {
+  Future<void> infoToServer(User userInfo) async {
+    final userData = userInfo.toDB();
+    return await SupabaseService.client.from('Users').insert(userData);
   }
 
-  Future<DocumentSnapshot<Map<String, dynamic>>> infoFromServer(
-    String uid,
-  ) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-
-    return await db.collection('User').doc(uid).get();
-  }
-
-  Future<void> updateAppMode(String uid, String modePref) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    final DocumentReference docRef = db.collection('User').doc(uid);
-
-    await docRef.update({'appMode': modePref});
-    return;
-  }
-
-  Future<String> getAppMode(String uid) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    final DocumentSnapshot<Map<String, dynamic>> snapshot =
-        await db.collection('User').doc(uid).get();
-
-    return snapshot.data()?['appMode'];
-  }
-
-  Future<void> updateIsFirstLaunch(String uid, bool firstLaunch) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    final DocumentReference docRef = db.collection('User').doc(uid);
-
-    await docRef.update({'isFirstLaunch': firstLaunch});
-    return;
-  }
-
-  Future<bool> getIsFirstLaunch(String uid) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    final DocumentSnapshot<Map<String, dynamic>> snapshot =
-        await db.collection('User').doc(uid).get();
-
-    return snapshot.data()?['isFirstLaunch'] ?? true;
+  Future<Map<String, dynamic>?> infoFromServer(String uid) async {
+    return await SupabaseService.client
+        .from('Users')
+        .select()
+        .eq('userId', uid)
+        .maybeSingle();
   }
 
   Future<String> getChosenLanguage(String uid) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    final DocumentSnapshot<Map<String, dynamic>> snapshot =
-        await db.collection('User').doc(uid).get();
-
-    return snapshot.data()?['chosenLanguage'] ?? 'en';
+    final Map<String, dynamic> data = await SupabaseService.client
+        .from('Users')
+        .select()
+        .eq('userId', uid)
+        .single();
+    return data['chosenLanguage'] ?? 'en';
   }
 
   Future<void> updateFCMToken(String uid, String? fcmToken) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    final DocumentReference docRef = db.collection('User').doc(uid);
-
-    await docRef.update({'fcmToken': fcmToken});
+    await SupabaseService.client
+        .from('Users')
+        .update({
+          'fcmToken': fcmToken,
+          'updatedAt': DateTime.now().toIso8601String().split('.')[0],
+        })
+        .eq('userId', uid);
     return;
+  }
+
+  Future<void> updateToServerUserInfo(
+    String uid,
+    String userName,
+    String chosenLang,
+  ) async {
+    await SupabaseService.client
+        .from('Users')
+        .update({
+          'userName': userName,
+          'chosenLanguage': chosenLang,
+          'updatedAt': DateTime.now().toIso8601String().split('.')[0],
+        })
+        .eq('userId', uid);
+    return;
+  }
+
+  Future<String> getUserNameFromId(String uid) async {
+    final data = await SupabaseService.client
+        .from('Users')
+        .select('userName')
+        .eq('userId', uid)
+        .single();
+    return data['userName'];
   }
 }

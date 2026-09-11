@@ -1,19 +1,26 @@
-import 'package:farm_expense_mangement_app/models/transaction.dart';
+import 'package:farm_expense_mangement_app/models/sales.dart';
 import 'package:farm_expense_mangement_app/screens/transaction/edittransaction.dart';
 import 'package:farm_expense_mangement_app/services/database/transactiondatabase.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/expenses.dart';
+import '../wrappers/wrapperhome.dart';
 import 'expenses.dart';
 import 'income.dart';
 import '../../main.dart';
 import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 class TransactionPage extends StatefulWidget {
+  final String farmId;
   final bool showIncome; // New parameter
-  const TransactionPage({super.key, required this.showIncome});
+  const TransactionPage({
+    super.key,
+    required this.showIncome,
+    required this.farmId,
+  });
 
   @override
   State<TransactionPage> createState() => _TransactionPageState();
@@ -22,11 +29,9 @@ class TransactionPage extends StatefulWidget {
 class _TransactionPageState extends State<TransactionPage> {
   late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
-  final user = FirebaseAuth.instance.currentUser;
-  final uid = FirebaseAuth.instance.currentUser!.uid;
 
-  late DatabaseForSale dbSale;
-  late DatabaseForExpense dbExpense;
+  late DbForSale dbSale;
+  late DbForExpense dbExpense;
 
   bool showIncome = true;
   List<Sale> incomeTransactions = [];
@@ -36,52 +41,52 @@ class _TransactionPageState extends State<TransactionPage> {
   DateTime? selectedEndDate;
 
   Future<void> _fetchIncome() async {
-    final snapshot = await dbSale.infoFromServerAllTransaction();
+    final snapshot = await dbSale.infoFromServerAllTransactions(widget.farmId);
     setState(() {
-      incomeTransactions =
-          snapshot.docs
-              .map((doc) => Sale.fromFireStore(doc, null))
-              .where(
-                (sale) =>
-                    (selectedStartDate == null ||
-                        sale.saleOnMonth!.isAfter(
-                          selectedStartDate!.add(Duration(days: -1)),
-                        )) &&
-                    (selectedEndDate == null ||
-                        sale.saleOnMonth!.isBefore(
-                          selectedEndDate!.add(Duration(days: 1)),
-                        )),
-              )
-              .toList();
+      incomeTransactions = snapshot
+          .map((r) => Sale.fromDB(r))
+          .where(
+            (sale) =>
+                (selectedStartDate == null ||
+                    sale.saleDate.isAfter(
+                      selectedStartDate!.add(Duration(days: -1)),
+                    )) &&
+                (selectedEndDate == null ||
+                    sale.saleDate.isBefore(
+                      selectedEndDate!.add(Duration(days: 1)),
+                    )),
+          )
+          .toList();
     });
   }
 
   Future<void> _fetchExpense() async {
-    final snapshot = await dbExpense.infoFromServerAllTransaction();
+    final snapshot = await dbExpense.infoFromServerAllTransactions(
+      widget.farmId,
+    );
     setState(() {
-      expenseTransactions =
-          snapshot.docs
-              .map((doc) => Expense.fromFireStore(doc, null))
-              .where(
-                (expense) =>
-                    (selectedStartDate == null ||
-                        expense.expenseOnMonth!.isAfter(
-                          selectedStartDate!.add(Duration(days: -1)),
-                        )) &&
-                    (selectedEndDate == null ||
-                        expense.expenseOnMonth!.isBefore(
-                          selectedEndDate!.add(Duration(days: 1)),
-                        )),
-              )
-              .toList();
+      expenseTransactions = snapshot
+          .map((r) => Expense.fromDB(r))
+          .where(
+            (expense) =>
+                (selectedStartDate == null ||
+                    expense.expenseDate.isAfter(
+                      selectedStartDate!.add(Duration(days: -1)),
+                    )) &&
+                (selectedEndDate == null ||
+                    expense.expenseDate.isBefore(
+                      selectedEndDate!.add(Duration(days: 1)),
+                    )),
+          )
+          .toList();
     });
   }
 
   @override
   void initState() {
     super.initState();
-    dbSale = DatabaseForSale(uid: uid);
-    dbExpense = DatabaseForExpense(uid: uid);
+    dbSale = DbForSale();
+    dbExpense = DbForExpense();
     showIncome = widget.showIncome; // Set showIncome based on the parameter
     _fetchIncome();
     _fetchExpense();
@@ -93,21 +98,22 @@ class _TransactionPageState extends State<TransactionPage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
       appBar: AppBar(
+        leading: BackButton(
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const WrapperHomePage()),
+          ),
+        ),
         backgroundColor: const Color.fromRGBO(13, 152, 186, 1.0),
         title: Text(
           currentLocalization['transactions'] ?? "",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list_outlined, color: Colors.black),
@@ -123,13 +129,12 @@ class _TransactionPageState extends State<TransactionPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder:
-                      (context) => TotalTransactionPage(
-                        selectedStartDate: selectedStartDate,
-                        selectedEndDate: selectedEndDate,
-                        incomeTransactions: incomeTransactions,
-                        expenseTransactions: expenseTransactions,
-                      ),
+                  builder: (context) => TotalTransactionPage(
+                    selectedStartDate: selectedStartDate,
+                    selectedEndDate: selectedEndDate,
+                    incomeTransactions: incomeTransactions,
+                    expenseTransactions: expenseTransactions,
+                  ),
                 ),
               );
             },
@@ -167,23 +172,21 @@ class _TransactionPageState extends State<TransactionPage> {
                       padding: const EdgeInsets.all(10),
                       margin: const EdgeInsets.only(top: 8),
                       decoration: BoxDecoration(
-                        color:
-                            showIncome
-                                ? Colors.blueGrey[100]
-                                : const Color.fromRGBO(240, 255, 255, 0.9),
+                        color: showIncome
+                            ? Colors.blueGrey[100]
+                            : const Color.fromRGBO(240, 255, 255, 0.9),
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(8),
                           bottomLeft: Radius.circular(8),
                         ),
-                        boxShadow:
-                            showIncome
-                                ? [
-                                  BoxShadow(
-                                    color: Colors.grey.withValues(alpha: 1),
-                                    blurRadius: 4,
-                                  ),
-                                ]
-                                : [],
+                        boxShadow: showIncome
+                            ? [
+                                BoxShadow(
+                                  color: Colors.grey.withValues(alpha: 1),
+                                  blurRadius: 4,
+                                ),
+                              ]
+                            : [],
                       ),
                       child: Center(
                         child: Text(
@@ -205,23 +208,21 @@ class _TransactionPageState extends State<TransactionPage> {
                       padding: const EdgeInsets.all(10),
                       margin: const EdgeInsets.only(top: 8),
                       decoration: BoxDecoration(
-                        color:
-                            showIncome
-                                ? const Color.fromRGBO(240, 255, 255, 0.9)
-                                : Colors.blueGrey[100],
+                        color: showIncome
+                            ? const Color.fromRGBO(240, 255, 255, 0.9)
+                            : Colors.blueGrey[100],
                         borderRadius: const BorderRadius.only(
                           topRight: Radius.circular(8),
                           bottomRight: Radius.circular(8),
                         ),
-                        boxShadow:
-                            showIncome
-                                ? []
-                                : [
-                                  BoxShadow(
-                                    color: Colors.grey.withValues(alpha: 0.5),
-                                    blurRadius: 4,
-                                  ),
-                                ],
+                        boxShadow: showIncome
+                            ? []
+                            : [
+                                BoxShadow(
+                                  color: Colors.grey.withValues(alpha: 0.5),
+                                  blurRadius: 4,
+                                ),
+                              ],
                       ),
                       child: Center(
                         child: Text(
@@ -236,10 +237,15 @@ class _TransactionPageState extends State<TransactionPage> {
             ),
           ),
           Expanded(
-            child:
-                (showIncome)
-                    ? ListTileForSale(data: incomeTransactions)
-                    : ListTileForExpense(data: expenseTransactions),
+            child: (showIncome)
+                ? ListTileForSale(
+                    farmId: widget.farmId,
+                    data: incomeTransactions,
+                  )
+                : ListTileForExpense(
+                    farmId: widget.farmId,
+                    data: expenseTransactions,
+                  ),
           ),
         ],
       ),
@@ -250,21 +256,21 @@ class _TransactionPageState extends State<TransactionPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder:
-                      (context) =>
-                          (showIncome)
-                              ? AddIncome(
-                                onSubmit: () {
-                                  _fetchIncome();
-                                  _fetchExpense();
-                                },
-                              )
-                              : AddExpenses(
-                                onSubmit: () {
-                                  _fetchIncome();
-                                  _fetchExpense();
-                                },
-                              ),
+                  builder: (context) => (showIncome)
+                      ? AddIncome(
+                          onSubmit: () {
+                            _fetchIncome();
+                            _fetchExpense();
+                          },
+                          farmId: widget.farmId,
+                        )
+                      : AddExpenses(
+                          onSubmit: () {
+                            _fetchIncome();
+                            _fetchExpense();
+                          },
+                          farmId: widget.farmId,
+                        ),
                 ),
               );
             },
@@ -282,10 +288,9 @@ class _TransactionPageState extends State<TransactionPage> {
       context: context,
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
-      initialDateRange:
-          selectedStartDate != null && selectedEndDate != null
-              ? DateTimeRange(start: selectedStartDate!, end: selectedEndDate!)
-              : null,
+      initialDateRange: selectedStartDate != null && selectedEndDate != null
+          ? DateTimeRange(start: selectedStartDate!, end: selectedEndDate!)
+          : null,
     );
     if (picked != null) {
       selectedStartDate = picked.start;
@@ -297,8 +302,9 @@ class _TransactionPageState extends State<TransactionPage> {
 }
 
 class ListTileForSale extends StatefulWidget {
+  final String farmId;
   final List<Sale> data;
-  const ListTileForSale({super.key, required this.data});
+  const ListTileForSale({super.key, required this.data, required this.farmId});
 
   @override
   State<ListTileForSale> createState() => _ListTileForSaleState();
@@ -311,7 +317,7 @@ class _ListTileForSaleState extends State<ListTileForSale> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
     return ListView.builder(
       itemCount: widget.data.length,
       itemBuilder: (context, index) {
@@ -326,18 +332,18 @@ class _ListTileForSaleState extends State<ListTileForSale> {
             ),
             child: ListTile(
               title: Text(
-                sale.name == "Milk Sale"
+                sale.saleType == "Milk Sale"
                     ? currentLocalization['milk_sale'] ?? ''
-                    : sale.name == "Cattle Sale"
+                    : sale.saleType == "Cattle Sale"
                     ? currentLocalization['cattle_sale'] ?? ''
-                    : sale.name,
+                    : sale.saleType,
                 style: const TextStyle(
                   color: Colors.green,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               subtitle: Text(
-                '${currentLocalization['amount']}:  ${sale.value.toStringAsFixed(2)}| ${currentLocalization['on_date']}: ${sale.saleOnMonth?.day}-${sale.saleOnMonth?.month}-${sale.saleOnMonth?.year}',
+                '${currentLocalization['amount']}:  ${sale.amount.toStringAsFixed(2)}| ${currentLocalization['on_date']}: ${sale.saleDate.day}-${sale.saleDate.month}-${sale.saleDate.year}',
                 style: TextStyle(color: Colors.grey[800]),
               ),
               trailing: IconButton(
@@ -346,12 +352,12 @@ class _ListTileForSaleState extends State<ListTileForSale> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder:
-                          (context) => EditTransaction(
-                            showIncome: true,
-                            sale: sale,
-                            expense: null,
-                          ),
+                      builder: (context) => EditTransaction(
+                        farmId: widget.farmId,
+                        showIncome: true,
+                        sale: sale,
+                        expense: null,
+                      ),
                     ),
                   );
                 },
@@ -365,8 +371,13 @@ class _ListTileForSaleState extends State<ListTileForSale> {
 }
 
 class ListTileForExpense extends StatefulWidget {
+  final String farmId;
   final List<Expense> data;
-  const ListTileForExpense({super.key, required this.data});
+  const ListTileForExpense({
+    super.key,
+    required this.data,
+    required this.farmId,
+  });
 
   @override
   State<ListTileForExpense> createState() => _ListTileForExpenseState();
@@ -379,7 +390,7 @@ class _ListTileForExpenseState extends State<ListTileForExpense> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
     return ListView.builder(
       itemCount: widget.data.length,
       itemBuilder: (context, index) {
@@ -394,19 +405,19 @@ class _ListTileForExpenseState extends State<ListTileForExpense> {
             ),
             child: ListTile(
               title: Text(
-                expense.name != "Feed" &&
-                        expense.name != "Veterinary" &&
-                        expense.name != "Labor Costs" &&
-                        expense.name != "Equipment and Machinery"
-                    ? expense.name
-                    : currentLocalization[expense.name] ?? '',
+                expense.expenseType != "Feed" &&
+                        expense.expenseType != "Veterinary" &&
+                        expense.expenseType != "Labor Costs" &&
+                        expense.expenseType != "Equipment and Machinery"
+                    ? expense.expenseType
+                    : currentLocalization[expense.expenseType] ?? '',
                 style: const TextStyle(
                   color: Colors.red,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               subtitle: Text(
-                '${currentLocalization['amount']}:  ${expense.value.toStringAsFixed(2)}| ${currentLocalization['on_date']}: ${expense.expenseOnMonth?.day}-${expense.expenseOnMonth?.month}-${expense.expenseOnMonth?.year}',
+                '${currentLocalization['amount']}:  ${expense.amount.toStringAsFixed(2)}| ${currentLocalization['on_date']}: ${expense.expenseDate.day}-${expense.expenseDate.month}-${expense.expenseDate.year}',
                 style: TextStyle(color: Colors.grey[800]),
               ),
               trailing: IconButton(
@@ -415,12 +426,12 @@ class _ListTileForExpenseState extends State<ListTileForExpense> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder:
-                          (context) => EditTransaction(
-                            showIncome: false,
-                            sale: null,
-                            expense: expense,
-                          ),
+                      builder: (context) => EditTransaction(
+                        farmId: widget.farmId,
+                        showIncome: false,
+                        sale: null,
+                        expense: expense,
+                      ),
                     ),
                   );
                 },
@@ -433,16 +444,13 @@ class _ListTileForExpenseState extends State<ListTileForExpense> {
   }
 }
 
-class TotalTransactionPage extends StatelessWidget {
-  late Map<String, dynamic> currentLocalization = {};
-  late String languageCode = 'en';
-
+class TotalTransactionPage extends StatefulWidget {
   final DateTime? selectedStartDate;
   final DateTime? selectedEndDate;
   final List<Sale> incomeTransactions;
   final List<Expense> expenseTransactions;
 
-  TotalTransactionPage({
+  const TotalTransactionPage({
     super.key,
     required this.selectedStartDate,
     required this.selectedEndDate,
@@ -451,40 +459,49 @@ class TotalTransactionPage extends StatelessWidget {
   });
 
   @override
+  State<TotalTransactionPage> createState() => _TotalTransactionPageState();
+}
+
+class _TotalTransactionPageState extends State<TotalTransactionPage> {
+  late Map<String, dynamic> currentLocalization = {};
+
+  late String languageCode = 'en';
+
+  @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
     // Calculate total income
-    final totalIncome = incomeTransactions
+    final totalIncome = widget.incomeTransactions
         .where(
           (sale) =>
-              (selectedStartDate == null ||
-                  sale.saleOnMonth!.isAfter(
-                    selectedStartDate!.add(Duration(days: -1)),
+              (widget.selectedStartDate == null ||
+                  sale.saleDate.isAfter(
+                    widget.selectedStartDate!.add(Duration(days: -1)),
                   )) &&
-              (selectedEndDate == null ||
-                  sale.saleOnMonth!.isBefore(
-                    selectedEndDate!.add(Duration(days: 1)),
+              (widget.selectedEndDate == null ||
+                  sale.saleDate.isBefore(
+                    widget.selectedEndDate!.add(Duration(days: 1)),
                   )),
         )
-        .map((sale) => sale.value)
+        .map((sale) => sale.amount)
         .fold<double>(0, (prev, amount) => prev + amount);
 
     // Calculate total expense
-    final totalExpense = expenseTransactions
+    final totalExpense = widget.expenseTransactions
         .where(
           (expense) =>
-              (selectedStartDate == null ||
-                  expense.expenseOnMonth!.isAfter(
-                    selectedStartDate!.add(Duration(days: -1)),
+              (widget.selectedStartDate == null ||
+                  expense.expenseDate.isAfter(
+                    widget.selectedStartDate!.add(Duration(days: -1)),
                   )) &&
-              (selectedEndDate == null ||
-                  expense.expenseOnMonth!.isBefore(
-                    selectedEndDate!.add(Duration(days: 1)),
+              (widget.selectedEndDate == null ||
+                  expense.expenseDate.isBefore(
+                    widget.selectedEndDate!.add(Duration(days: 1)),
                   )),
         )
-        .map((expense) => expense.value)
+        .map((expense) => expense.amount)
         .fold<double>(0, (prev, amount) => prev + amount);
 
     // Calculate net profit
@@ -492,18 +509,18 @@ class TotalTransactionPage extends StatelessWidget {
 
     // Calculate total income per category
     final Map<String, double> incomePerCategory = {};
-    for (final transaction in incomeTransactions) {
-      final category = transaction.name;
+    for (final transaction in widget.incomeTransactions) {
+      final category = transaction.saleType;
       incomePerCategory[category] =
-          (incomePerCategory[category] ?? 0) + transaction.value;
+          (incomePerCategory[category] ?? 0) + transaction.amount;
     }
 
     // Calculate total expense per category
     final Map<String, double> expensePerCategory = {};
-    for (final transaction in expenseTransactions) {
-      final category = transaction.name;
+    for (final transaction in widget.expenseTransactions) {
+      final category = transaction.expenseType;
       expensePerCategory[category] =
-          (expensePerCategory[category] ?? 0) + transaction.value;
+          (expensePerCategory[category] ?? 0) + transaction.amount;
     }
 
     return Scaffold(
@@ -521,13 +538,13 @@ class TotalTransactionPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              '${currentLocalization["date_range"]} ${selectedStartDate != null ? "${selectedStartDate!.day}/${selectedStartDate!.month}/${selectedStartDate!.year}" : "${currentLocalization['start']}"} - ${selectedEndDate != null ? "${selectedEndDate!.day}/${selectedEndDate!.month}/${selectedEndDate!.year}" : "${currentLocalization['end']}"}',
+              '${currentLocalization["date_range"]} ${widget.selectedStartDate != null ? "${widget.selectedStartDate!.day}/${widget.selectedStartDate!.month}/${widget.selectedStartDate!.year}" : "${currentLocalization['start']}"} - ${widget.selectedEndDate != null ? "${widget.selectedEndDate!.day}/${widget.selectedEndDate!.month}/${widget.selectedEndDate!.year}" : "${currentLocalization['end']}"}',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 30),
             Text(
-              '${currentLocalization["total_income"]}: ₹$totalIncome',
+              '${currentLocalization["total_income"]}: ₹${totalIncome.toPrecision(2)}',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -559,7 +576,7 @@ class TotalTransactionPage extends StatelessWidget {
             ),
             const SizedBox(height: 25),
             Text(
-              '${currentLocalization["total_expense"]}: ₹$totalExpense',
+              '${currentLocalization["total_expense"]}: ₹${totalExpense.toPrecision(2)}',
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,

@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:farm_expense_mangement_app/services/database/milkdatabase.dart';
 import 'package:get/get.dart';
 import 'package:open_filex/open_filex.dart';
@@ -7,14 +7,16 @@ import 'package:path_provider/path_provider.dart';
 import 'package:excel/excel.dart';
 import 'package:farm_expense_mangement_app/screens/reports/reportsUtils.dart';
 import 'package:farm_expense_mangement_app/services/database/transactiondatabase.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../logging.dart';
 import '../../main.dart';
+import '../../models/expenses.dart';
 import '../../models/milk.dart';
-import '../../models/transaction.dart';
+import '../../models/sales.dart';
 import '../../services/localizationService.dart';
+import '../../services/supabaseService.dart';
 import '../../shared/constants.dart';
 import '../wrappers/wrapperhome.dart';
 
@@ -33,11 +35,10 @@ class ReportsAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       leading: BackButton(
         color: Colors.white,
-        onPressed:
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const WrapperHomePage()),
-            ),
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const WrapperHomePage()),
+        ),
       ),
       centerTitle: true,
       title: Text(
@@ -55,7 +56,8 @@ class ReportsAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class ReportsPage extends StatefulWidget {
-  const ReportsPage({super.key});
+  final String farmId;
+  const ReportsPage({super.key, required this.farmId});
 
   @override
   State<ReportsPage> createState() => _ReportsPageState();
@@ -98,7 +100,7 @@ class _ReportsPageState extends State<ReportsPage> {
     );
 
     return Container(
-      color: Colors.white60,
+      color: Colors.grey.shade300,
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Form(
@@ -208,10 +210,9 @@ class _ReportsPageState extends State<ReportsPage> {
                         child: Container(
                           padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                           decoration: BoxDecoration(
-                            color:
-                                (timeDiff <= 2)
-                                    ? Color.fromRGBO(177, 243, 238, 0.4)
-                                    : Colors.white,
+                            color: (timeDiff <= 2)
+                                ? Color.fromRGBO(177, 243, 238, 0.4)
+                                : Colors.white,
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.grey.withValues(alpha: 0.5),
@@ -288,29 +289,28 @@ class _ReportsPageState extends State<ReportsPage> {
     } else {
       var excelFile = Excel.createExcel();
       Sheet sheetObject;
-      String uid = FirebaseAuth.instance.currentUser!.uid;
 
       if (selectedReport != 'milk production') {
-        DatabaseForSale saleDB = DatabaseForSale(uid: uid);
+        DbForSale saleDB = DbForSale();
 
         final snapshot = await saleDB.infoFromSaleByDateRange(
           startDate!,
           endDate!,
+          widget.farmId,
         );
-        List<Sale> incomeTrans =
-            snapshot.docs.map((doc) => Sale.fromFireStore(doc, null)).toList();
+        List<Sale> incomeTrans = snapshot.map((r) => Sale.fromDB(r)).toList();
 
         if (selectedReport == 'transactions') {
-          DatabaseForExpense expenseDB = DatabaseForExpense(uid: uid);
+          DbForExpense expenseDB = DbForExpense();
 
           final snapshotExp = await expenseDB.infoFromExpenseByDateRange(
             startDate!,
             endDate!,
+            widget.farmId,
           );
-          List<Expense> expenseTrans =
-              snapshotExp.docs
-                  .map((doc) => Expense.fromFireStore(doc, null))
-                  .toList();
+          List<Expense> expenseTrans = snapshotExp
+              .map((r) => Expense.fromDB(r))
+              .toList();
 
           excelFile.rename('Sheet1', 'Transactions');
           sheetObject = excelFile['Transactions'];
@@ -327,25 +327,25 @@ class _ReportsPageState extends State<ReportsPage> {
           for (Sale trans in incomeTrans) {
             totTrans.add(
               TransRecord(
-                transDate: trans.saleOnMonth!,
+                transDate: trans.saleDate,
                 transType: 'Income',
-                category: trans.name,
-                value: trans.value,
+                category: trans.saleType,
+                value: trans.amount,
               ),
             );
-            totValue += trans.value;
+            totValue += trans.amount;
           }
 
           for (Expense trans in expenseTrans) {
             totTrans.add(
               TransRecord(
-                transDate: trans.expenseOnMonth!,
+                transDate: trans.expenseDate,
                 transType: 'Expense',
-                category: trans.name,
-                value: -trans.value,
+                category: trans.expenseType,
+                value: -trans.amount,
               ),
             );
-            totValue -= trans.value;
+            totValue -= trans.amount;
           }
 
           totTrans.sort((a, b) => (a.transDate).compareTo(b.transDate));
@@ -378,22 +378,26 @@ class _ReportsPageState extends State<ReportsPage> {
             TextCellValue('Milk Sale Income (₹)'),
           ]);
 
-          List<Sale> milkSale =
-              incomeTrans.where((trns) => trns.name == 'Milk Sale').toList()
-                ..sort((a, b) => (a.saleOnMonth!).compareTo(b.saleOnMonth!));
+          List<Sale> milkSaleTrns =
+              incomeTrans.where((trns) => trns.saleType == 'Milk Sale').toList()
+                ..sort((a, b) => (a.saleDate).compareTo(b.saleDate));
           double totIncome = 0;
 
-          for (var income in milkSale) {
+          for (var income in milkSaleTrns) {
+            final data = await saleDB.infoFromServerMilkSales(income.saleId);
+            final milkQty = (data
+                .map((r) => r['quantity'].toDouble())
+                .reduce((a, b) => a + b));
             sheetObject.appendRow([
               DateCellValue(
-                year: income.saleOnMonth?.year ?? 00,
-                month: income.saleOnMonth?.month ?? 00,
-                day: income.saleOnMonth?.day ?? 00,
+                year: income.saleDate.year,
+                month: income.saleDate.month,
+                day: income.saleDate.day,
               ),
-              TextCellValue(income.quantity.toString()),
-              DoubleCellValue(income.value),
+              TextCellValue(milkQty.toString()),
+              DoubleCellValue(income.amount),
             ]);
-            totIncome += income.value;
+            totIncome += income.amount;
           }
 
           sheetObject.appendRow([TextCellValue(' ')]);
@@ -405,7 +409,7 @@ class _ReportsPageState extends State<ReportsPage> {
         }
       } else {
         DateTime dt = startDate!;
-        DatabaseForMilk milkDB = DatabaseForMilk(uid);
+        DbServicesForMilk milkDB = DbServicesForMilk();
         excelFile.rename('Sheet1', 'Milk Production');
         sheetObject = excelFile['Milk Production'];
         sheetObject.appendRow([
@@ -416,9 +420,9 @@ class _ReportsPageState extends State<ReportsPage> {
           TextCellValue('Milk (Morning+Evening) (ltrs)'),
         ]);
 
-        var futures = <Future<QuerySnapshot<Map<String, dynamic>>>>[];
+        var futures = <Future<List<Map<String, dynamic>>>>[];
         while (dt.difference(endDate!).inDays <= 0) {
-          futures.add(milkDB.infoFromServerAllMilk(dt));
+          futures.add(milkDB.infoFromServerMilk(widget.farmId, dt));
           dt = dt.add(Duration(days: 1));
         }
 
@@ -426,24 +430,22 @@ class _ReportsPageState extends State<ReportsPage> {
         List<Milk> milkTotList = [];
         double totMilk = 0;
         for (var res in results) {
-          milkTotList.addAll(
-            res.docs.map((doc) => Milk.fromFireStore(doc, null)).toList(),
-          );
+          milkTotList.addAll(res.map((r) => Milk.fromDB(r)).toList());
         }
 
         for (Milk m in milkTotList) {
           sheetObject.appendRow([
             DateCellValue(
-              year: m.dateOfMilk!.year,
-              month: m.dateOfMilk!.month,
-              day: m.dateOfMilk!.day,
+              year: m.milkingDate.year,
+              month: m.milkingDate.month,
+              day: m.milkingDate.day,
             ),
-            TextCellValue(m.id),
-            DoubleCellValue(m.morning),
-            DoubleCellValue(m.evening),
-            DoubleCellValue(m.morning + m.evening),
+            TextCellValue(m.milkId),
+            DoubleCellValue(m.morningMilk),
+            DoubleCellValue(m.eveningMilk),
+            DoubleCellValue(m.morningMilk + m.eveningMilk),
           ]);
-          totMilk += (m.morning + m.evening);
+          totMilk += (m.morningMilk + m.eveningMilk);
         }
 
         sheetObject.appendRow([TextCellValue(' ')]);
@@ -479,6 +481,7 @@ class _ReportsPageState extends State<ReportsPage> {
 
       if (bytes != null && bytes.isNotEmpty) {
         final dir = await getApplicationDocumentsDirectory();
+        String uid = SupabaseService.client.auth.currentUser!.id;
         final Directory reportsDir = Directory('${dir.path}/MyAppReports_$uid');
         if (!await reportsDir.exists()) {
           await reportsDir.create(recursive: true);
@@ -496,7 +499,7 @@ class _ReportsPageState extends State<ReportsPage> {
 
   Future<void> deleteOlderReports(int days) async {
     final dir = await getApplicationDocumentsDirectory();
-    String uid = FirebaseAuth.instance.currentUser!.uid;
+    String uid = SupabaseService.client.auth.currentUser!.id;
     final reportsDir = Directory('${dir.path}/MyAppReports_$uid');
     if (!await reportsDir.exists()) {
       setState(() {

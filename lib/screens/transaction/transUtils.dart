@@ -33,10 +33,9 @@ class TransUtils {
         filled: true,
         fillColor: Color.fromRGBO(240, 255, 255, 1),
       ),
-      items:
-          items.map((String item) {
-            return DropdownMenuItem<String>(value: item, child: Text(item));
-          }).toList(),
+      items: items.map((String item) {
+        return DropdownMenuItem<String>(value: item, child: Text(item));
+      }).toList(),
       onChanged: onChanged,
     );
   }

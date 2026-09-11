@@ -1,18 +1,15 @@
-import 'package:farm_expense_mangement_app/screens/authenticate/authUtils.dart';
+import 'package:farm_expense_mangement_app/screens/authenticate/showfarms.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/registerNewFarm.dart';
-import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
 import 'package:farm_expense_mangement_app/services/localizationService.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:farm_expense_mangement_app/services/supabaseService.dart';
 import 'package:flutter/material.dart';
-import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/phoneno.dart';
-import 'package:farm_expense_mangement_app/screens/authenticate/language.dart' as first_screen;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../logging.dart';
 import '../../main.dart';
 import 'package:provider/provider.dart';
-
-import '../onboarding/onboard.dart';
-import '../onboarding/onboardUtils.dart';
+import '../../services/database/userdatabase.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   const OtpVerificationPage({super.key});
@@ -24,6 +21,7 @@ class OtpVerificationPage extends StatefulWidget {
 class _OtpVerificationPageState extends State<OtpVerificationPage> {
   final _focusNodes = List.generate(6, (index) => FocusNode());
   final _controllers = List.generate(6, (index) => TextEditingController());
+
   //final AuthService _auth = AuthService();
   late String languageCode = 'en';
   final log = logger(OtpVerificationPage);
@@ -60,7 +58,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
     languageCode = Provider.of<AppData>(context).persistentVariable;
     //print(languageCode);
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -96,7 +94,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
 
-            SizedBox(height: 20), // Space between the text and OTP boxes
+            SizedBox(height: 20),
+            // Space between the text and OTP boxes
             // Centered Row for OTP input boxes
             Center(
               child: Row(
@@ -119,9 +118,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               ),
             ),
 
-            SizedBox(
-              height: 20,
-            ), // Space between the OTP boxes and the continue button
+            SizedBox(height: 20),
+            // Space between the OTP boxes and the continue button
             // Continue button (same style as sign-up button)
             SizedBox(
               width: double.infinity, // Full width
@@ -138,94 +136,129 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   ), // Slightly smaller height
                 ),
                 onPressed: () async {
-                  String otp =
-                      _controllers.map((controller) => controller.text).join();
+                  String otp = _controllers
+                      .map((controller) => controller.text)
+                      .join();
                   //print(otp);
                   //print(SignUpPage.verify);
                   try {
-                    PhoneAuthCredential credential =
-                        PhoneAuthProvider.credential(
-                          verificationId: SignUpPage.verify,
-                          smsCode: otp,
-                        );
-                    await FirebaseAuth.instance.signInWithCredential(
-                      credential,
+                    final res = await SupabaseService.client.auth.verifyOTP(
+                      phone: PhoneAuthentication.phoneNumber,
+                      token: otp,
+                      type: OtpType.sms,
                     );
 
-                    String uid = FirebaseAuth.instance.currentUser!.uid;
-                    DatabaseServicesForUser userDb = DatabaseServicesForUser(
-                      uid,
-                    );
-
-                    final snapshot = await userDb.infoFromServer(uid);
-
-                    if (SignUpPage.newFarmReg && !snapshot.exists) {
-                      //print("in register block");
-                      if (context.mounted) {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => RegisterFarm(),
-                          ),
-                        );
-                      }
+                    if (res.session == null) {
+                      log.e("Verification failed!!", time: DateTime.now());
                     } else {
-                      if (snapshot.exists) {
-                        //print("in wrapper block");
-                        checkForFirstLaunch().then((bool value) {
-                          bool showOnboarding = value;
-                          if (context.mounted) {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (BuildContext context) {
-                                  return showOnboarding
-                                      ? OnBoardingScreens()
-                                      : const WrapperHomePage();
-                                },
-                              ),
-                            );
-                          }
-                        });
+                      log.i("User logged in: ${res.user?.id}");
+
+                      String uid = SupabaseService.client.auth.currentUser!.id;
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      String phoneNo = PhoneAuthentication.phoneNumber
+                          .replaceFirst("+91", "");
+                      await prefs.setString('phoneNumber', phoneNo);
+
+                      DbServicesForUser userDb = DbServicesForUser();
+
+                      final snapshot = await userDb.infoFromServer(uid);
+
+                      if (snapshot == null) {
+                        //print("in register block");
+                        if (context.mounted) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RegisterFarm(),
+                            ),
+                          );
+                        }
                       } else {
                         if (context.mounted) {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AuthUtils.buildAlertDialog(
-                                title:
-                                    currentLocalization['No existing Farm!'] ??
-                                    '',
-                                content:
-                                    currentLocalization['Not Registered Content'] ??
-                                    '',
-                                opt1: currentLocalization['register'] ?? '',
-                                onPressedOpt1: () {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => RegisterFarm(),
-                                    ),
-                                  );
-                                },
-                                opt2: currentLocalization['cancel'] ?? '',
-                                onPressedOpt2: () async {
-                                  await FirebaseAuth.instance.currentUser!
-                                      .delete();
-                                  if (context.mounted) {
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => first_screen.SignUpPage(),
-                                      ),
-                                    );
-                                  }
-                                },
-                              );
-                            },
+                          Provider.of<AppData>(
+                            context,
+                            listen: false,
+                          ).persistentVariable = snapshot['chosenLanguage'];
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ShowFarmsPage(),
+                            ),
                           );
                         }
                       }
+
+                      /*
+
+                      if (SignUpPage.newFarmReg && !snapshot.exists) {
+                        //print("in register block");
+                        if (context.mounted) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RegisterFarm(),
+                            ),
+                          );
+                        }
+                      } else {
+                        if (snapshot.exists) {
+                          //print("in wrapper block");
+                          checkForFirstLaunch().then((bool value) {
+                            bool showOnboarding = value;
+                            if (context.mounted) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (BuildContext context) {
+                                    return showOnboarding
+                                        ? OnBoardingScreens()
+                                        : const WrapperHomePage();
+                                  },
+                                ),
+                              );
+                            }
+                          });
+                        } else {
+                          if (context.mounted) {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AuthUtils.buildAlertDialog(
+                                  title:
+                                  currentLocalization['No existing Farm!'] ??
+                                      '',
+                                  content:
+                                  currentLocalization['Not Registered Content'] ??
+                                      '',
+                                  opt1: currentLocalization['register'] ?? '',
+                                  onPressedOpt1: () {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => RegisterFarm(),
+                                      ),
+                                    );
+                                  },
+                                  opt2: currentLocalization['cancel'] ?? '',
+                                  onPressedOpt2: () async {
+                                    await SupabaseService.client.auth.signOut();
+                                    if (context.mounted) {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              first_screen.SignUpPage(),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                );
+                              },
+                            );
+                          }
+                        }
+                      }*/
                     }
                   } catch (e) {
                     log.e(
@@ -233,6 +266,20 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       time: DateTime.now(),
                       error: e.toString(),
                     );
+                    if(e.toString().contains("otp_expired")){
+                      final snackBar = SnackBar(
+                        backgroundColor: Colors.redAccent,
+                        content: Text(
+                          currentLocalization['otp_expired'] ??
+                              'OTP expired!',
+                        )
+                      );
+                      if(context.mounted) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(snackBar);
+                      }
+                    }
                   }
                 },
                 child: Text(
@@ -246,9 +293,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               ),
             ),
 
-            SizedBox(
-              height: 20,
-            ), // Space between the continue button and the next section
+            SizedBox(height: 20),
+            // Space between the continue button and the next section
             // "Didn't receive code?" and "Resend OTP" button
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -276,9 +322,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
               ],
             ),
 
-            SizedBox(
-              height: 20,
-            ), // Space between the resend OTP section and the terms text
+            SizedBox(height: 20),
+            // Space between the resend OTP section and the terms text
             // Terms and conditions text
             // Center(
             //   child: Text(
@@ -324,7 +369,8 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         focusNode: focusNode,
         keyboardType: TextInputType.number,
         textAlign: TextAlign.center,
-        maxLength: 1, // Restrict input to 1 character
+        maxLength: 1,
+        // Restrict input to 1 character
         decoration: InputDecoration(
           border: InputBorder.none,
           counterText: '', // Hide the counter text
@@ -344,11 +390,5 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         },
       ),
     );
-  }
-
-  Future<bool> checkForFirstLaunch() async {
-    String uid = FirebaseAuth.instance.currentUser!.uid;
-    bool showOnBoard = await OnboardUtils.checkFirstLaunch(uid);
-    return showOnBoard;
   }
 }

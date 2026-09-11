@@ -10,14 +10,13 @@ class BreedService {
 
   final List<String> cowBreeds = [];
   final List<String> buffaloBreeds = [];
-  DatabaseServicesForBreed dbBreed = DatabaseServicesForBreed();
+  DbServicesForBreed dbBreed = DbServicesForBreed();
 
   Future<void> init() async {
     if (cowBreeds.isEmpty || buffaloBreeds.isEmpty) {
       // return from DB
       var snapshot = await dbBreed.infoFromServerAllBreeds();
-      var allBreeds =
-          snapshot.docs.map((doc) => Breed.fromFireStore(doc, null)).toList();
+      var allBreeds = snapshot.map((r) => Breed.fromDB(r)).toList();
       for (Breed breed in allBreeds) {
         if (breed.type == 'Cow') {
           cowBreeds.add(breed.breedName);

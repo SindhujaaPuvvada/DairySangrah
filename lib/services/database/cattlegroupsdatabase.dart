@@ -1,112 +1,58 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:farm_expense_mangement_app/services/database/breedDatabase.dart';
+import 'package:farm_expense_mangement_app/services/supabaseService.dart';
 import '../../models/cattlegroups.dart';
 
-class DatabaseServicesForCattleGroups {
-  final String uid;
-
-  DatabaseServicesForCattleGroups(this.uid);
-
-  Future<bool> checkIfGrpIdExists(String grpId) async {
-    final doc =
-        await FirebaseFirestore.instance
-            .collection('User')
-            .doc(uid)
-            .collection('CattleGroups')
-            .doc(grpId)
-            .get();
-
-    return doc.exists;
-  }
-
+class DbServicesForCattleGroups {
   Future<void> infoToServerSingleCattleGrp(CattleGroup cattleGrp) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    return await db
-        .collection('User')
-        .doc(uid)
-        .collection('CattleGroups')
-        .doc(cattleGrp.grpId)
-        .set(cattleGrp.toFireStore());
-  }
-
-  Future<DocumentSnapshot<Map<String, dynamic>>> infoFromServer(
-    String grpId,
-  ) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-
-    return await db
-        .collection('User')
-        .doc(uid)
-        .collection('CattleGroups')
-        .doc(grpId)
-        .get();
-  }
-
-  Future<QuerySnapshot<Map<String, dynamic>>> infoFromServerAllCattleGrps(
-    String uid,
-  ) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-
-    return await db
-        .collection('User')
-        .doc(uid)
-        .collection('CattleGroups')
-        .orderBy('grpId')
-        .get();
-  }
-
-  Future<void> deleteCattleGrp(String grpId) async {
-    final FirebaseFirestore db = FirebaseFirestore.instance;
-
-    // Reference to the specific group document
-    final DocumentReference cattleGrpDocRef = db
-        .collection('User')
-        .doc(uid)
-        .collection('CattleGroups')
-        .doc(grpId);
-
-    // Now delete the group document
-    await cattleGrpDocRef.delete();
-  }
-
-  Future<String> getLastUsedGrpIdDB(String uid) async {
-    final FirebaseFirestore db = FirebaseFirestore.instance;
-
-    final QuerySnapshot<Map<String, dynamic>> cattleGrpDoc =
-        await db
-            .collection('User')
-            .doc(uid)
-            .collection('CattleGroups')
-            .orderBy("grpId", descending: true)
-            .limit(1)
-            .get();
-
-    if (cattleGrpDoc.docs.isNotEmpty) {
-      var cattleGrp = CattleGroup.fromFireStore(cattleGrpDoc.docs[0], null);
-      return cattleGrp.grpId;
-    } else {
-      return '0';
+    if (cattleGrp.breed != null) {
+      final breedData = await DbServicesForBreed().getBreedDataFromName(
+        cattleGrp.breed!,
+      );
+      cattleGrp.breedId = breedData['breedId'];
     }
+    await SupabaseService.client.from('CattleGroups').insert(cattleGrp.toDB());
+  }
+
+  Future<List<Map<String, dynamic>>> infoFromServerAllCattleGrps(
+    String farmId,
+  ) async {
+    List<Map<String, dynamic>> dataList = await SupabaseService.client
+        .from('CattleGroups')
+        .select('*, Breeds(breedName)')
+        .eq('farmId', farmId)
+        .order('breedId', ascending: true)
+        .order('state', ascending: true);
+
+    return dataList;
   }
 
   Future<bool> grpCriteriaExists(
+    String farmId,
     String cattleType,
     String? breed,
     String status,
   ) async {
-    final FirebaseFirestore db = FirebaseFirestore.instance;
+    List<Map<String, dynamic>> data;
+    if (breed != null) {
+      final breedData = await DbServicesForBreed().getBreedDataFromName(breed);
 
-    final QuerySnapshot<Map<String, dynamic>> cattleGrpDoc =
-        await db
-            .collection('User')
-            .doc(uid)
-            .collection('CattleGroups')
-            .where('type', isEqualTo: cattleType)
-            .where('breed', isEqualTo: breed)
-            .where('state', isEqualTo: status)
-            .limit(1)
-            .get();
+      data = await SupabaseService.client
+          .from('CattleGroups')
+          .select()
+          .eq('farmId', farmId)
+          .eq('type', cattleType)
+          .eq('state', status)
+          .eq('breedId', breedData['breedId']);
+    } else {
+      data = await SupabaseService.client
+          .from('CattleGroups')
+          .select()
+          .eq('farmId', farmId)
+          .eq('type', cattleType)
+          .eq('state', status);
+    }
 
-    if (cattleGrpDoc.docs.isNotEmpty) {
+    if (data.isNotEmpty) {
       return true;
     } else {
       return false;

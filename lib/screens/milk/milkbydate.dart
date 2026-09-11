@@ -1,18 +1,19 @@
 import 'package:farm_expense_mangement_app/screens/milk/milkavgpage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import '../../../main.dart';
+import '../../main.dart';
 import '../../../models/milk.dart';
 import '../../../services/database/milkdatabase.dart';
 import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 class MilkByDatePage extends StatefulWidget {
   final DateTime? dateOfMilk;
+  final String farmId;
 
-  const MilkByDatePage({super.key, this.dateOfMilk});
+  const MilkByDatePage({super.key, required this.farmId, this.dateOfMilk});
 
   @override
   State<MilkByDatePage> createState() => _MilkByDatePageState();
@@ -22,9 +23,7 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
   late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
-  final user = FirebaseAuth.instance.currentUser;
-  final uid = FirebaseAuth.instance.currentUser!.uid;
-  late DatabaseForMilk db;
+  late DbServicesForMilk db;
 
   List<Milk> _allMilkInDate = [];
   List<Milk> _filteredMilk = [];
@@ -32,27 +31,27 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
   @override
   void initState() {
     super.initState();
-    db = DatabaseForMilk(uid);
+    db = DbServicesForMilk();
     _fetchAllMilk();
   }
 
   void _deleteAllMilkOnDate() async {
-    await db.deleteAllMilkRecords(widget.dateOfMilk!);
+    await db.deleteAllMilkRecordsForDate(widget.farmId, widget.dateOfMilk!);
     if (mounted) {
       Navigator.pop(context);
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const AvgMilkPage()),
+        MaterialPageRoute(
+          builder: (context) => AvgMilkPage(farmId: widget.farmId),
+        ),
       );
     }
   }
 
   Future<void> _fetchAllMilk() async {
-    final DateTime dateTime = widget.dateOfMilk!;
-    final snapshot = await db.infoFromServerAllMilk(dateTime);
+    final snapshot = await db.infoFromServerMilk(widget.farmId, widget.dateOfMilk!);
     setState(() {
-      _allMilkInDate =
-          snapshot.docs.map((doc) => Milk.fromFireStore(doc, null)).toList();
+      _allMilkInDate = snapshot.map((r) => Milk.fromDB(r)).toList();
       _filteredMilk = _allMilkInDate;
     });
   }
@@ -62,24 +61,26 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
       if (query.isEmpty) {
         _filteredMilk = _allMilkInDate;
       } else {
-        _filteredMilk =
-            _allMilkInDate.where((milk) => milk.id.contains(query)).toList();
+        _filteredMilk = _allMilkInDate
+            .where(
+              (milk) => milk.milkEntryId.toString().toLowerCase().contains(
+                query.toLowerCase(),
+              ),
+            )
+            .toList();
       }
     });
   }
 
   double _calculateTotalMilk() {
-    return _filteredMilk.fold(
-      0,
-      (sum, milk) => sum + milk.morning + milk.evening,
-    );
+    return _filteredMilk.fold(0, (sum, milk) => sum + milk.morningMilk + milk.eveningMilk);
   }
 
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
@@ -121,7 +122,9 @@ class _MilkByDatePageState extends State<MilkByDatePage> {
             // Navigator.pop(context);
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const AvgMilkPage()),
+              MaterialPageRoute(
+                builder: (context) => AvgMilkPage(farmId: widget.farmId),
+              ),
             );
           },
         ),
@@ -242,10 +245,15 @@ class MilkSearchDelegate extends SearchDelegate<String> {
   }
 
   Widget _buildSearchResults() {
-    final List<Milk> searchResults =
-        query.isEmpty
-            ? allMilk
-            : allMilk.where((milk) => milk.id.contains(query)).toList();
+    final List<Milk> searchResults = query.isEmpty
+        ? allMilk
+        : allMilk
+              .where(
+                (milk) => milk.milkEntryId.toString().toLowerCase().contains(
+                  query.toLowerCase(),
+                ),
+              )
+              .toList();
 
     return Container(
       color: const Color.fromRGBO(
@@ -289,20 +297,20 @@ class _MilkDataRowState extends State<MilkDataRow> {
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     String id = '';
     String idVal = '';
-    final double totalMilk = (widget.data.evening + widget.data.morning)
-        .toPrecision(2);
+    final double totalMilk =
+        (widget.data.morningMilk + widget.data.eveningMilk)
+            .toPrecision(2);
 
-    if (widget.data.id == 'whole farm') {
-      id = 'whole farm';
+    if (widget.data.milkEntryType == 'Whole-farm') {
+      id = 'Whole-farm';
       idVal = '';
     } else {
-      List<String> currentId = widget.data.id.split('-');
-      idVal = currentId[1];
-      if (currentId[0] == 'GPID') {
+      idVal = widget.data.milkEntryId.toString();
+      if (widget.data.milkEntryType == 'Group-wise') {
         id = 'grpid';
       } else {
         id = 'RF ID';
@@ -321,7 +329,7 @@ class _MilkDataRowState extends State<MilkDataRow> {
         children: [
           // Left container
           Container(
-            width: 150,
+            //width: 150,
             padding: const EdgeInsets.all(10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -359,7 +367,7 @@ class _MilkDataRowState extends State<MilkDataRow> {
                       Image.asset('asset/morning.webp', width: 20, height: 20),
                       const SizedBox(width: 10),
                       Text(
-                        "${currentLocalization['morning'] ?? ""}: ${widget.data.morning.toStringAsFixed(2)}L",
+                        "${currentLocalization['morning'] ?? ""}: ${widget.data.morningMilk.toStringAsFixed(2)}L",
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
@@ -373,7 +381,7 @@ class _MilkDataRowState extends State<MilkDataRow> {
                       Image.asset('asset/evening2.jpg', width: 20, height: 20),
                       const SizedBox(width: 10),
                       Text(
-                        "${currentLocalization['evening']}: ${widget.data.evening.toStringAsFixed(2)}L",
+                        "${currentLocalization['evening']}: ${widget.data.eveningMilk.toStringAsFixed(2)}L",
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
@@ -422,10 +430,7 @@ class EditMilkByDate extends StatefulWidget {
 }
 
 class _EditMilkByDateState extends State<EditMilkByDate> {
-  final user = FirebaseAuth.instance.currentUser;
-  final uid = FirebaseAuth.instance.currentUser!.uid;
-  late DatabaseForMilk db;
-  late DatabaseForMilkByDate dbByDate;
+  late DbServicesForMilk db;
   late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
@@ -435,49 +440,30 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
   @override
   void initState() {
     super.initState();
-    db = DatabaseForMilk(uid);
-    dbByDate = DatabaseForMilkByDate(uid);
-    milkInMorning = widget.data.morning;
-    milkInEvening = widget.data.evening;
+    db = DbServicesForMilk();
+    milkInMorning = widget.data.morningMilk;
+    milkInEvening = widget.data.eveningMilk;
   }
 
-  void _editMilkDetail(Milk milk) async {
-    await db.infoToServerMilk(milk);
-    final MilkByDate milkByDate;
-    final snapshot = await dbByDate.infoFromServerMilk(milk.dateOfMilk!);
-    if (snapshot.exists) {
-      milkByDate = MilkByDate.fromFireStore(snapshot, null);
-    } else {
-      milkByDate = MilkByDate(dateOfMilk: milk.dateOfMilk);
-      await dbByDate.infoToServerMilk(milkByDate);
-    }
-    final double totalMilk = (milkByDate.totalMilk +
-            milk.morning +
-            milk.evening -
-            widget.data.evening -
-            widget.data.morning)
-        .toPrecision(2);
-    await dbByDate.infoToServerMilk(
-      MilkByDate(dateOfMilk: milk.dateOfMilk, totalMilk: totalMilk),
-    );
+  Future<void> _editMilkDetail(String milkId, double morMilkQty, double eveMilkQty) async {
+    await db.updateToServerMilkQuantity(milkId, morMilkQty, eveMilkQty);
   }
 
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     String id = '';
     String idVal = '';
 
-    if (widget.data.id == 'whole farm') {
-      id = 'whole farm';
+    if (widget.data.milkEntryType == 'Whole-farm') {
+      id = 'Whole-farm';
       idVal = '';
     } else {
-      List<String> currentId = widget.data.id.split('-');
-      idVal = currentId[1];
-      if (currentId[0] == 'GPID') {
+      idVal = widget.data.milkEntryId.toString();
+      if (widget.data.milkEntryType == 'Group-wise') {
         id = 'grpid';
       } else {
         id = 'RF ID';
@@ -517,7 +503,7 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
                     ),
                   ),
                   Text(
-                    '${currentLocalization['date']} : ${widget.data.dateOfMilk!.day}-${widget.data.dateOfMilk!.month}-${widget.data.dateOfMilk!.year}',
+                    '${currentLocalization['date']} : ${widget.data.milkingDate.day}-${widget.data.milkingDate.month}-${widget.data.milkingDate.year}',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -551,26 +537,26 @@ class _EditMilkByDateState extends State<EditMilkByDate> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
                   ),
-                  onPressed: () {
+                  onPressed: () async {
                     if (milkInMorning != null && milkInEvening != null) {
-                      Milk newMilkData = Milk(
-                        id: widget.data.id,
-                        morning: milkInMorning!.toPrecision(2),
-                        evening: milkInEvening!.toPrecision(2),
-                        dateOfMilk: widget.data.dateOfMilk,
-                      );
-                      _editMilkDetail(newMilkData);
-                      Navigator.pop(context);
-                      // Navigator.push(context, MaterialPageRoute(builder: (context) => const AvgMilkPage()));
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) => MilkByDatePage(
-                                dateOfMilk: widget.data.dateOfMilk,
-                              ),
-                        ),
-                      );
+                      double newMorMilkQty =
+                          milkInMorning!.toPrecision(2);
+                      double newEveMilkQty =
+                          milkInEvening!.toPrecision(2);
+                      await _editMilkDetail(widget.data.milkId, newMorMilkQty, newEveMilkQty);
+                      if(context.mounted) {
+                        //Navigator.push(context, MaterialPageRoute(builder: (context) => const AvgMilkPage()));
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                MilkByDatePage(
+                                  farmId: widget.data.farmId,
+                                  dateOfMilk: widget.data.milkingDate,
+                                ),
+                          ),
+                        );
+                      }
                     }
                   },
                   child: Padding(

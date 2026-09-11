@@ -1,19 +1,17 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:farm_expense_mangement_app/services/supabaseService.dart';
 import 'package:flutter/material.dart';
-//import 'package:farm_expense_mangement_app/services/auth.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/otp.dart';
 import 'package:farm_expense_mangement_app/services/localizationService.dart';
 import 'package:provider/provider.dart';
 import 'package:farm_expense_mangement_app/main.dart';
 
-class SignUpPage extends StatelessWidget {
+class PhoneAuthentication extends StatelessWidget {
   //final AuthService _auth = AuthService();
   final TextEditingController _phoneController = TextEditingController();
   static String verify = "";
   static String phoneNumber = "";
-  static bool newFarmReg = true;
 
-  SignUpPage({super.key});
+  PhoneAuthentication({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +19,7 @@ class SignUpPage extends StatelessWidget {
     String languageCode = 'en';
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -99,7 +97,6 @@ class SignUpPage extends StatelessWidget {
                 SizedBox(
                   height: 20,
                 ), // Space between the input field and the next element
-
                 // Full-width sign-up button with color #0EA6BB
                 SizedBox(
                   width: double.infinity, // Full width
@@ -127,17 +124,8 @@ class SignUpPage extends StatelessWidget {
                         ),
                       );
                       // Handle sign-up logic here
-                      await FirebaseAuth.instance.verifyPhoneNumber(
-                        phoneNumber: phoneNumber,
-                        timeout: const Duration(seconds: 60),
-                        verificationCompleted:
-                            (PhoneAuthCredential credential) {},
-                        verificationFailed: (FirebaseAuthException e) {},
-                        codeSent: (String verificationId, int? resendtoken) {
-                          SignUpPage.verify = verificationId;
-                          //print(verificationId);
-                        },
-                        codeAutoRetrievalTimeout: (String verificationId) {},
+                      await SupabaseService.client.auth.signInWithOtp(
+                        phone: phoneNumber,
                       );
                     },
                     child: Text(

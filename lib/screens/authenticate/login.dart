@@ -1,6 +1,6 @@
-import 'package:farm_expense_mangement_app/screens/authenticate/forgotpasswordpage.dart';
+/*import 'package:farm_expense_mangement_app/screens/authenticate/forgotpasswordpage.dart';
 import 'package:flutter/material.dart';
-import 'package:farm_expense_mangement_app/services/auth.dart';
+import 'package:farm_expense_mangement_app/services/supabaseService.dart';
 import 'package:farm_expense_mangement_app/shared/constants.dart';
 
 class SignIn extends StatefulWidget {
@@ -13,7 +13,7 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-  final AuthService _auth = AuthService();
+  final SupabaseService _auth = SupabaseService();
 
   // text field state
   String email = '';
@@ -175,3 +175,4 @@ class _SignInState extends State<SignIn> {
     );
   }
 }
+*/

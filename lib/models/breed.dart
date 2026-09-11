@@ -1,20 +1,19 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Breed {
+  final int breedId;
   final String type;
   final String breedName;
 
-  Breed({required this.type, required this.breedName});
+  Breed({this.breedId = 0, required this.type, required this.breedName});
 
-  factory Breed.fromFireStore(
-    DocumentSnapshot<Map<String, dynamic>> snapshot,
-    SnapshotOptions? options,
-  ) {
-    final data = snapshot.data();
-    return Breed(type: data?['type'], breedName: data?['breedName']);
+  factory Breed.fromDB(Map<String, dynamic> data) {
+    return Breed(
+      breedId: data['breedId'],
+      type: data['type'],
+      breedName: data['breedName'],
+    );
   }
 
-  Map<String, dynamic> toFireStore() {
+  Map<String, dynamic> toDB() {
     return {'type': type, 'breedName': breedName};
   }
 }

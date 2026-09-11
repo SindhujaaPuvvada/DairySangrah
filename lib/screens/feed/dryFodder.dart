@@ -1,14 +1,16 @@
 import 'package:farm_expense_mangement_app/screens/feed/feedUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../models/feed.dart';
+import '../../models/inventory.dart';
+
 import 'feedpage.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
 import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 class DryFodderPage extends StatefulWidget {
-  const DryFodderPage({super.key});
+  final String farmId;
+  const DryFodderPage({super.key, required this.farmId});
 
   @override
   State<DryFodderPage> createState() => _DryFodderPageState();
@@ -47,7 +49,7 @@ class _DryFodderPageState extends State<DryFodderPage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     typeMap = {
       'Wheat Straw': currentLocalization['Wheat Straw'] ?? 'Wheat Straw',
@@ -174,11 +176,11 @@ class _DryFodderPageState extends State<DryFodderPage> {
   }
 
   void _submitData() {
-    final type =
-        _selectedType == 'Others' ? _customTypeController.text : _selectedType;
+    final type = _selectedType == 'Others'
+        ? _customTypeController.text
+        : _selectedType;
     double quantity = double.parse(_quantityController.text);
     double rate = double.parse(_rateController.text);
-    double price = double.parse(_priceController.text);
     final source = _selectedSource;
 
     if (type.isEmpty) {
@@ -197,37 +199,38 @@ class _DryFodderPageState extends State<DryFodderPage> {
       rate = rate / 100;
     }
 
-    Feed feed = Feed(
-      category: "DryFodder",
-      feedType: type,
-      quantity: quantity,
+    Inventory invData = Inventory(
+      invId: '',
+      invDate: DateTime.now(),
+      farmId: widget.farmId,
+      feedCategory: "DryFodder",
+      feedName: type,
+      quantityStocked: quantity,
       source: source,
-      totPrice: price,
       ratePerKg: rate,
-      feedDate: DateTime.now(),
+      currentStockLevel: quantity,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
     );
 
-    FeedUtils.saveFeedDetails(feed);
+    FeedUtils.saveFeedDetails(invData);
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const FeedPage()),
+      MaterialPageRoute(builder: (context) => FeedPage(farmId: widget.farmId)),
     );
   }
 
   void _calculatePrice() {
-    double quantity =
-        (_quantityController.text.isNotEmpty)
-            ? double.parse(_quantityController.text)
-            : 0.0;
-    double rate =
-        (_rateController.text.isNotEmpty)
-            ? double.parse(_rateController.text)
-            : 0.0;
-    double price =
-        (_priceController.text.isNotEmpty)
-            ? double.parse(_priceController.text)
-            : 0.0;
+    double quantity = (_quantityController.text.isNotEmpty)
+        ? double.parse(_quantityController.text)
+        : 0.0;
+    double rate = (_rateController.text.isNotEmpty)
+        ? double.parse(_rateController.text)
+        : 0.0;
+    double price = (_priceController.text.isNotEmpty)
+        ? double.parse(_priceController.text)
+        : 0.0;
 
     var lt = FeedUtils.calRateOrPrice(price, rate, quantity);
 

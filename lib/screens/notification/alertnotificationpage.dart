@@ -1,6 +1,5 @@
 import 'package:farm_expense_mangement_app/models/notification.dart';
 import 'package:farm_expense_mangement_app/screens/wrappers/wrapperhome.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
@@ -18,16 +17,15 @@ class NotificationAppBar extends StatelessWidget
 
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     return AppBar(
       leading: BackButton(
         color: Colors.white,
-        onPressed:
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const WrapperHomePage()),
-            ),
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const WrapperHomePage()),
+        ),
       ),
       centerTitle: true,
       title: Text(
@@ -45,7 +43,8 @@ class NotificationAppBar extends StatelessWidget
 }
 
 class AlertNotificationsPage extends StatefulWidget {
-  const AlertNotificationsPage({super.key});
+  final String farmId;
+  const AlertNotificationsPage({super.key, required this.farmId});
 
   @override
   State<AlertNotificationsPage> createState() => _AlertNotificationsPageState();
@@ -55,24 +54,22 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
   late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
-  List<Map<String, String>> notifications = [];
-  late DatabaseServicesForNotification ntfDb;
+  List<Map<String, dynamic>> notifications = [];
+  late DbServicesForNotification ntfDb;
   bool _isLoading = true;
   bool _showCheckboxes = false;
   bool _isSelected = false;
-  final String uid = FirebaseAuth.instance.currentUser!.uid;
 
   Future<void> _getNotifications() async {
-    final snapshot = await ntfDb.infoFromServerAllNotifications();
+    final snapshot = await ntfDb.infoFromServerAllNotifications(widget.farmId);
     setState(() {
-      List<CattleNotification> ntfs =
-          snapshot.docs
-              .map((doc) => CattleNotification.fromFireStore(doc, null))
-              .toList();
+      List<CattleNotification> ntfs = snapshot
+          .map((r) => CattleNotification.fromDB(r))
+          .toList();
 
       for (var ntf in ntfs) {
         int diff = DateTime.now().difference(ntf.ntShowDate).inDays;
-        if ((!ntf.ntClosed) & (diff >= 0)) {
+        if ((ntf.ntClosedDate == null) & (diff >= 0)) {
           notifications.add({
             "title": ntf.ntTitle,
             "details": ntf.ntDetails,
@@ -109,7 +106,7 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
   @override
   void initState() {
     super.initState();
-    ntfDb = DatabaseServicesForNotification(uid);
+    ntfDb = DbServicesForNotification();
     setState(() {
       _getNotifications();
     });
@@ -119,7 +116,7 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     String localizeSentence(String sentence) {
       List<String> parts = sentence.split(' ');
@@ -275,19 +272,19 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
                       children: <Widget>[
                         _showCheckboxes
                             ? Checkbox(
-                              value: _isSelected,
-                              checkColor: Colors.white,
-                              activeColor: const Color(0xFF0DA6BA),
-                              shape: const CircleBorder(),
-                              // Tealish blue
-                              onChanged: (val) {
-                                setState(() {
-                                  _isSelected = val!;
-                                  notifications[index]['isSelected'] =
-                                      _isSelected.toString();
-                                });
-                              },
-                            )
+                                value: _isSelected,
+                                checkColor: Colors.white,
+                                activeColor: const Color(0xFF0DA6BA),
+                                shape: const CircleBorder(),
+                                // Tealish blue
+                                onChanged: (val) {
+                                  setState(() {
+                                    _isSelected = val!;
+                                    notifications[index]['isSelected'] =
+                                        _isSelected.toString();
+                                  });
+                                },
+                              )
                             : Container(),
                       ],
                     ),
@@ -298,34 +295,34 @@ class _AlertNotificationsPageState extends State<AlertNotificationsPage> {
           ),
           _showCheckboxes
               ? Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).padding.bottom + 10,
-                  ),
-                  child: FloatingActionButton(
-                    onPressed: () {
-                      _deleteNotifications();
-                    },
-                    backgroundColor: Colors.white,
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                          child: Icon(
-                            Icons.delete,
-                            color: Color.fromRGBO(13, 166, 186, 1.0),
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).padding.bottom + 10,
+                    ),
+                    child: FloatingActionButton(
+                      onPressed: () {
+                        _deleteNotifications();
+                      },
+                      backgroundColor: Colors.white,
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                            child: Icon(
+                              Icons.delete,
+                              color: Color.fromRGBO(13, 166, 186, 1.0),
+                            ),
                           ),
-                        ),
-                        Text(
-                          currentLocalization['delete'] ?? 'Delete',
-                          style: TextStyle(color: Colors.black, fontSize: 12),
-                        ),
-                      ],
+                          Text(
+                            currentLocalization['delete'] ?? 'Delete',
+                            style: TextStyle(color: Colors.black, fontSize: 12),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              )
+                )
               : Container(),
         ],
       );

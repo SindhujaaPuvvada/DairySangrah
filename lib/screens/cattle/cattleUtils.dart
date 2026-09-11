@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/cattle.dart';
@@ -15,10 +14,9 @@ class CattleUtils {
   ]) {
     return TextFormField(
       controller: controller,
-      inputFormatters:
-          allowNumOnly == true
-              ? [FilteringTextInputFormatter.allow(RegExp(r"[0-9]"))]
-              : null,
+      inputFormatters: allowNumOnly == true
+          ? [FilteringTextInputFormatter.allow(RegExp(r"[0-9]"))]
+          : null,
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(),
@@ -53,13 +51,12 @@ class CattleUtils {
         filled: true,
         fillColor: Color.fromRGBO(240, 255, 255, 1),
       ),
-      items:
-          itemsList.map((item) {
-            return DropdownMenuItem<String>(
-              value: item.key,
-              child: Text(item.value),
-            );
-          }).toList(),
+      items: itemsList.map((item) {
+        return DropdownMenuItem<String>(
+          value: item.key,
+          child: Text(item.value),
+        );
+      }).toList(),
       onChanged: onChanged,
     );
   }
@@ -123,32 +120,16 @@ class CattleUtils {
     );
   }
 
-  static Future<int> getLastUsedGrpId(String uid) async {
-    DatabaseServicesForCattleGroups cgrpDB = DatabaseServicesForCattleGroups(
-      uid,
-    );
-    int lastGrpId = int.parse(await cgrpDB.getLastUsedGrpIdDB(uid));
-    return lastGrpId;
-  }
-
-  static Future<int> getLastUsedRFId(String uid) async {
-    DatabaseServicesForCattle cattleDB = DatabaseServicesForCattle(uid);
-    int lastRFId = int.parse(await cattleDB.getLastUsedRFIdDB(uid));
-    return lastRFId;
-  }
-
   static Future<String> addCattleGroupToDB(
+    String farmId,
     String cattleType,
     String? breed,
     String status,
-    int lastGrpId,
   ) async {
-    String uid = FirebaseAuth.instance.currentUser!.uid;
-    DatabaseServicesForCattleGroups cgrpDB = DatabaseServicesForCattleGroups(
-      uid,
-    );
+    DbServicesForCattleGroups cgrpDB = DbServicesForCattleGroups();
 
     bool grpAlrdyExists = await cgrpDB.grpCriteriaExists(
+      farmId,
       cattleType,
       breed,
       status,
@@ -156,10 +137,12 @@ class CattleUtils {
 
     if (!grpAlrdyExists) {
       final cattleGrp = CattleGroup(
-        grpId: (lastGrpId + 1).toString().padLeft(3, '0'),
+        grpId: '',
+        farmId: farmId,
         type: cattleType,
-        breed: breed,
         state: status,
+        breed: breed,
+        createdAt: DateTime.now(),
       );
       await cgrpDB.infoToServerSingleCattleGrp(cattleGrp);
       return 'Success';
@@ -169,21 +152,24 @@ class CattleUtils {
   }
 
   static Future<void> addNewCattleToDB(
+    String farmId,
     String cattleType,
     String? breed,
-    String status,
-    int lastRFId, [
+    String status, [
     String? sex,
   ]) async {
-    String uid = FirebaseAuth.instance.currentUser!.uid;
-    DatabaseServicesForCattle cattleDB = DatabaseServicesForCattle(uid);
+    DbServicesForCattle cattleDB = DbServicesForCattle();
+    DateTime now = DateTime.now();
 
     final cattle = Cattle(
-      rfid: (lastRFId + 1).toString().padLeft(4, '0'),
+      cattleId: '',
+      farmId: farmId,
       type: cattleType,
       breed: breed,
       state: status,
       sex: sex,
+      createdAt: now,
+      updatedAt: now,
     );
     await cattleDB.infoToServerSingleCattle(cattle);
   }

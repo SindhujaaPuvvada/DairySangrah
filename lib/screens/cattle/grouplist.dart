@@ -1,6 +1,5 @@
 import 'package:farm_expense_mangement_app/services/database/cattlegroupsdatabase.dart';
-import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
-import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
+import 'package:farm_expense_mangement_app/services/database/dairyfarmDatabase.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
@@ -14,7 +13,8 @@ import 'newcattle.dart';
 import 'newcattlegroup.dart';
 
 class GroupList extends StatefulWidget {
-  const GroupList({super.key});
+  final String farmId;
+  const GroupList({required this.farmId, super.key});
 
   @override
   State<GroupList> createState() => _GroupListState();
@@ -25,12 +25,10 @@ class _GroupListState extends State<GroupList>
   late TabController _tabController;
   late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
-
-  final user = FirebaseAuth.instance.currentUser;
-  final uid = FirebaseAuth.instance.currentUser!.uid;
-  late DatabaseServicesForCattleGroups cgrpDB;
-  late DatabaseServicesForCattle cattleDB;
-  late DatabaseServicesForUser userDB;
+  late String farmId;
+  late DbServicesForCattleGroups cgrpDB;
+  late DbServicesForCattle cattleDB;
+  late DbServicesForDairyFarm farmDB;
   bool showActionButton = true;
   List<CattleGroup> allCattleGrps = [];
   List<Cattle> allCattle = [];
@@ -39,60 +37,49 @@ class _GroupListState extends State<GroupList>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    cgrpDB = DatabaseServicesForCattleGroups(uid!);
-    cattleDB = DatabaseServicesForCattle(uid);
-    userDB = DatabaseServicesForUser(uid);
+    cgrpDB = DbServicesForCattleGroups();
+    cattleDB = DbServicesForCattle();
+    farmDB = DbServicesForDairyFarm();
     _showFloatingActionButton();
-    _fetchCattleGroups();
-    _fetchCattle();
+    _fetchCattleNCattleGrps();
   }
 
   Future<void> _showFloatingActionButton() async {
-    String appMode = await userDB.getAppMode(uid);
+    String appMode = await farmDB.getFarmMode(widget.farmId);
     setState(() {
       showActionButton = (appMode == 'GBW') ? true : false;
     });
   }
 
-  Future<void> _fetchCattleGroups() async {
-    final snapshot = await cgrpDB.infoFromServerAllCattleGrps(uid);
+  Future<void> _fetchCattleNCattleGrps() async {
+    List<Map<String, dynamic>> cattleGrps = [];
+    List<Map<String, dynamic>> allCattleData = [];
+    (cattleGrps, allCattleData) = await (
+      cgrpDB.infoFromServerAllCattleGrps(widget.farmId),
+      cattleDB.infoFromServerAllCattle(widget.farmId),
+    ).wait;
     setState(() {
-      allCattleGrps =
-          snapshot.docs
-              .map((doc) => CattleGroup.fromFireStore(doc, null))
-              .toList();
-    });
-  }
-
-  Future<void> _fetchCattle() async {
-    final snapshot = await cattleDB.infoFromServerAllCattle(
-      FirebaseAuth.instance.currentUser!.uid,
-    );
-    setState(() {
-      allCattle =
-          snapshot.docs.map((doc) => Cattle.fromFireStore(doc, null)).toList();
+      allCattleGrps = cattleGrps.map((r) => CattleGroup.fromDB(r)).toList();
+      allCattle = allCattleData.map((r) => Cattle.fromDB(r)).toList();
     });
   }
 
   String fetchCattleCount(String type, String state, String? breed) {
     int count;
     if (breed != 'select' && breed != null && state != '') {
-      count =
-          allCattle
-              .where(
-                (cattle) =>
-                    cattle.type == type &&
-                    cattle.state == state &&
-                    cattle.breed == breed,
-              )
-              .length;
+      count = allCattle
+          .where(
+            (cattle) =>
+                cattle.type == type &&
+                cattle.state == state &&
+                cattle.breed == breed,
+          )
+          .length;
     } else {
       if (state != '') {
-        count =
-            allCattle
-                .where((cattle) => cattle.type == type && cattle.state == state)
-                .length;
+        count = allCattle
+            .where((cattle) => cattle.type == type && cattle.state == state)
+            .length;
       } else {
         count = allCattle.where((cattle) => cattle.type == type).length;
       }
@@ -109,13 +96,10 @@ class _GroupListState extends State<GroupList>
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(
-          onPressed:
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const WrapperHomePage(),
-                ),
-              ),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const WrapperHomePage()),
+          ),
         ),
         iconTheme: const IconThemeData(color: Colors.black),
         title: Text(
@@ -148,21 +132,21 @@ class _GroupListState extends State<GroupList>
           _displayCattleGrpSection('Buffalo'),
         ],
       ),
-      floatingActionButton:
-          (showActionButton)
-              ? FloatingActionButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AddNewCattleGroup(),
-                    ),
-                  );
-                },
-                backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
-                child: const Icon(Icons.add),
-              )
-              : Container(),
+      floatingActionButton: (showActionButton)
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        AddNewCattleGroup(farmId: widget.farmId),
+                  ),
+                );
+              },
+              backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
+              child: const Icon(Icons.add),
+            )
+          : Container(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
@@ -192,10 +176,9 @@ class _GroupListState extends State<GroupList>
             itemCount: groups.length,
             itemBuilder: (context, index) {
               final grp = groups[index];
-              var grpName =
-                  (grp.breed == null)
-                      ? currentLocalization[grp.state] ?? grp.state
-                      : '${currentLocalization[grp.state] ?? grp.state}-${currentLocalization[grp.breed] ?? grp.breed}';
+              var grpName = (grp.breed == null)
+                  ? currentLocalization[grp.state] ?? grp.state
+                  : '${currentLocalization[grp.state] ?? grp.state}-${currentLocalization[grp.breed] ?? grp.breed}';
               String cattleCount = fetchCattleCount(
                 grp.type,
                 grp.state,
@@ -208,12 +191,12 @@ class _GroupListState extends State<GroupList>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder:
-                            (context) => AnimalList2(
-                              animalType: type,
-                              section: grp.state,
-                              breed: grp.breed,
-                            ),
+                        builder: (context) => AnimalList2(
+                          farmId: widget.farmId,
+                          animalType: type,
+                          section: grp.state,
+                          breed: grp.breed,
+                        ),
                       ),
                     );
                   },
@@ -282,18 +265,17 @@ class _GroupListState extends State<GroupList>
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder:
-                                    (context) => AddNewCattle(
-                                      type: grp.type,
-                                      state: grp.state,
-                                      breed: grp.breed,
-                                      gender:
-                                          (grp.state != 'Calf')
-                                              ? (grp.state != 'Adult Male')
-                                                  ? 'Female'
-                                                  : 'Male'
-                                              : null,
-                                    ),
+                                builder: (context) => AddNewCattle(
+                                  farmId: widget.farmId,
+                                  type: grp.type,
+                                  state: grp.state,
+                                  breed: grp.breed,
+                                  gender: (grp.state != 'Calf')
+                                      ? (grp.state != 'Adult Male')
+                                            ? 'Female'
+                                            : 'Male'
+                                      : null,
+                                ),
                               ),
                             );
                           },

@@ -1,13 +1,13 @@
-import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
+import 'package:farm_expense_mangement_app/services/database/dairyfarmDatabase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardUtils {
-  static Future<bool> checkFirstLaunch(String uid) async {
+  static Future<bool> checkFirstLaunch(String farmId) async {
     bool showOnboarding = true;
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool? firstLaunch = prefs.getBool('first_launch_$uid');
+    bool? firstLaunch = prefs.getBool('first_launch_$farmId');
 
     if (firstLaunch == false) {
       // Not the first launch
@@ -15,8 +15,8 @@ class OnboardUtils {
     } else {
       // This is the first launch or the flag was not
       if (firstLaunch == null) {
-        DatabaseServicesForUser userDB = DatabaseServicesForUser(uid);
-        bool isFirstLaunch = await userDB.getIsFirstLaunch(uid);
+        DbServicesForDairyFarm farmDB = DbServicesForDairyFarm();
+        bool isFirstLaunch = await farmDB.getIsFirstLaunch(farmId);
         showOnboarding = (isFirstLaunch == true) ? true : false;
       } else {
         showOnboarding = true;
@@ -34,10 +34,9 @@ class OnboardUtils {
     return TextFormField(
       controller: controller,
       keyboardType: TextInputType.number,
-      inputFormatters:
-          allowNumOnly == true
-              ? [FilteringTextInputFormatter.allow(RegExp(r"[0-9]"))]
-              : null,
+      inputFormatters: allowNumOnly == true
+          ? [FilteringTextInputFormatter.allow(RegExp(r"[0-9]"))]
+          : null,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(color: Colors.black87, fontSize: 14.0),
@@ -81,13 +80,12 @@ class OnboardUtils {
         filled: true,
         fillColor: Colors.white,
       ),
-      items:
-          itemsList.map((item) {
-            return DropdownMenuItem<String>(
-              value: item.key,
-              child: Text(item.value),
-            );
-          }).toList(),
+      items: itemsList.map((item) {
+        return DropdownMenuItem<String>(
+          value: item.key,
+          child: Text(item.value),
+        );
+      }).toList(),
       onChanged: onChanged,
     );
   }

@@ -25,13 +25,12 @@ class ReportsUtils {
         fillColor: Color.fromRGBO(240, 255, 255, 0.7),
       ),
       dropdownColor: const Color.fromRGBO(240, 255, 255, 1),
-      items:
-          itemsList.map((item) {
-            return DropdownMenuItem<String>(
-              value: item.key,
-              child: Text(item.value),
-            );
-          }).toList(),
+      items: itemsList.map((item) {
+        return DropdownMenuItem<String>(
+          value: item.key,
+          child: Text(item.value),
+        );
+      }).toList(),
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -64,10 +63,9 @@ class ReportsUtils {
       child: TextFormField(
         readOnly: true,
         controller: TextEditingController(
-          text:
-              reqDate != null
-                  ? '${reqDate.year}-${reqDate.month}-${reqDate.day}'
-                  : '',
+          text: reqDate != null
+              ? '${reqDate.year}-${reqDate.month}-${reqDate.day}'
+              : '',
         ),
         autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: (value) {

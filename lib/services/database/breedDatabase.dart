@@ -1,28 +1,22 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:farm_expense_mangement_app/services/supabaseService.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../models/breed.dart';
+class DbServicesForBreed {
+  DbServicesForBreed();
 
-class DatabaseServicesForBreed {
-  DatabaseServicesForBreed();
-
-  Future<void> infoToServerSingleBreed(Breed breed) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    return await db
-        .collection('CommonData')
-        .doc('breedsDoc')
-        .collection('Breeds')
-        .doc()
-        .set(breed.toFireStore());
+  Future<PostgrestList> infoFromServerAllBreeds() async {
+    final data = await SupabaseService.client
+        .from('Breeds')
+        .select()
+        .order('type');
+    return data;
   }
 
-  Future<QuerySnapshot<Map<String, dynamic>>> infoFromServerAllBreeds() async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-
-    return await db
-        .collection('CommonData')
-        .doc('breedsDoc')
-        .collection('Breeds')
-        .orderBy('type')
-        .get();
+  Future<Map<String, dynamic>> getBreedDataFromName(String breed) async {
+    return await SupabaseService.client
+        .from('Breeds')
+        .select()
+        .eq('breedName', breed)
+        .single();
   }
 }

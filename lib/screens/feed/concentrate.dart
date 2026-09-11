@@ -1,14 +1,15 @@
 import 'package:farm_expense_mangement_app/screens/feed/feedUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../models/feed.dart';
+import '../../models/inventory.dart';
 import 'feedpage.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
 import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
 class ConcentratePage extends StatefulWidget {
-  const ConcentratePage({super.key});
+  final String farmId;
+  const ConcentratePage({super.key, required this.farmId});
 
   @override
   State<ConcentratePage> createState() => _ConcentratePageState();
@@ -79,7 +80,7 @@ class _ConcentratePageState extends State<ConcentratePage> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     sourceMap = {
       'Purchased': currentLocalization['purchased'] ?? 'Purchased',
@@ -194,16 +195,16 @@ class _ConcentratePageState extends State<ConcentratePage> {
                                   SizedBox(width: 20),
                                   (_selectedIngredients.contains(item))
                                       ? Expanded(
-                                        child: TextField(
-                                          controller: _ingControllers[item],
-                                          textAlign: TextAlign.center,
-                                          decoration: InputDecoration(
-                                            labelText:
-                                                currentLocalization['Enter its cost'] ??
-                                                "",
+                                          child: TextField(
+                                            controller: _ingControllers[item],
+                                            textAlign: TextAlign.center,
+                                            decoration: InputDecoration(
+                                              labelText:
+                                                  currentLocalization['Enter its cost'] ??
+                                                  "",
+                                            ),
                                           ),
-                                        ),
-                                      )
+                                        )
                                       : Text(''),
                                 ],
                               ),
@@ -287,14 +288,13 @@ class _ConcentratePageState extends State<ConcentratePage> {
 
   // Method to handle form submission
   void _submitData() {
-    final type =
-        (_selectedType == 'Homemade')
-            ? _customHomemadeController.text
-            : _customPurchasedController.text;
+    final type = (_selectedType == 'Homemade')
+        ? _customHomemadeController.text
+        : _customPurchasedController.text;
     double quantity = double.parse(_quantityController.text);
     final source = _selectedType;
     double rate = double.parse(_rateController.text);
-    double price = double.parse(_priceController.text);
+    //double price = double.parse(_priceController.text);
 
     if (type.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -311,37 +311,38 @@ class _ConcentratePageState extends State<ConcentratePage> {
       quantity = quantity * 100;
       rate = rate / 100;
     }
-    Feed feed = Feed(
-      category: "Concentrate",
-      feedType: type,
-      quantity: quantity,
+    Inventory invData = Inventory(
+      invId: '',
+      invDate: DateTime.now(),
+      farmId: widget.farmId,
+      feedCategory: "Concentrate",
+      feedName: type,
+      quantityStocked: quantity,
       source: source,
-      totPrice: price,
       ratePerKg: rate,
-      feedDate: DateTime.now(),
+      currentStockLevel: quantity,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
     );
 
-    FeedUtils.saveFeedDetails(feed);
+    FeedUtils.saveFeedDetails(invData);
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const FeedPage()),
+      MaterialPageRoute(builder: (context) => FeedPage(farmId: widget.farmId)),
     );
   }
 
   void _calculatePrice() {
-    double quantity =
-        (_quantityController.text.isNotEmpty)
-            ? double.parse(_quantityController.text)
-            : 0.0;
-    double rate =
-        (_rateController.text.isNotEmpty)
-            ? double.parse(_rateController.text)
-            : 0.0;
-    double price =
-        (_priceController.text.isNotEmpty)
-            ? double.parse(_priceController.text)
-            : 0.0;
+    double quantity = (_quantityController.text.isNotEmpty)
+        ? double.parse(_quantityController.text)
+        : 0.0;
+    double rate = (_rateController.text.isNotEmpty)
+        ? double.parse(_rateController.text)
+        : 0.0;
+    double price = (_priceController.text.isNotEmpty)
+        ? double.parse(_priceController.text)
+        : 0.0;
 
     setState(() {
       if (_selectedType == 'Purchased') {

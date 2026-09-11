@@ -1,15 +1,17 @@
 import 'package:farm_expense_mangement_app/models/cattle.dart';
 import 'package:farm_expense_mangement_app/screens/notification/alertnotifications.dart';
 import 'package:farm_expense_mangement_app/services/breedService.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../services/database/cattledatabase.dart';
 import '../../../main.dart';
 import 'package:farm_expense_mangement_app/services/localizationService.dart';
+
 import 'grouplist.dart';
 
 class AddNewCattle extends StatefulWidget {
+  final String farmId;
   final String? type;
   final String? state;
   final String? breed;
@@ -19,6 +21,7 @@ class AddNewCattle extends StatefulWidget {
   final String? motherInfo;
   final String? fatherInfo;
   const AddNewCattle({
+    required this.farmId,
     this.type,
     this.state,
     this.breed,
@@ -43,9 +46,9 @@ class _AddNewCattleState extends State<AddNewCattle> {
       TextEditingController();
   final TextEditingController _weightTextController = TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
-  final TextEditingController _motherInfoTextController =
-      TextEditingController();
   final TextEditingController _fatherInfoTextController =
+      TextEditingController();
+  final TextEditingController _motherInfoTextController =
       TextEditingController();
 
   // final TextEditingController _tagNumberController3 = TextEditingController();
@@ -59,6 +62,7 @@ class _AddNewCattleState extends State<AddNewCattle> {
   DateTime? _birthDate;
   late List<String> cowBreed;
   late List<String> buffaloBreed;
+  late String? _selectedMotherId;
 
   // Variable to store selected gender
 
@@ -75,33 +79,51 @@ class _AddNewCattleState extends State<AddNewCattle> {
   final List<String> stateOptionsMale = ['Calf', 'Adult Male'];
 
   late List<String> stateOptionsHolder;
-  final user = FirebaseAuth.instance.currentUser;
-  final uid = FirebaseAuth.instance.currentUser!.uid;
 
-  late final DatabaseServicesForCattle cattleDb;
+  late final DbServicesForCattle cattleDb;
+
+  List<Cattle> femaleCattle = [];
+
+  Future<void> _fetchCattle() async {
+    final snapshot = await cattleDb.infoFromServerAllCattle(widget.farmId);
+    final allCattle = snapshot.map((r) => Cattle.fromDB(r)).toList();
+    setState(() {
+      femaleCattle = allCattle
+          .where(
+            (cattle) =>
+                cattle.sex == 'Female' &&
+                cattle.state != 'Calf' &&
+                cattle.state != 'Heifer',
+          )
+          .toList();
+    });
+  }
 
   void addNewCattleButton(BuildContext context) async {
-    int lastRFId = int.parse(await cattleDb.getLastUsedRFIdDB(uid));
-
+    DateTime now = DateTime.now();
     final cattle = Cattle(
-      rfid: (lastRFId + 1).toString().padLeft(4, '0'),
-      nickname: _cattleNameTextController.text,
+      cattleId: '',
+      nickName: _cattleNameTextController.text,
+      farmId: widget.farmId,
       breed: _selectedBreed!,
       sex: _selectedGender,
-      weight:
-          _weightTextController.text.isNotEmpty
-              ? int.parse(_weightTextController.text)
-              : 0,
-      source: _selectedSource,
+      weight: _weightTextController.text.isNotEmpty
+          ? double.parse(_weightTextController.text)
+          : 0,
+      source: _selectedSource != null ? _selectedSource! : 'Born on Farm',
       state: _selectedState != null ? _selectedState! : '',
       type: _selectedType != null ? _selectedType! : ' ',
-      isPregnant:
+      reproductiveStatus:
           (_selectedIsPregnant != null && _selectedIsPregnant == 'Yes')
-              ? true
-              : false,
+          ? 'Pregnant'
+          : 'Open',
       dateOfBirth: _birthDate ?? widget.dob,
-      motherInfo: _motherInfoTextController.text,
+      motherInfo: _selectedSource == 'Born on Farm'
+          ? _selectedMotherId
+          : _motherInfoTextController.text,
       fatherInfo: _fatherInfoTextController.text,
+      createdAt: now,
+      updatedAt: now,
     );
 
     await cattleDb.infoToServerSingleCattle(cattle);
@@ -124,7 +146,9 @@ class _AddNewCattleState extends State<AddNewCattle> {
       Navigator.pop(context);
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const GroupList()),
+        MaterialPageRoute(
+          builder: (context) => GroupList(farmId: widget.farmId),
+        ),
       );
     } else {
       return;
@@ -136,18 +160,21 @@ class _AddNewCattleState extends State<AddNewCattle> {
     super.initState();
     cowBreed = BreedService().cowBreeds;
     buffaloBreed = BreedService().buffaloBreeds;
-    cattleDb = DatabaseServicesForCattle(uid);
+    cattleDb = DbServicesForCattle();
     setState(() {
+      _fetchCattle();
       _selectedType = widget.type;
       _selectedState = widget.state;
       _selectedBreed = widget.breed;
       _selectedGender = widget.gender;
       _selectedSource = widget.source;
-      _birthDateController.text =
-          '${widget.dob?.year}-${widget.dob?.month}-${widget.dob?.day}';
-      stateOptionsHolder =
-          (_selectedGender == 'Female') ? stateOptions : stateOptionsMale;
-      _motherInfoTextController.text = widget.motherInfo ?? '';
+      _birthDateController.text = widget.dob != null
+          ? '${widget.dob?.year}-${widget.dob?.month}-${widget.dob?.day}'
+          : '';
+      stateOptionsHolder = (_selectedGender == 'Female')
+          ? stateOptions
+          : stateOptionsMale;
+      _selectedMotherId = widget.motherInfo;
       _fatherInfoTextController.text = widget.fatherInfo ?? '';
     });
   }
@@ -166,7 +193,11 @@ class _AddNewCattleState extends State<AddNewCattle> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
+
+    final motherCattleList = femaleCattle
+        .where((c) => c.type == _selectedType)
+        .toList();
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
@@ -183,7 +214,9 @@ class _AddNewCattleState extends State<AddNewCattle> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const GroupList()),
+              MaterialPageRoute(
+                builder: (context) => GroupList(farmId: widget.farmId),
+              ),
             );
           },
         ),
@@ -225,17 +258,17 @@ class _AddNewCattleState extends State<AddNewCattle> {
                       filled: true,
                       fillColor: const Color.fromRGBO(240, 255, 255, 0.7),
                     ),
-                    items:
-                        typeOptions.map((String type) {
-                          return DropdownMenuItem<String>(
-                            value: type,
-                            child: Text(currentLocalization[type] ?? ""),
-                          );
-                        }).toList(),
+                    items: typeOptions.map((String type) {
+                      return DropdownMenuItem<String>(
+                        value: type,
+                        child: Text(currentLocalization[type] ?? ""),
+                      );
+                    }).toList(),
                     onChanged: (value) {
                       setState(() {
                         _selectedType = value!;
                         _selectedBreed = null;
+                        setState(() {});
                       });
                     },
                     validator: (value) {
@@ -258,23 +291,21 @@ class _AddNewCattleState extends State<AddNewCattle> {
                       filled: true,
                       fillColor: Color.fromRGBO(240, 255, 255, 0.7),
                     ),
-                    items:
-                        genderOptions.map((String gender) {
-                          return DropdownMenuItem<String>(
-                            value: gender,
-                            child: Text(
-                              currentLocalization[gender.toLowerCase()] ?? "",
-                            ),
-                          );
-                        }).toList(),
+                    items: genderOptions.map((String gender) {
+                      return DropdownMenuItem<String>(
+                        value: gender,
+                        child: Text(
+                          currentLocalization[gender.toLowerCase()] ?? "",
+                        ),
+                      );
+                    }).toList(),
                     onChanged: (value) {
                       setState(() {
                         _selectedGender = value;
                         _selectedState = 'Calf';
-                        stateOptionsHolder =
-                            (_selectedGender == 'Female')
-                                ? stateOptions
-                                : stateOptionsMale;
+                        stateOptionsHolder = (_selectedGender == 'Female')
+                            ? stateOptions
+                            : stateOptionsMale;
                       });
                     },
                     validator: (value) {
@@ -353,18 +384,18 @@ class _AddNewCattleState extends State<AddNewCattle> {
                       filled: true,
                       fillColor: Color.fromRGBO(240, 255, 255, 0.7),
                     ),
-                    items:
-                        sourceOptions.map((String source) {
-                          return DropdownMenuItem<String>(
-                            value: source,
-                            child: Text(
-                              currentLocalization[source.toLowerCase()] ?? "",
-                            ),
-                          );
-                        }).toList(),
+                    items: sourceOptions.map((String source) {
+                      return DropdownMenuItem<String>(
+                        value: source,
+                        child: Text(
+                          currentLocalization[source.toLowerCase()] ?? "",
+                        ),
+                      );
+                    }).toList(),
                     onChanged: (value) {
                       setState(() {
                         _selectedSource = value;
+                        setState(() {});
                       });
                     },
                   ),
@@ -383,24 +414,23 @@ class _AddNewCattleState extends State<AddNewCattle> {
                       filled: true,
                       fillColor: Color.fromRGBO(240, 255, 255, 0.7),
                     ),
-                    items:
-                        (_selectedType == 'Cow')
-                            ? cowBreed.map((String breed) {
-                              return DropdownMenuItem<String>(
-                                value: breed,
-                                child: Text(
-                                  currentLocalization[breed] ?? 'breed',
-                                ),
-                              );
-                            }).toList()
-                            : buffaloBreed.map((String breed) {
-                              return DropdownMenuItem<String>(
-                                value: breed,
-                                child: Text(
-                                  currentLocalization[breed] ?? 'breed',
-                                ),
-                              );
-                            }).toList(),
+                    items: (_selectedType == 'Cow')
+                        ? cowBreed.map((String breed) {
+                            return DropdownMenuItem<String>(
+                              value: breed,
+                              child: Text(
+                                currentLocalization[breed] ?? 'breed',
+                              ),
+                            );
+                          }).toList()
+                        : buffaloBreed.map((String breed) {
+                            return DropdownMenuItem<String>(
+                              value: breed,
+                              child: Text(
+                                currentLocalization[breed] ?? 'breed',
+                              ),
+                            );
+                          }).toList(),
                     onChanged: (value) {
                       setState(() {
                         _selectedBreed = value;
@@ -418,13 +448,12 @@ class _AddNewCattleState extends State<AddNewCattle> {
                       filled: true,
                       fillColor: Color.fromRGBO(240, 255, 255, 0.7),
                     ),
-                    items:
-                        stateOptionsHolder.map((String stage) {
-                          return DropdownMenuItem<String>(
-                            value: stage,
-                            child: Text(currentLocalization[stage] ?? ""),
-                          );
-                        }).toList(),
+                    items: stateOptionsHolder.map((String stage) {
+                      return DropdownMenuItem<String>(
+                        value: stage,
+                        child: Text(currentLocalization[stage] ?? ""),
+                      );
+                    }).toList(),
                     onChanged: (value) {
                       setState(() {
                         _selectedState = value;
@@ -438,18 +467,46 @@ class _AddNewCattleState extends State<AddNewCattle> {
                     },
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
-                  child: TextFormField(
-                    controller: _motherInfoTextController,
-                    decoration: InputDecoration(
-                      labelText: currentLocalization['enter_mother_info'] ?? "",
-                      border: OutlineInputBorder(),
-                      filled: true,
-                      fillColor: Color.fromRGBO(240, 255, 255, 0.7),
+                if (_selectedSource == 'Born on Farm') ...[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
+                    child: DropdownButtonFormField<String>(
+                      initialValue: _selectedMotherId,
+                      decoration: InputDecoration(
+                        labelText:
+                            currentLocalization['enter_mother_info'] ?? "",
+                        border: OutlineInputBorder(),
+                        filled: true,
+                        fillColor: Color.fromRGBO(240, 255, 255, 0.7),
+                      ),
+                      items: motherCattleList.map((Cattle ct) {
+                        return DropdownMenuItem<String>(
+                          value: ct.cattleId,
+                          child: Text(ct.nickName ?? ct.cattleId),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedMotherId = value;
+                        });
+                      },
                     ),
                   ),
-                ),
+                ] else ...[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
+                    child: TextFormField(
+                      controller: _motherInfoTextController,
+                      decoration: InputDecoration(
+                        labelText:
+                            currentLocalization['enter_mother_info'] ?? "",
+                        border: OutlineInputBorder(),
+                        filled: true,
+                        fillColor: Color.fromRGBO(240, 255, 255, 0.7),
+                      ),
+                    ),
+                  ),
+                ],
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
                   child: TextFormField(
@@ -464,38 +521,37 @@ class _AddNewCattleState extends State<AddNewCattle> {
                 ),
                 (_selectedGender == 'Female')
                     ? Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
-                      child: DropdownButtonFormField<String>(
-                        initialValue: _selectedIsPregnant,
-                        decoration: InputDecoration(
-                          labelText: currentLocalization['isPregnant'] ?? "",
-                          border: OutlineInputBorder(),
-                          filled: true,
-                          fillColor: Color.fromRGBO(240, 255, 255, 0.7),
+                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
+                        child: DropdownButtonFormField<String>(
+                          initialValue: _selectedIsPregnant,
+                          decoration: InputDecoration(
+                            labelText: currentLocalization['isPregnant'] ?? "",
+                            border: OutlineInputBorder(),
+                            filled: true,
+                            fillColor: Color.fromRGBO(240, 255, 255, 0.7),
+                          ),
+                          items: pregnantOptions.map((String val) {
+                            return DropdownMenuItem<String>(
+                              value: val,
+                              child: Text(
+                                currentLocalization[val.toLowerCase()] ?? "",
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedIsPregnant = value;
+                            });
+                          },
                         ),
-                        items:
-                            pregnantOptions.map((String val) {
-                              return DropdownMenuItem<String>(
-                                value: val,
-                                child: Text(
-                                  currentLocalization[val.toLowerCase()] ?? "",
-                                ),
-                              );
-                            }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedIsPregnant = value;
-                          });
-                        },
-                      ),
-                    )
+                      )
                     : Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
-                      child: DropdownButtonFormField<String>(
-                        items: [],
-                        onChanged: null,
+                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
+                        child: DropdownButtonFormField<String>(
+                          items: [],
+                          onChanged: null,
+                        ),
                       ),
-                    ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0, 0, 0, 26),
                   child: Center(

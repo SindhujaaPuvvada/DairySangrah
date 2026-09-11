@@ -1,96 +1,69 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../models/feed.dart';
-import '../../shared/constants.dart';
+import 'package:farm_expense_mangement_app/services/supabaseService.dart';
+import '../../models/inventory.dart';
 
-class DatabaseServicesForFeed {
-  final String uid;
-  DatabaseServicesForFeed(this.uid);
+class DbServicesForFeed {
+  DbServicesForFeed();
 
-  FirebaseFirestore db = FirebaseFirestore.instance;
-
-  // Function to add or update feed information in Firestore
-  Future<void> infoToServerFeed(Feed feed) async {
-    DocumentSnapshot docSnapshot =
-        await db
-            .collection('User')
-            .doc(uid)
-            .collection('Feed')
-            .doc((fdCategoryId.indexOf(feed.category) + 1).toString())
-            .get();
-
-    if (!docSnapshot.exists) {
-      await docSnapshot.reference.set({'FeedCategory': feed.category});
-    }
-
-    await db
-        .collection('User')
-        .doc(uid)
-        .collection('Feed')
-        .doc((fdCategoryId.indexOf(feed.category) + 1).toString())
-        .collection(feed.category)
-        .doc(feed.feedId)
-        .set(feed.toFireStore(), SetOptions(merge: true));
+  Future<void> infoToServerFeed(Inventory invData) async {
+    return await SupabaseService.client
+        .from('Inventory')
+        .insert(invData.toDB());
   }
 
-  // Function to get a particular feed category from Firestore
-  Future<QuerySnapshot<Map<String, dynamic>>> infoFromServerForCategory(
+  // Function to get a particular feed category from DB
+  Future<List<Map<String, dynamic>>> infoFromServerForCategory(
     String category,
+    String farmId,
   ) async {
-    return await db
-        .collection('User')
-        .doc(uid)
-        .collection('Feed')
-        .doc((fdCategoryId.indexOf(category) + 1).toString())
-        .collection(category)
-        .orderBy('feedDate', descending: true)
-        .get();
+    return await SupabaseService.client
+        .from('Inventory')
+        .select()
+        .eq('farmId', farmId)
+        .eq('feedCategory', category)
+        .gt('currentStockLevel',0)
+        .order('invDate', ascending: false);
   }
 
-  // Function to delete a feed type from Firestore
-  Future<void> deleteFeedFromServer(String category, String docID) async {
-    await db
-        .collection('User')
-        .doc(uid)
-        .collection('Feed')
-        .doc((fdCategoryId.indexOf(category) + 1).toString())
-        .collection(category)
-        .doc(docID)
-        .delete();
-  }
+  // Function to delete a feed type from DB
+  Future<String> deleteFeedFromServer(String invId) async {
+    bool alreadyInUse  = (await SupabaseService.client
+    .from('FeedExpense')
+    .select()
+    .eq('invId', invId)).isNotEmpty? true : false;
 
-  /*// Function to reduce weekly quantity of a specific feed item
-  Future<void> reduceWeeklyQuantity(String itemName) async {
-    final feedRef = db.collection('User').doc(uid).collection('Feed').doc(itemName);
-
-    final doc = await feedRef.get();
-    if (doc.exists) {
-      final feedData = Feed.fromFireStore(doc);
-      if (feedData.requiredQuantity != null && feedData.quantity >= feedData.requiredQuantity!) {
-        // Calculate the new quantity
-        final newQuantity = feedData.quantity - feedData.requiredQuantity!;
-
-        // Update Firestore with the reduced quantity
-        await feedRef.update({
-          'quantity': newQuantity,
-        });
-
-        print('Weekly quantity deducted for $itemName. New quantity: $newQuantity');
-      } else {
-        print('Insufficient quantity for weekly deduction or no required quantity set.');
-      }
-    } else {
-      print('Feed item not found for weekly deduction.');
+    if(!alreadyInUse){
+    await SupabaseService.client
+        .from('Inventory')
+        .delete()
+        .eq('invId', invId);
+    return "Success";
+    }
+    else{
+      return "AlreadyInUse";
     }
   }
 
-  // Function to start the weekly deduction for all feed items
-  Future<void> startWeeklyDeductionForAllFeeds() async {
-    final querySnapshot = await infoFromServerAllFeed();
+  Future<void> updateToServerStockLevel(String invId, double updQty) async {
+    return await SupabaseService.client
+        .from('Inventory')
+        .update({
+          'currentStockLevel': updQty,
+          'updatedAt': DateTime.now().toIso8601String().split('.')[0],
+        })
+        .eq('invId', invId);
+  }
 
-    // Iterate through all feed items and apply the weekly deduction
-    for (var doc in querySnapshot.docs) {
-      final itemName = doc.get('itemName');
-      await reduceWeeklyQuantity(itemName);
-    }
-  }*/
+  Future<List<Map<String, dynamic>>> getFeedCostByCategory(String farmId,
+      DateTime startDate,
+      DateTime endDate,) async {
+    return await SupabaseService.client.rpc(
+      'get_feed_cost_by_category',
+      params: {
+        'farm_id': farmId,
+        'start_date': startDate.toIso8601String().split('.')[0],
+        'end_date': endDate.toIso8601String().split('.')[0],
+      },
+    );
+  }
+
 }

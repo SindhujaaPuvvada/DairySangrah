@@ -22,13 +22,12 @@ class MilkUtils {
         fillColor: Color.fromRGBO(240, 255, 255, 0.7),
       ),
       dropdownColor: const Color.fromRGBO(240, 255, 255, 1),
-      items:
-          itemsList.map((item) {
-            return DropdownMenuItem<String>(
-              value: item.key,
-              child: Text(item.value),
-            );
-          }).toList(),
+      items: itemsList.map((item) {
+        return DropdownMenuItem<String>(
+          value: item.key,
+          child: Text(item.value),
+        );
+      }).toList(),
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: (value) {
         if (value == null || value.isEmpty) {

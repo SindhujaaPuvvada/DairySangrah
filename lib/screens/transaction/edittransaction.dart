@@ -1,13 +1,16 @@
-import 'package:farm_expense_mangement_app/models/transaction.dart';
+import 'package:farm_expense_mangement_app/models/sales.dart';
 import 'package:farm_expense_mangement_app/screens/transaction/transactionpage.dart';
 import 'package:farm_expense_mangement_app/services/database/transactiondatabase.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../main.dart';
 import 'package:farm_expense_mangement_app/services/localizationService.dart';
 
+import '../../models/expenses.dart';
+
 class EditTransaction extends StatefulWidget {
+  final String farmId;
   final bool showIncome;
   final Sale? sale;
   final Expense? expense;
@@ -16,6 +19,7 @@ class EditTransaction extends StatefulWidget {
     required this.showIncome,
     this.sale,
     this.expense,
+    required this.farmId,
   });
 
   @override
@@ -26,63 +30,77 @@ class _EditTransactionState extends State<EditTransaction> {
   late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
-  final user = FirebaseAuth.instance.currentUser;
-  final uid = FirebaseAuth.instance.currentUser!.uid;
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _categoryTransaction;
   late TextEditingController _valueController;
 
-  late DatabaseForSale _dbSale;
-  late DatabaseForExpense _dbExpense;
+  late DbForSale _dbSale;
+  late DbForExpense _dbExpense;
 
   late DateTime _dateOfTransaction;
 
   @override
   initState() {
     super.initState();
-    _dbSale = DatabaseForSale(uid: uid);
-    _dbExpense = DatabaseForExpense(uid: uid);
+    _dbSale = DbForSale();
+    _dbExpense = DbForExpense();
     if (widget.showIncome) {
-      _categoryTransaction = TextEditingController(text: widget.sale?.name);
+      _categoryTransaction = TextEditingController(text: widget.sale?.saleType);
       _valueController = TextEditingController(
-        text: widget.sale?.value.toString(),
+        text: widget.sale?.amount.toString(),
       );
-      _dateOfTransaction = widget.sale?.saleOnMonth ?? DateTime.now();
+      _dateOfTransaction = widget.sale?.saleDate ?? DateTime.now();
     } else {
-      _categoryTransaction = TextEditingController(text: widget.expense?.name);
-      _valueController = TextEditingController(
-        text: widget.expense?.value.toString(),
+      _categoryTransaction = TextEditingController(
+        text: widget.expense?.expenseType,
       );
-      _dateOfTransaction = widget.expense?.expenseOnMonth ?? DateTime.now();
+      _valueController = TextEditingController(
+        text: widget.expense?.amount.toString(),
+      );
+      _dateOfTransaction = widget.expense?.expenseDate ?? DateTime.now();
     }
   }
 
   Future<void> editTransactionDatabase() async {
     if (_formKey.currentState!.validate()) {
       if (widget.showIncome) {
-        final sale = Sale(
-          name: _categoryTransaction.text,
-          value: double.parse(_valueController.text),
-          saleOnMonth: widget.sale?.saleOnMonth,
-        );
-        return await _dbSale.infoToServerSale(sale);
+        if (widget.sale != null) {
+          final newSaleType = _categoryTransaction.text;
+          final newSaleAmount = double.parse(_valueController.text);
+          await _dbSale.updateToServerSale(
+            widget.sale!.saleId,
+            newSaleType,
+            newSaleAmount,
+          );
+          return;
+        }
       } else {
-        final expense = Expense(
-          name: _categoryTransaction.text,
-          value: double.parse(_valueController.text),
-          expenseOnMonth: widget.expense?.expenseOnMonth,
-        );
-        return await _dbExpense.infoToServerExpense(expense);
+        if (widget.expense != null) {
+          final newExpType = _categoryTransaction.text;
+          final newExpAmount = double.parse(_valueController.text);
+          await _dbExpense.updateToServerExpense(
+            widget.expense!.expenseId,
+            newExpType,
+            newExpAmount,
+          );
+          return;
+        }
       }
     }
   }
 
-  Future<void> deleteSaleDatabase() async {
-    await _dbSale.deleteSaleFromServer(widget.sale!);
+  Future<void> deleteSaleFromDb() async {
+    await _dbSale.deleteSaleFromServer(
+      widget.sale!.saleId,
+      widget.sale!.saleType,
+    );
   }
 
-  Future<void> deleteExpenseDatabase() async {
-    await _dbExpense.deleteExpenseFromServer(widget.expense!);
+  Future<void> deleteExpenseFromDb() async {
+    await _dbExpense.deleteExpenseFromServer(
+      widget.expense!.expenseId,
+      widget.expense!.expenseType,
+    );
   }
 
   void _submitForm(BuildContext context) {
@@ -92,7 +110,10 @@ class _EditTransactionState extends State<EditTransaction> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => TransactionPage(showIncome: widget.showIncome),
+        builder: (context) => TransactionPage(
+          farmId: widget.farmId,
+          showIncome: widget.showIncome,
+        ),
       ),
     );
 
@@ -125,21 +146,27 @@ class _EditTransactionState extends State<EditTransaction> {
 
   void _deleteTransaction(BuildContext context) {
     if (widget.showIncome) {
-      deleteSaleDatabase();
+      deleteSaleFromDb();
       Navigator.pop(context);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => TransactionPage(showIncome: widget.showIncome),
+          builder: (context) => TransactionPage(
+            farmId: widget.farmId,
+            showIncome: widget.showIncome,
+          ),
         ),
       );
     } else {
-      deleteExpenseDatabase();
+      deleteExpenseFromDb();
       Navigator.pop(context);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => TransactionPage(showIncome: widget.showIncome),
+          builder: (context) => TransactionPage(
+            farmId: widget.farmId,
+            showIncome: widget.showIncome,
+          ),
         ),
       );
     }
@@ -149,7 +176,7 @@ class _EditTransactionState extends State<EditTransaction> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
       appBar: AppBar(
@@ -183,15 +210,13 @@ class _EditTransactionState extends State<EditTransaction> {
                   enabled: false,
                   style: TextStyle(fontSize: 20, color: Colors.black),
                   // controller: _categoryTransaction,
-                  initialValue:
-                      (widget.showIncome)
-                          ? '${currentLocalization[widget.sale?.name] ?? widget.sale?.name}'
-                          : '${currentLocalization[widget.expense?.name] ?? widget.expense?.name}',
+                  initialValue: (widget.showIncome)
+                      ? '${currentLocalization[widget.sale?.saleType] ?? widget.sale?.saleType}'
+                      : '${currentLocalization[widget.expense?.expenseType] ?? widget.expense?.expenseType}',
                   decoration: InputDecoration(
-                    labelText:
-                        (widget.showIncome)
-                            ? '${currentLocalization['income_category']}'
-                            : '${currentLocalization['expense_category']}',
+                    labelText: (widget.showIncome)
+                        ? '${currentLocalization['income_category']}'
+                        : '${currentLocalization['expense_category']}',
                     labelStyle: const TextStyle(
                       fontSize: 20,
                       color: Colors.black,

@@ -28,53 +28,17 @@ const fdCategoryId = ['GreenFodder', 'DryFodder', 'Concentrate'];
 
 const langCodeMap = {
   'en': 'English',
-  'hi': 'Hindi',
-  'pa': 'Punjabi',
-  'te': 'Telugu',
+  'hi': 'हिंदी',
+  'pa': 'ਪੰਜਾਬੀ',
+  'te': 'తెలుగు',
 };
-
-/*const langFileMap = {
-  'en': LocalizationEn.translations,
-  'hi': LocalizationHi.translations,
-  'pa': LocalizationPun.translations,
-  'te': LocalizationTe.translations,
-};*/
 
 const langCodes = ['en', 'hi', 'pa', 'te'];
 
-/*const cowBreed = [
-  'select',
-  'jersey',
-  'holstein',
-  'crossbred jersey',
-  'crossbred HF',
-  'sahiwal',
-  'amritmahal',
-  'hariana',
-  'ongole',
-  'tharparkar',
-  'red sindhi',
-  'red kandhari',
-  'rathi',
-  'kankrej',
-  'krishna valley',
-  'nagori',
-  'gir',
-];
-
-const buffaloBreed = [
-  'select',
-  'murrah',
-  'nili ravi',
-  'bhadawari',
-  'surti',
-  'jaffarabadi',
-  'mehsana',
-  'pandharpuri',
-  'banni',
-];
-*/
-
-const milkEntryTypes = ['whole farm', 'group wise', 'cattle wise'];
+const milkReportLevels = ['Whole-farm', 'Group-wise', 'Cattle-wise'];
 
 const reportTypes = ['transactions', 'milk production', 'milk sale'];
+
+const dateRangesList = ['7D', '1M', '3M', '1Y', 'Custom'];
+
+const dateRangeIntervalMap = {'7D': 7, '1M': 30, '3M': 90, '1Y': 365};

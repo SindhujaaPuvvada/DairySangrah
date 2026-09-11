@@ -1,75 +1,51 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:farm_expense_mangement_app/services/supabaseService.dart';
 
 import '../../models/notification.dart';
 
-class DatabaseServicesForNotification {
-  final String uid;
-  DatabaseServicesForNotification(this.uid);
+class DbServicesForNotification {
+  DbServicesForNotification();
 
   Future<void> infoToServerSingleNotification(CattleNotification ntf) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    return await db
-        .collection('User')
-        .doc(uid)
-        .collection('Notification')
-        .doc(ntf.ntId)
-        .set(ntf.toFireStore());
+    return await SupabaseService.client
+        .from('Notifications')
+        .insert(ntf.toDB());
   }
 
-  Future<DocumentSnapshot<Map<String, dynamic>>> infoFromServer(
-    String ntId,
+  Future<List<Map<String, dynamic>>> infoFromServer(String ntId) async {
+    return await SupabaseService.client
+        .from('Notifications')
+        .select()
+        .eq('ntId', ntId)
+        .order('ntShowDate', ascending: false);
+  }
+
+  Future<List<Map<String, dynamic>>> infoFromServerAllNotifications(
+    String farmId,
   ) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-
-    return await db
-        .collection('User')
-        .doc(uid)
-        .collection('Notification')
-        .doc('ntId')
-        .get();
+    return await SupabaseService.client
+        .from('Notifications')
+        .select()
+        .eq('farmId', farmId)
+        .order('ntShowDate', ascending: false);
   }
 
-  Future<QuerySnapshot<Map<String, dynamic>>>
-  infoFromServerAllNotifications() async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    return await db
-        .collection('User')
-        .doc(uid)
-        .collection('Notification')
-        .orderBy('ntId')
-        .get();
-  }
-
-  Future<void> closeNotificationByPhrase(String phrase) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-
-    QuerySnapshot querySnapshot =
-        await db
-            .collection('User')
-            .doc(uid)
-            .collection('Notification')
-            .where('ntDetails', isGreaterThanOrEqualTo: phrase)
-            .where('ntDetails', isLessThanOrEqualTo: '$phrase\uf8ff')
-            .get();
-
-    for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-      await doc.reference.update({'ntClosed': true});
-    }
+  Future<void> closeNotificationByTitle(String cattleId, String title) async {
+    await SupabaseService.client
+        .from('Notifications')
+        .update({
+          'ntClosedDate': DateTime.now().toIso8601String().split('.')[0],
+        })
+        .eq('ntLevel', 'Cattle')
+        .eq('ntRelatedTo', cattleId)
+        .eq('ntTitle', title);
+    return;
   }
 
   Future<void> closeNotification(String ntId) async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-
-    QuerySnapshot querySnapshot =
-        await db
-            .collection('User')
-            .doc(uid)
-            .collection('Notification')
-            .where('ntId', isEqualTo: ntId)
-            .get();
-
-    for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-      await doc.reference.update({'ntClosed': true});
-    }
+    String now = DateTime.now().toIso8601String().split('.')[0];
+    return await SupabaseService.client
+        .from('Notifications')
+        .update({'ntClosedDate': now})
+        .eq('ntId', ntId);
   }
 }

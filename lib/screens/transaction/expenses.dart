@@ -1,20 +1,20 @@
-import 'package:farm_expense_mangement_app/models/feed.dart';
-import 'package:farm_expense_mangement_app/models/transaction.dart';
+import 'package:farm_expense_mangement_app/models/inventory.dart';
 import 'package:farm_expense_mangement_app/screens/transaction/transUtils.dart';
 import 'package:farm_expense_mangement_app/screens/transaction/transactionpage.dart';
 import 'package:farm_expense_mangement_app/services/database/feeddatabase.dart';
 import 'package:farm_expense_mangement_app/services/localizationService.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+import '../../models/expenses.dart';
 import '../../services/database/transactiondatabase.dart';
 import '../../main.dart';
 import '../../shared/constants.dart';
 
 class AddExpenses extends StatefulWidget {
   final Function onSubmit;
-  const AddExpenses({super.key, required this.onSubmit});
+  final String farmId;
+  const AddExpenses({super.key, required this.onSubmit, required this.farmId});
 
   @override
   State<AddExpenses> createState() => _AddExpensesState();
@@ -24,11 +24,8 @@ class _AddExpensesState extends State<AddExpenses> {
   late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
-  final user = FirebaseAuth.instance.currentUser;
-  final uid = FirebaseAuth.instance.currentUser!.uid;
-
-  late DatabaseForExpense dbExpense;
-  late DatabaseServicesForFeed fdDB;
+  late DbForExpense dbExpense;
+  late DbServicesForFeed fdDB;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -38,23 +35,25 @@ class _AddExpensesState extends State<AddExpenses> {
   final Map<String, TextEditingController> _qtyControllers = {};
   String? _selectedCategory;
 
-  List<Feed> _feedTypes = [];
-  final List<Feed> _selectedFeed = [];
+  List<Inventory> _feedTypes = [];
+  final List<Inventory> _selectedFeed = [];
 
   Future<void> _getFeedData() async {
     for (var fdType in fdCategoryId) {
-      final snapshot = await fdDB.infoFromServerForCategory(fdType);
+      final snapshot = await fdDB.infoFromServerForCategory(
+        fdType,
+        widget.farmId,
+      );
 
       setState(() {
-        List<Feed> feeds =
-            snapshot.docs
-                .map((doc) => Feed.fromFireStore(doc, fdType))
-                .toList();
+        List<Inventory> feeds = snapshot
+            .map((r) => Inventory.fromDB(r))
+            .toList();
         _feedTypes = _feedTypes + feeds;
 
         for (var fd in _feedTypes) {
           TextEditingController txtCntrlr = TextEditingController();
-          _qtyControllers[fd.feedId ?? ""] = txtCntrlr;
+          _qtyControllers[fd.invId.toString()] = txtCntrlr;
         }
       });
     }
@@ -74,23 +73,33 @@ class _AddExpensesState extends State<AddExpenses> {
     }
   }
 
-  Future<void> _addExpense(Expense data) async {
-    await dbExpense
-        .infoFromServerExpenseOnDate(data.name, data.expenseOnMonth)
-        .then((doc) async {
-          if (doc.exists) {
-            data.value = data.value + doc['value'];
-          }
-          await dbExpense.infoToServerExpense(data);
-          widget.onSubmit();
-        });
+  Future<String> _addExpense(Expense data) async {
+    final exp = await dbExpense.infoFromServerExpenseOnDate(
+      data.expenseType,
+      data.expenseDate,
+      widget.farmId,
+    );
+
+    String expId;
+    if (exp != null) {
+      data.amount = data.amount + exp['amount'];
+      expId = exp['expenseId'].toString();
+      await dbExpense.updateExistingExpenseToServer(
+        data.expenseType,
+        data.expenseDate,
+        data.amount,
+      );
+    } else {
+      expId = await dbExpense.infoToServerExpense(data);
+    }
+    return expId;
   }
 
   @override
   void initState() {
     super.initState();
-    dbExpense = DatabaseForExpense(uid: uid);
-    fdDB = DatabaseServicesForFeed(uid);
+    dbExpense = DbForExpense();
+    fdDB = DbServicesForFeed();
     setState(() {
       _getFeedData();
     });
@@ -110,7 +119,7 @@ class _AddExpensesState extends State<AddExpenses> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     Map<String, String> categoryMap = {
       'Feed': currentLocalization['feed']!,
@@ -182,21 +191,18 @@ class _AddExpensesState extends State<AddExpenses> {
                         child: TransUtils.buildDropdown(
                           label:
                               '${currentLocalization['select_expense_type']}*',
-                          value:
-                              _selectedCategory != null
-                                  ? categoryMap[_selectedCategory!]
-                                  : null,
+                          value: _selectedCategory != null
+                              ? categoryMap[_selectedCategory!]
+                              : null,
                           items: categoryMap.values.toList(),
                           onChanged: (selectedLocalizedValue) {
                             setState(() {
-                              _selectedCategory =
-                                  categoryMap.entries
-                                      .firstWhere(
-                                        (entry) =>
-                                            entry.value ==
-                                            selectedLocalizedValue,
-                                      )
-                                      .key;
+                              _selectedCategory = categoryMap.entries
+                                  .firstWhere(
+                                    (entry) =>
+                                        entry.value == selectedLocalizedValue,
+                                  )
+                                  .key;
                             });
                           },
                         ),
@@ -272,7 +278,8 @@ class _AddExpensesState extends State<AddExpenses> {
                                               ),
                                             ),
                                           ] else ...[
-                                            for (Feed item in _feedTypes) ...[
+                                            for (Inventory item
+                                                in _feedTypes) ...[
                                               Row(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.start,
@@ -303,46 +310,49 @@ class _AddExpensesState extends State<AddExpenses> {
                                                         ).size.width *
                                                         0.37,
                                                     child: Text(
-                                                      '${currentLocalization['Type']}: ${currentLocalization[item.feedType] ?? item.feedType} |\n${currentLocalization['Quantity']}: ${item.quantity} ${currentLocalization['Kg']} |\n${currentLocalization['Rate']}: ₹${item.ratePerKg} / ${currentLocalization['Kg']}',
+                                                      '${currentLocalization['Type']}: ${currentLocalization[item.feedName] ?? item.feedName} |\n${currentLocalization['Quantity']}: ${item.currentStockLevel} ${currentLocalization['Kg']} |\n${currentLocalization['Rate']}: ₹${item.ratePerKg} / ${currentLocalization['Kg']}',
                                                     ),
                                                   ),
                                                   SizedBox(width: 20),
                                                   (_selectedFeed.contains(item))
                                                       ? Expanded(
-                                                        child: TextFormField(
-                                                          controller:
-                                                              _qtyControllers[item
-                                                                  .feedId],
-                                                          autovalidateMode:
-                                                              AutovalidateMode
-                                                                  .onUserInteraction,
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                          decoration:
-                                                              InputDecoration(
-                                                                labelText:
-                                                                    currentLocalization['enter_qty_consumed_kg'] ??
-                                                                    '',
-                                                              ),
-                                                          validator: (value) {
-                                                            if (value == null ||
-                                                                value.isEmpty) {
-                                                              return currentLocalization['please_enter_value'] ??
-                                                                  "";
-                                                            } else if (item
-                                                                        .quantity -
-                                                                    double.parse(
-                                                                      value,
-                                                                    ) <
-                                                                0) {
-                                                              return currentLocalization['cannot_be_more_than_existing'] ??
-                                                                  '';
-                                                            } else {
-                                                              return null;
-                                                            }
-                                                          },
-                                                        ),
-                                                      )
+                                                          child: TextFormField(
+                                                            controller:
+                                                                _qtyControllers[item
+                                                                    .invId
+                                                                    .toString()],
+                                                            autovalidateMode:
+                                                                AutovalidateMode
+                                                                    .onUserInteraction,
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            decoration:
+                                                                InputDecoration(
+                                                                  labelText:
+                                                                      currentLocalization['enter_qty_consumed_kg'] ??
+                                                                      '',
+                                                                ),
+                                                            validator: (value) {
+                                                              if (value ==
+                                                                      null ||
+                                                                  value
+                                                                      .isEmpty) {
+                                                                return currentLocalization['please_enter_value'] ??
+                                                                    "";
+                                                              } else if (item
+                                                                          .currentStockLevel -
+                                                                      double.parse(
+                                                                        value,
+                                                                      ) <
+                                                                  0) {
+                                                                return currentLocalization['cannot_be_more_than_existing'] ??
+                                                                    '';
+                                                              } else {
+                                                                return null;
+                                                              }
+                                                            },
+                                                          ),
+                                                        )
                                                       : Text(''),
                                                 ],
                                               ),
@@ -397,20 +407,31 @@ class _AddExpensesState extends State<AddExpenses> {
 
   Future<void> _submitExpense() async {
     if (_formKey.currentState!.validate()) {
+      DateTime now = DateTime.now();
       final data = Expense(
-        name:
-            (_selectedCategory.toString() != 'Other')
-                ? _selectedCategory.toString()
-                : _categoryTextController.text,
-        value: double.parse(_amountTextController.text),
-        expenseOnMonth: DateTime.parse(_dateController.text),
+        expenseId: '',
+        farmId: widget.farmId,
+        expenseType: (_selectedCategory.toString() != 'Other')
+            ? _selectedCategory.toString()
+            : _categoryTextController.text,
+        amount: double.parse(_amountTextController.text),
+        expenseDate: DateTime.parse(_dateController.text),
+        createdAt: now,
+        updatedAt: now,
       );
 
-      await _addExpense(data);
+      String expId = await _addExpense(data);
 
       for (var feed in _selectedFeed) {
-        var qty = double.parse(_qtyControllers[feed.feedId]!.text);
+        var qty = double.parse(_qtyControllers[feed.invId]!.text);
         _updateQuantityForFeed(feed, qty);
+        FeedExpense fdx = FeedExpense(
+          id: '',
+          expenseId: expId,
+          invId: feed.invId,
+          quantityConsumed: qty,
+        );
+        _infoToServerFeedExpense(fdx);
       }
 
       if (mounted) {
@@ -418,7 +439,8 @@ class _AddExpensesState extends State<AddExpenses> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => const TransactionPage(showIncome: false),
+            builder: (context) =>
+                TransactionPage(showIncome: false, farmId: widget.farmId),
           ),
         );
       }
@@ -429,20 +451,19 @@ class _AddExpensesState extends State<AddExpenses> {
     double totPrice = 0;
     if (_formKey.currentState!.validate()) {
       for (var feed in _selectedFeed) {
-        double qty = double.parse(_qtyControllers[feed.feedId]!.text);
+        double qty = double.parse(_qtyControllers[feed.invId.toString()]!.text);
         totPrice = totPrice + (qty * feed.ratePerKg);
       }
       _amountTextController.text = (totPrice.toPrecision(2)).toString();
     }
   }
 
-  void _updateQuantityForFeed(Feed feed, double newQty) {
-    if (feed.quantity - newQty == 0) {
-      //delete the feed if all the quantity is used up
-      fdDB.deleteFeedFromServer(feed.category, feed.feedId!);
-    } else {
-      feed.quantity = feed.quantity - newQty;
-      fdDB.infoToServerFeed(feed);
-    }
+  void _updateQuantityForFeed(Inventory invData, double newQty) {
+    invData.currentStockLevel = invData.currentStockLevel - newQty;
+    fdDB.updateToServerStockLevel(invData.invId, invData.currentStockLevel);
+  }
+
+  void _infoToServerFeedExpense(FeedExpense fdx) {
+    dbExpense.infoToServerFeedExpense(fdx);
   }
 }

@@ -1,13 +1,12 @@
-import 'package:farm_expense_mangement_app/services/database/userdatabase.dart';
 import 'package:farm_expense_mangement_app/services/localizationService.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:farm_expense_mangement_app/screens/home/homepage.dart';
 import 'package:farm_expense_mangement_app/screens/home/profilepage.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../main.dart';
+import '../../shared/constants.dart';
+import '../analytics/analyticsPage.dart';
 import '../notification/alertnotificationpage.dart';
 import '../reports/reportsPage.dart';
 
@@ -20,8 +19,10 @@ class WrapperHomePage extends StatefulWidget {
 
 class LanguagePopup {
   static void showLanguageOptions(BuildContext context) {
-    var languageCode =
-        Provider.of<AppData>(context, listen: false).persistentVariable;
+    var languageCode = Provider.of<AppData>(
+      context,
+      listen: false,
+    ).persistentVariable;
     Map<String, dynamic> currentLocalization = {};
 
     currentLocalization = Localization().translations[languageCode] ?? {};
@@ -33,30 +34,24 @@ class LanguagePopup {
           title: Text(
             currentLocalization['Select Language'] ?? 'Select Language',
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildLanguageOption(
-                context,
-                currentLocalization['English'] ?? 'English',
-                'en',
-              ),
-              _buildLanguageOption(
-                context,
-                currentLocalization['Hindi'] ?? 'Hindi',
-                'hi',
-              ),
-              _buildLanguageOption(
-                context,
-                currentLocalization['Punjabi'] ?? 'Punjabi',
-                'pa',
-              ),
-              _buildLanguageOption(
-                context,
-                currentLocalization['Telugu'] ?? 'Telugu',
-                'te',
-              ),
-            ],
+          content: SizedBox(
+            height: 230,
+            width: double.maxFinite,
+            child: ListView.builder(
+              itemCount: langCodes.length,
+              itemBuilder: (BuildContext context, int index) {
+                return ListTile(
+                  title: Center(
+                    child: _buildLanguageOption(
+                      context,
+                      langCodeMap[langCodes[index]] ??
+                          currentLocalization[langCodes[index]],
+                      langCodes[index],
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         );
       },
@@ -76,7 +71,7 @@ class LanguagePopup {
       },
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Text(language, style: const TextStyle(fontSize: 16)),
+        child: Text(language, style: const TextStyle(fontSize: 18)),
       ),
     );
   }
@@ -89,6 +84,7 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
 
   late PreferredSizeWidget _appBar;
   late Widget _bodyScreen;
+  late String farmId;
 
   @override
   void dispose() {
@@ -103,32 +99,6 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
     _streamControllerScreen.add(_screenFromNumber);
     _appBar = const HomeAppBar();
     _bodyScreen = const HomePage();
-    _loadData();
-  }
-
-  Future<void> _loadData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool? fcmToUpdate = prefs.getBool('fcm_to_update');
-    if (fcmToUpdate == true) {
-      String uid = FirebaseAuth.instance.currentUser!.uid;
-      DatabaseServicesForUser userDB = DatabaseServicesForUser(uid);
-      String? fcmToken = prefs.getString('fcm_token');
-      await userDB.updateFCMToken(uid, fcmToken);
-      await prefs.setBool('fcm_to_update', false);
-    }
-    if (mounted) {
-      int counter = Provider.of<AppData>(context, listen: false).counter;
-      if (counter == 0) {
-        String uid = FirebaseAuth.instance.currentUser!.uid;
-        DatabaseServicesForUser userDB = DatabaseServicesForUser(uid);
-        var langCode = await userDB.getChosenLanguage(uid);
-        if (mounted) {
-          Provider.of<AppData>(context, listen: false).persistentVariable =
-              langCode;
-          Provider.of<AppData>(context, listen: false).counter = 1;
-        }
-      }
-    }
   }
 
   void _updateIndex(int index) {
@@ -139,15 +109,18 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
         _bodyScreen = const HomePage();
       } else if (_selectedIndex == 1) {
         _appBar = ProfileAppBar();
-        _bodyScreen = const ProfilePage();
+        _bodyScreen = ProfilePage(farmId: farmId);
       } else if (_selectedIndex == 2) {
         LanguagePopup.showLanguageOptions(context);
       } else if (_selectedIndex == 3) {
         _appBar = const NotificationAppBar();
-        _bodyScreen = const AlertNotificationsPage();
+        _bodyScreen = AlertNotificationsPage(farmId: farmId);
       } else if (_selectedIndex == 4) {
         _appBar = const ReportsAppBar();
-        _bodyScreen = const ReportsPage();
+        _bodyScreen = ReportsPage(farmId: farmId);
+      } else if (_selectedIndex == 5){
+        _appBar = const AnalyticsAppBar();
+        _bodyScreen = AnalyticsPage(farmId: farmId);
       }
     });
   }
@@ -182,8 +155,15 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
     });
   }
 
+  void analytics(BuildContext context) {
+    setState(() {
+      _updateIndex(5);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    farmId = Provider.of<AppData>(context).farmId;
     return Scaffold(
       backgroundColor: Colors.grey.shade300,
       appBar: _appBar,
@@ -254,6 +234,19 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
                 ),
               ),
               FloatingActionButton(
+                heroTag: 'analytics_tag',
+                onPressed: () {
+                  analytics(context);
+                },
+                backgroundColor: Colors.white,
+                elevation: 0,
+                child: Icon(
+                  Icons.analytics_rounded,
+                  size: 36,
+                  color: _selectedIndex == 5 ? Colors.black : Colors.grey,
+                ),
+              ),
+              FloatingActionButton(
                 heroTag: 'reports_tag',
                 onPressed: () {
                   reports(context);
@@ -266,7 +259,7 @@ class _WrapperHomePageState extends State<WrapperHomePage> {
                   color: _selectedIndex == 4 ? Colors.black : Colors.grey,
                 ),
               ),
-            ],
+            ]
           ),
         ),
       ),

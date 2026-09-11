@@ -1,20 +1,20 @@
 import 'package:farm_expense_mangement_app/screens/transaction/transactionpage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:farm_expense_mangement_app/services/database/cattledatabase.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../logging.dart';
-import '../../models/transaction.dart';
+import '../../models/cattle.dart';
+import '../../models/sales.dart';
 import '../../services/database/transactiondatabase.dart';
 import '../../main.dart';
 import 'package:farm_expense_mangement_app/services/localizationService.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:excel/excel.dart';
-import 'dart:typed_data';
+import '../../services/supabaseService.dart';
 
 class AddIncome extends StatefulWidget {
   final Function onSubmit;
-  const AddIncome({super.key, required this.onSubmit});
+  final String farmId;
+  const AddIncome({super.key, required this.onSubmit, required this.farmId});
 
   @override
   State<AddIncome> createState() => _AddIncomeState();
@@ -25,10 +25,7 @@ class _AddIncomeState extends State<AddIncome> {
   late Map<String, dynamic> currentLocalization = {};
   late String languageCode = 'en';
 
-  final user = FirebaseAuth.instance.currentUser;
-  final uid = FirebaseAuth.instance.currentUser!.uid;
-
-  late DatabaseForSale dbSale;
+  late DbForSale dbSale;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -37,13 +34,18 @@ class _AddIncomeState extends State<AddIncome> {
   final TextEditingController _categoryTextController = TextEditingController();
   final TextEditingController _fatController = TextEditingController();
   final TextEditingController _snfController = TextEditingController();
+  final TextEditingController _tmpController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
+  final TextEditingController _cCntController = TextEditingController();
 
   String? _selectedCategory;
   String? _selectedBuyer;
+  List<Cattle> allCattle = [];
+  final List<String> _selectedCList = [];
 
   final List<String> sourceOptions = ['Cattle Sale', 'Milk Sale', 'Other'];
   final List<String> milkOptions = ['Amul', 'Verka', 'Nestle', 'D to C'];
+
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -61,19 +63,35 @@ class _AddIncomeState extends State<AddIncome> {
   @override
   void initState() {
     super.initState();
-    dbSale = DatabaseForSale(uid: uid);
+    dbSale = DbForSale();
+    _fetchCattle();
   }
 
-  Future<void> _addIncome(Sale data) async {
-    await dbSale.infoFromServerSaleOnDate(data.name, data.saleOnMonth).then((
-      doc,
-    ) async {
-      if (doc.exists) {
-        data.value = data.value + doc['value'];
-      }
-      await dbSale.infoToServerSale(data);
-      widget.onSubmit();
+  Future<void> _fetchCattle() async {
+    final snapshot = await DbServicesForCattle().infoFromServerAllCattle(
+      widget.farmId,
+    );
+    setState(() {
+      allCattle = snapshot.map((r) => Cattle.fromDB(r)).toList();
     });
+  }
+
+  Future<String> _addIncome(Sale data) async {
+    final sale = await dbSale.infoFromServerSaleOnDate(
+      data.saleType,
+      data.saleDate,
+      widget.farmId,
+    );
+
+    String sId;
+    if (sale != null && sale.isNotEmpty) {
+      data.amount = data.amount + sale['amount'];
+      sId = sale['saleId'].toString();
+      await dbSale.updateExistingSaleToServer(sId, data.amount);
+    } else {
+      sId = await dbSale.infoToServerSale(data);
+    }
+    return sId;
   }
 
   @override
@@ -83,22 +101,18 @@ class _AddIncomeState extends State<AddIncome> {
     _categoryTextController.dispose();
     _fatController.dispose();
     _snfController.dispose();
+    _tmpController.dispose();
     _quantityController.dispose();
+    _cCntController.dispose();
     super.dispose();
   }
 
   Future<double> getMilkPrice(double fat, double snf) async {
     try {
       // 🔹 Fetch Excel file as bytes from Firebase Storage
-      final storageRef = FirebaseStorage.instance.ref().child(
-        '${_selectedBuyer}_Rates.xlsx',
-      );
-      Uint8List? fileBytes = await storageRef.getData();
-
-      if (fileBytes == null) {
-        log.e("Failed to download Excel file.");
-        return 0.0;
-      }
+      final fileBytes = await SupabaseService.client.storage
+          .from('MilkRates')
+          .download('${_selectedBuyer}_Rates.xlsx');
 
       // 🔹 Decode Excel file from bytes
       var excel = Excel.decodeBytes(fileBytes);
@@ -253,24 +267,56 @@ class _AddIncomeState extends State<AddIncome> {
       _showErrorDialog('please_enter_tot_income');
       return;
     }
-
+    final DateTime now = DateTime.now();
     final data = Sale(
-      name:
-          (_selectedCategory != 'Other')
-              ? _selectedCategory.toString()
-              : _categoryTextController.text,
-      value: double.parse(_amountTextController.text),
-      saleOnMonth: DateTime.tryParse(_dateController.text),
-      quantity: double.tryParse(_quantityController.text),
+      saleId: '',
+      farmId: widget.farmId,
+      saleType: (_selectedCategory != 'Other')
+          ? _selectedCategory.toString()
+          : _categoryTextController.text,
+      amount: double.parse(_amountTextController.text),
+      saleDate: DateTime.parse(_dateController.text),
+      createdAt: now,
+      updatedAt: now,
     );
 
-    await _addIncome(data);
+    final saleId = await _addIncome(data);
     if (mounted) {
+      bool mSaleEntryNeeded =
+          data.saleType.contains('Milk') &&
+          (_quantityController.text.isNotEmpty ||
+              (_fatController.text.isNotEmpty &&
+                  _snfController.text.isNotEmpty));
+      if (mSaleEntryNeeded) {
+        final mSale = MilkSale(
+          id: '',
+          saleId: saleId,
+          Fat: double.tryParse(_fatController.text),
+          SNF: double.tryParse(_snfController.text),
+          temperature: double.tryParse(_tmpController.text),
+          quantity: double.parse(_quantityController.text),
+        );
+        dbSale.infoToServerMilkSale(mSale);
+      } else {
+        bool cSaleEntryNeeded =
+            _cCntController.text.isNotEmpty || _selectedCList.isNotEmpty;
+
+        if (cSaleEntryNeeded) {
+          final cSale = CattleSale(
+            id: '',
+            saleId: saleId,
+            cattleCount: int.parse(_cCntController.text),
+            cattleIdsList: _selectedCList.join(','),
+          );
+          dbSale.infoToServerCattleSale(cSale);
+        }
+      }
       Navigator.pop(context);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const TransactionPage(showIncome: true),
+          builder: (context) =>
+              TransactionPage(farmId: widget.farmId, showIncome: true),
         ),
       );
     }
@@ -280,7 +326,7 @@ class _AddIncomeState extends State<AddIncome> {
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
@@ -336,13 +382,12 @@ class _AddIncomeState extends State<AddIncome> {
                       filled: true,
                       fillColor: const Color.fromRGBO(240, 255, 255, 1),
                     ),
-                    items:
-                        sourceOptions.map((String source) {
-                          return DropdownMenuItem<String>(
-                            value: source,
-                            child: Text('${currentLocalization[source]}'),
-                          );
-                        }).toList(),
+                    items: sourceOptions.map((String source) {
+                      return DropdownMenuItem<String>(
+                        value: source,
+                        child: Text('${currentLocalization[source]}'),
+                      );
+                    }).toList(),
                     onChanged: (value) {
                       setState(() {
                         _selectedCategory = value;
@@ -350,7 +395,48 @@ class _AddIncomeState extends State<AddIncome> {
                     },
                   ),
                 ),
-
+                if (_selectedCategory == 'Cattle Sale') ...[
+                  _buildTextField(
+                    _cCntController,
+                    currentLocalization['num_cattle_sold'] ??
+                        'No. of cattle sold',
+                  ),
+                  /*SizedBox(
+                    height: 200,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          for (Cattle ct in allCattle) ...[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Checkbox(
+                                  checkColor: Colors.white,
+                                  activeColor: const Color(0xFF0DA6BA),
+                                  value: _selectedCList.contains(ct.cattleId),
+                                  onChanged: (isSelected) {
+                                    if (isSelected == true) {
+                                      _selectedCList.add(ct.cattleId);
+                                    } else if (isSelected == false) {
+                                      _selectedCList.remove(ct.cattleId);
+                                    }
+                                    setState(() {});
+                                  },
+                                ),
+                                Text(
+                                  ct.nickName != null ? '${ct.cattleId} - ${ct.nickName}' : ct.cattleId
+                                ),
+                              ],
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),*/
+                ],
                 if (_selectedCategory == 'Milk Sale') ...[
                   Padding(
                     padding: const EdgeInsets.fromLTRB(1, 0, 1, 20),
@@ -364,16 +450,14 @@ class _AddIncomeState extends State<AddIncome> {
                         filled: true,
                         fillColor: Color.fromRGBO(240, 255, 255, 1),
                       ),
-                      items:
-                          milkOptions.map((String buyer) {
-                            return DropdownMenuItem<String>(
-                              value: buyer,
-                              child: Text(
-                                currentLocalization[buyer.toLowerCase()] ??
-                                    buyer,
-                              ),
-                            );
-                          }).toList(),
+                      items: milkOptions.map((String buyer) {
+                        return DropdownMenuItem<String>(
+                          value: buyer,
+                          child: Text(
+                            currentLocalization[buyer.toLowerCase()] ?? buyer,
+                          ),
+                        );
+                      }).toList(),
                       onChanged: (value) {
                         setState(() {
                           _selectedBuyer = value;
@@ -386,15 +470,19 @@ class _AddIncomeState extends State<AddIncome> {
                     currentLocalization['Quantity (Liters)'] ??
                         'Quantity (Liters)',
                   ),
+                  _buildTextField(
+                    _fatController,
+                    currentLocalization['Fat Percentage'] ?? 'Fat Percentage',
+                  ),
+                  _buildTextField(
+                    _snfController,
+                    currentLocalization['SNF Percentage'] ?? 'SNF Percentage',
+                  ),
+                  _buildTextField(
+                    _tmpController,
+                    "${currentLocalization['temperature'] ?? 'Temperature'}${currentLocalization['optional']}",
+                  ),
                   if (_selectedBuyer != 'D to C') ...[
-                    _buildTextField(
-                      _fatController,
-                      currentLocalization['Fat Percentage'] ?? 'Fat Percentage',
-                    ),
-                    _buildTextField(
-                      _snfController,
-                      currentLocalization['SNF Percentage'] ?? 'SNF Percentage',
-                    ),
                     Container(
                       alignment: Alignment.center,
                       child: ElevatedButton(
@@ -451,9 +539,9 @@ class _AddIncomeState extends State<AddIncome> {
                     keyboardType: TextInputType.number,
                     readOnly:
                         (_selectedCategory == 'Milk Sale' &&
-                                _selectedBuyer != 'D to C')
-                            ? true
-                            : false,
+                            _selectedBuyer != 'D to C')
+                        ? true
+                        : false,
                     decoration: InputDecoration(
                       labelText:
                           currentLocalization['Total Income'] ?? 'Total Income',

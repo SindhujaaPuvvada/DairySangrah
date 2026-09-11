@@ -1,10 +1,14 @@
-import 'package:farm_expense_mangement_app/models/user.dart' as appUser;
-import 'package:farm_expense_mangement_app/screens/authenticate/phoneno.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:farm_expense_mangement_app/models/user.dart';
+import 'package:farm_expense_mangement_app/screens/authenticate/showfarms.dart';
+import 'package:farm_expense_mangement_app/services/supabaseService.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../logging.dart';
 import '../../main.dart';
+import '../../models/dairyfarm.dart';
+import '../../services/database/dairyfarmDatabase.dart';
+import '../../services/database/dairyfarmuserDatabase.dart';
 import '../../services/database/userdatabase.dart';
 import '../../services/localizationService.dart';
 import '../../shared/constants.dart';
@@ -24,32 +28,71 @@ class _RegisterFarmState extends State<RegisterFarm> {
   late String languageCode = 'en';
   final _formKey = GlobalKey<FormState>();
 
-  final user = FirebaseAuth.instance.currentUser;
-  final uid = FirebaseAuth.instance.currentUser!.uid;
+  final uid = SupabaseService.client.auth.currentUser!.id;
+  late DbServicesForUser userDB;
 
   final log = logger(RegisterFarm);
 
   String ownerName = '';
+  String ownerNameDB = '';
   String farmName = '';
-  String location = '';
-  int phoneNo = int.parse(SignUpPage.phoneNumber.replaceFirst("+91", ""));
+  String address = '';
+  String phoneNo = '';
+  bool isNewUser = false;
+
+  @override
+  void initState() {
+    super.initState();
+    userDB = DbServicesForUser();
+    _fetchUserDetails(uid);
+    _fetchPhoneNumber();
+  }
+
+  Future<void> _fetchUserDetails(String uid) async {
+    final snapshot = await userDB.infoFromServer(uid);
+    if (snapshot == null) {
+      isNewUser = true;
+    } else {
+      ownerNameDB = snapshot['userName'];
+      ownerName = snapshot['userName'];
+    }
+    setState(() {
+      isNewUser;
+      ownerNameDB;
+      ownerName;
+    });
+  }
+
+  Future<void> _fetchPhoneNumber() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    phoneNo = prefs.getString('phoneNumber') ?? "";
+    setState(() {
+      phoneNo;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     languageCode = Provider.of<AppData>(context).persistentVariable;
 
-    currentLocalization = Localization().translations[languageCode]??{};
+    currentLocalization = Localization().translations[languageCode] ?? {};
 
     return MaterialApp(
       home: Scaffold(
         backgroundColor: const Color.fromRGBO(240, 255, 255, 1),
         appBar: AppBar(
-          backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
-          title: Center(
-            child: Text(
-              currentLocalization['Register a New Farm'] ?? '',
-              style: TextStyle(fontWeight: FontWeight.bold),
+          leading: BackButton(
+            color: Colors.black,
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ShowFarmsPage()),
             ),
+          ),
+          backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
+          centerTitle: true,
+          title: Text(
+            currentLocalization['Register a New Farm'] ?? '',
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
         body: Padding(
@@ -68,14 +111,24 @@ class _RegisterFarmState extends State<RegisterFarm> {
                   ),
                 ),
                 const SizedBox(height: 20.0),
-                TextFormField(
-                  decoration: textInputDecorationReg.copyWith(
-                    labelText: currentLocalization['Owner Name'],
+                if (ownerNameDB.isNotEmpty || ownerNameDB != '') ...[
+                  TextFormField(
+                    controller: TextEditingController(text: ownerName),
+                    decoration: textInputDecorationReg.copyWith(
+                      labelText: currentLocalization['Owner Name'],
+                    ),
+                    readOnly: true,
                   ),
-                  onChanged: (val) {
-                    setState(() => ownerName = val);
-                  },
-                ),
+                ] else ...[
+                  TextFormField(
+                    decoration: textInputDecorationReg.copyWith(
+                      labelText: currentLocalization['Owner Name'],
+                    ),
+                    onChanged: (val) {
+                      setState(() => ownerName = val);
+                    },
+                  ),
+                ],
                 const SizedBox(height: 20.0),
                 TextFormField(
                   decoration: textInputDecorationReg.copyWith(
@@ -91,7 +144,7 @@ class _RegisterFarmState extends State<RegisterFarm> {
                     labelText: currentLocalization['Farm Address'],
                   ),
                   onChanged: (val) {
-                    setState(() => location = val);
+                    setState(() => address = val);
                   },
                 ),
                 const SizedBox(height: 20.0),
@@ -100,32 +153,62 @@ class _RegisterFarmState extends State<RegisterFarm> {
                     backgroundColor: const Color.fromRGBO(13, 166, 186, 1.0),
                   ),
                   onPressed: () async {
+                    DateTime now = DateTime.now();
                     if (_formKey.currentState!.validate()) {
                       try {
-                        final farmUser = appUser.FarmUser(
-                          ownerName: ownerName,
+                        if (isNewUser) {
+                          final newUser = User(
+                            userId: uid,
+                            userName: ownerName,
+                            phoneNumber: phoneNo,
+                            chosenLanguage: languageCode,
+                            createdAt: now,
+                            updatedAt: now,
+                          );
+
+                          await DbServicesForUser().infoToServer(newUser);
+                        }
+                        final farm = DairyFarm(
+                          ownerId: uid,
                           farmName: farmName,
-                          location: location,
-                          phoneNo: phoneNo,
-                          chosenLanguage: languageCode,
+                          address: address,
+                          createdAt: now,
+                          updatedAt: now,
                         );
 
-                        await DatabaseServicesForUser(
-                          user!.uid,
-                        ).infoToServer(user!.uid, farmUser);
+                        final String farmId = await DbServicesForDairyFarm()
+                            .infoToServer(uid, farm);
 
-                        bool showOnboarding = await checkForFirstLaunch();
                         if (context.mounted) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return showOnboarding
-                                    ? OnBoardingScreens()
-                                    : const WrapperHomePage();
-                              },
-                            ),
+                          Provider.of<AppData>(context, listen: false).farmId =
+                              farmId;
+
+                          final dairyFarmUser = DairyFarmUser(
+                            userId: uid,
+                            farmId: farmId,
+                            userRole: 'Owner',
+                            createdAt: now,
+                            updatedAt: now,
                           );
+                          await DbServicesForDairyFarmUser().infoToServer(
+                            dairyFarmUser,
+                          );
+                        }
+                        if (context.mounted) {
+                          final bool showOnBoard =
+                              await OnboardUtils.checkFirstLaunch(farmId);
+                          if (context.mounted) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return showOnBoard
+                                      ? OnBoardingScreens()
+                                      : WrapperHomePage();
+                                },
+                              ),
+                            );
+                          }
                         }
                       } catch (error) {
                         log.e(
@@ -148,11 +231,5 @@ class _RegisterFarmState extends State<RegisterFarm> {
         ),
       ),
     );
-  }
-
-  Future<bool> checkForFirstLaunch() async {
-    String uid = FirebaseAuth.instance.currentUser!.uid;
-    bool showOnBoard = await OnboardUtils.checkFirstLaunch(uid);
-    return showOnBoard;
   }
 }

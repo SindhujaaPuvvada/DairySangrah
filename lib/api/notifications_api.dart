@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'package:farm_expense_mangement_app/main.dart';
 import 'package:farm_expense_mangement_app/screens/authenticate/authUtils.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:farm_expense_mangement_app/screens/authenticate/showfarms.dart';
+import 'package:farm_expense_mangement_app/services/supabaseService.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../screens/authenticate/language.dart';
-import '../screens/milk/milkavgpage.dart';
 
 Future<void> handleBackgroundMessage(RemoteMessage message) async {
   NotificationService().showNotification(message);
@@ -25,7 +25,16 @@ class NotificationsApi {
       await prefs.setString('fcm_token', '');
       await prefs.setBool('fcm_to_update', true);
     } else {
-      final fCMToken = await _firebaseMessaging.getToken();
+      String? fCMToken;
+      for (int i = 0; i < 10; i++) {
+        fCMToken = await _firebaseMessaging.getToken();
+        if(fCMToken == null) {
+          await Future.delayed(Duration(seconds: 1));
+        }
+        else{
+          break;
+        }
+      }
       await prefs.setString('fcm_token', fCMToken ?? '');
       await prefs.setBool('fcm_to_update', true);
     }
@@ -89,10 +98,10 @@ class NotificationService {
     final notification = message.notification;
     if (notification == null) return;
     _localNotifications.show(
-      notification.hashCode,
-      notification.title,
-      notification.body,
-      NotificationDetails(
+      id: notification.hashCode,
+      title: notification.title,
+      body: notification.body,
+      notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           _androidChannel.id,
           _androidChannel.name,
@@ -106,11 +115,11 @@ class NotificationService {
 
   void _handleNotificationTap(RemoteMessage? message) {
     if (message != null) {
-      String? uid = FirebaseAuth.instance.currentUser?.uid;
+      String? uid = SupabaseService.client.auth.currentUser?.id;
       if (uid != null) {
         navigatorKey.currentState?.push(
           MaterialPageRoute(
-            builder: (_) => AvgMilkPage(fromNotification: true),
+            builder: (_) => ShowFarmsPage()
           ),
         );
       } else {
@@ -121,3 +130,4 @@ class NotificationService {
     }
   }
 }
+
